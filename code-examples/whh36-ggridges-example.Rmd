@@ -1,0 +1,53 @@
+---
+title: "ggridges-example"
+author: "whh36"
+date: "8/6/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+
+voronoidens %>%
+  #filter(Temp == 900) %>%
+  filter(Ni.Vol.Corrected == 0.35) %>%
+  filter(hrs == 5) %>%
+  filter(Label != "WH13A") %>%
+  filter(Label != "WH03A") %>%
+  group_by(Labelfine) %>%
+  ggplot() +
+  geom_ridgeline(aes(x = x, y = -Temp, 
+                     fill = as.factor(Temp),
+                     height = count/200, group = Labelfine)) + #height is either density or count
+  #
+  geom_rect(color = "black", aes(xmin = avevoronoix-0.01, 
+                ymin = -Temp, 
+                xmax = avevoronoix+0.01, 
+                ymax = -Temp+100,
+                fill = as.factor(Temp))) +
+  #
+  scale_x_log10(sec.axis = sec_axis(~., labels = NULL)) +
+  scale_y_continuous(breaks = c(-700,-800,-900,-1000,-1100),
+                     labels = c(700,800,900,1000,1100),
+                     sec.axis = sec_axis(~., breaks = c(-700,-800,-900,-1000), labels = NULL)) +
+  xlab(expression(Voronoi~Distance~'['*mu*m*']')) +
+  ylab(expression(Sintering~Temperature~'['*degree*C*']')) +
+  #
+  theme_classic() +
+  guides(color = FALSE, fill = guide_legend(reverse = FALSE, title = expression(Temp~'['*degree*C*']'), 
+                               #override.aes = list(size=4), 
+                               title.theme = element_text(colour = "black",
+                                                          #face = "bold",
+                                                          size = 12))) +
+  theme(axis.text.x = element_text(colour = "black", size = 16),
+        axis.text.y = element_text(colour = "black", size = 16),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 16),
+        axis.title.y = element_text(colour = "black", size = 16),
+        legend.text = element_text(colour="black", size = 12))
+
+```

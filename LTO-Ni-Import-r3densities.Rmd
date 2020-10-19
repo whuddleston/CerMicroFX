@@ -1,0 +1,129 @@
+---
+title: "LTO-Ni-Import-r3densities"
+author: "whh36"
+date: "8/17/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+#SETUP OF LIBRARIES
+knitr::opts_chunk$set(echo = FALSE, warning=FALSE, message=FALSE) #set echo to FALSE to hide code
+```
+
+```{r}
+#R3 density curve aggregation
+
+labellist <- df_particles_fine %>%
+  filter(Label != "WH15B") %>%
+  #filter out outliers here
+  #
+  #
+  #
+  #
+  dplyr::select(Labelfine) %>%
+  unique()
+
+r3densities <- data.frame()
+
+nR3 <- 512 #number of points in each estimate, defaule is 512
+
+for (i in labellist[,1]){
+  tempLOOP <- df_particles_fine %>%
+    filter(Area >= 0.005) %>%
+    filter(Labelfine == i) %>%
+    ggplot() +
+    geom_density(size = 1, n = nR3, aes(x = R3, y = ..density..)) +
+    scale_x_log10(sec.axis = sec_axis(~., labels = NULL),
+                limits = c(0.00001, 1000000),
+                breaks = scales::trans_breaks("log10", function(x) 10^x),
+                labels = trans_format("log10", math_format(10^.x))) +
+    theme_classic() +
+    ggtitle(i)
+  
+  r3densities <- ggplot_build(tempLOOP)$data[[1]] %>%
+    dplyr::select(2:3) %>%
+    mutate(Labelfine = i) %>%
+    rbind(r3densities, .)
+    
+
+  #rm(filename)
+  
+  #print(tempLOOP)
+}
+
+rm(nR3)
+rm(tempLOOP)
+rm(labellist)
+rm(i)
+```
+
+```{r}
+#r3densities df saving
+
+write.table(r3densities, file = "./data-files/r3densities.csv", row.names = FALSE, sep = ",")
+
+rm(r3densities)
+```
+
+
+
+```{r}
+#peak fit export
+
+labellist <- df_particles_fine %>%
+  filter(Label != "WH15B") %>%
+  #filter out outliers here
+  #
+  #
+  #
+  #
+  dplyr::select(Labelfine) %>%
+  unique()
+
+
+nR3 <- 512 #number of points in each estimate, defaule is 512
+
+for (i in labellist[,1]){
+  tempLOOP <- df_particles_fine %>%
+    filter(Area >= 0.005) %>%
+    filter(Labelfine == i) %>%
+    ggplot() +
+    geom_density(size = 1, n = nR3, aes(x = R3, y = ..density..)) +
+    scale_x_log10(sec.axis = sec_axis(~., labels = NULL),
+                limits = c(0.00001, 1000000),
+                breaks = scales::trans_breaks("log10", function(x) 10^x),
+                labels = trans_format("log10", math_format(10^.x))) +
+    theme_classic() +
+    ggtitle(i)
+  
+  filename <- paste("./peakfitdata/",
+                    substr(i,1,5),"-",
+                    substr(i,7,nchar(i)),"-",
+                    #which(labellist[,1] == i),
+                    ".txt", sep = "")
+  
+  ggplot_build(tempLOOP)$data[[1]] %>%
+    dplyr::select(2:3) %>%
+    mutate(Labelfine = i) %>%
+    write.table(., file = filename, sep = "\t")
+    
+
+  #rm(filename)
+  
+  #print(tempLOOP)
+}
+
+rm(nR3)
+rm(tempLOOP)
+rm(labellist)
+rm(i)
+
+
+
+
+
+
+```
+
+
+

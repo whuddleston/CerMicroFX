@@ -1,0 +1,518 @@
+---
+title: "LTO-Ni-Import-Particles_Fine"
+author: "whh36"
+date: "8/16/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+#SETUP OF LIBRARIES
+knitr::opts_chunk$set(echo = FALSE, warning=FALSE, message=FALSE) #set echo to FALSE to hide code
+```
+
+```{r}
+#scale conversion in inches and pixels
+#pixel measurements were directly measured/used in ImageJ analysis/calculations
+
+#10k scale
+
+8*7.06/2.11  #8um:2.11in = 26.76777um:7.06in image
+
+8*1024/305  #8um:305pixels = 26.859um:1024pixels image
+
+(8*1024/305)^2 #10k image area
+#721.4068 10k image area in um^2
+
+
+#5k scale
+
+10*7.06/1.31  #10um:1.31in = 53.89313um:7.06in image
+
+10*1024/190  #8um:305pixels = 26.859um:1024pixels image
+
+(10*1024/190)^2 #5k image area
+#2904.643 5k image area in um^2
+```
+
+
+```{r}
+#import of fine label df_particles for nnd calculation and mapping
+
+df_particles_fine <- read.csv("./data-files/PSD.Data.Verbose-edge.csv", header = TRUE)
+
+df_particles_fine <- df_particles_fine %>%
+  mutate(R3 = 1.5*sqrt(Area)^3) %>%
+  mutate(Labelfine = substr(Label, 43, 100)) %>%
+  mutate(Label = substr(Label, 1, 5)) %>%
+  mutate(magx = 10) #%>%
+#mutate(Labelfine = paste("10K, Labelfine))
+
+df_particles_fine_05k <- read.csv("./data-files/PSD.Data.Verbose.5k-edge.csv", header = TRUE) %>%
+  mutate(R3 = 1.5*sqrt(Area)^3) %>%
+  mutate(Labelfine = substr(Label, 43, 100)) %>%
+  mutate(Label = substr(Label, 1, 5)) %>%
+  mutate(magx = 5) #%>%
+#mutate(Labelfine = paste("05K, Labelfine))
+
+
+
+
+# new code
+df_particles_fine <- rbind(df_particles_fine, df_particles_fine_05k) %>%
+  mutate(imagearea = if_else(magx == 5, 2904.643, 721.4068))
+
+rm(df_particles_fine_05k)
+
+
+#count number of particles per unit area, actual count of particles in each image
+imagecount <- df_particles_fine %>%
+  group_by(Labelfine) %>%
+  count()
+
+colnames(imagecount)[2] <- "finecount"
+
+imagecount <- df_particles_fine %>%
+  select(Labelfine, magx, imagearea) %>%
+  unique() %>%
+  merge(., imagecount, by = "Labelfine") %>%
+  mutate(countperarea = finecount/imagearea) %>%
+  select(-magx, -imagearea)
+
+df_particles_fine <- left_join(df_particles_fine, imagecount, by = "Labelfine")
+
+rm(imagecount)
+```
+
+<!--
+```{r}
+#nnd for a single image
+
+#https://rdrr.io/cran/spatstat/man/nndist.html
+
+
+labellistID <- df_particles_fine %>%
+  mutate(Labelfine = substr(Label, 43, 100)) %>%
+  mutate(Label = substr(Label, 1, 5)) %>%
+  filter(substr(Label, 1, 4) == "WH12") %>% #nnd for a single image
+  select(Label, Labelfine) %>%
+  unique()
+
+minsize <- 0
+
+LabelfineID <- labellistID[3#row
+                           ,2] #column
+
+
+#particle location
+partloc <- df_particles_fine %>%
+  mutate(R3 = 1.5*sqrt(Area)^3) %>%
+  mutate(Labelfine = substr(Label, 43, 100)) %>%
+  mutate(Label = substr(Label, 1, 5)) %>%
+  filter(Labelfine == LabelfineID) %>%
+  filter(R3 > minsize) %>%
+  select(X,Y)
+
+colnames(partloc)[1] <- "partX"
+colnames(partloc)[2] <- "partY"
+
+#particle id of nearest neighbor
+partnndID <- df_particles_fine %>%
+  mutate(R3 = 1.5*sqrt(Area)^3) %>%
+  mutate(Labelfine = substr(Label, 43, 100)) %>%
+  mutate(Label = substr(Label, 1, 5)) %>%
+  filter(Labelfine == LabelfineID) %>%
+  filter(R3 > minsize) %>%
+  select(X,Y) %>%
+  nnwhich() %>%
+  as.data.frame()
+
+colnames(partnndID)[1] <- "nndID"
+
+#particle id of second nearest neighbor
+partnndID2 <- df_particles_fine %>%
+  mutate(R3 = 1.5*sqrt(Area)^3) %>%
+  mutate(Labelfine = substr(Label, 43, 100)) %>%
+  mutate(Label = substr(Label, 1, 5)) %>%
+  filter(Labelfine == LabelfineID) %>%
+  filter(R3 > minsize) %>%
+  select(X,Y) %>%
+  nnwhich(k = 2) %>%
+  as.data.frame()
+
+colnames(partnndID2)[1] <- "nndID2"
+
+#distance to nearest neihbor
+partnnd <- df_particles_fine %>%
+  mutate(R3 = 1.5*sqrt(Area)^3) %>%
+  mutate(Labelfine = substr(Label, 43, 100)) %>%
+  mutate(Label = substr(Label, 1, 5)) %>%
+  filter(Labelfine == LabelfineID) %>%
+  filter(R3 > minsize) %>%
+  select(X,Y) %>%
+  nndist() %>%
+  as.data.frame()
+  
+colnames(partnnd)[1] <- "nnd"
+
+#distance to second nearest neihbor
+partnnd2 <- df_particles_fine %>%
+  mutate(R3 = 1.5*sqrt(Area)^3) %>%
+  mutate(Labelfine = substr(Label, 43, 100)) %>%
+  mutate(Label = substr(Label, 1, 5)) %>%
+  filter(Labelfine == LabelfineID) %>%
+  filter(R3 > minsize) %>%
+  select(X,Y) %>%
+  nndist(k = 2) %>%
+  as.data.frame()
+  
+colnames(partnnd2)[1] <- "nnd2"
+
+#particle effective circular area -> radius
+nndR <- df_particles_fine %>%
+  mutate(R3 = 1.5*sqrt(Area)^3) %>%
+  mutate(Labelfine = substr(Label, 43, 100)) %>%
+  mutate(Label = substr(Label, 1, 5)) %>%
+  filter(Labelfine == LabelfineID) %>%
+  filter(R3 > minsize) %>%
+  mutate(partR = sqrt(Area/pi)) %>%
+  select(partR)
+
+colnames(nndR)[1] <- "nndR"
+
+
+
+ballandstick <- cbind(partloc, partnnd, partnndID, nndR, partnnd2, partnndID2) %>%
+  mutate(part2X = partX[nndID]) %>%
+  mutate(part2Y = partY[nndID]) %>%
+  mutate(part3X = partX[nndID2]) %>%
+  mutate(part3Y = partY[nndID2]) %>%
+  ggplot() +
+  #geom_point(aes(x = partX, y = partY)) +
+  #geom_circle(aes(x0 = partX, y0 = partY, r = nnd)) +
+  geom_circle(alpha = 0.5, fill = 'black', aes(x0 = partX, y0 = partY, r = nndR)) +
+  #ggtitle(label = LabelfineID) +
+  geom_segment(aes(x = partX, y = partY, xend = part2X, yend = part2Y), size = 1.5) +
+  geom_segment(aes(x = partX, y = partY, xend = part3X, yend = part3Y), size = 1.5, alpha = 0.2) + #second nearest neihbor
+  theme_classic() +
+  scale_y_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  scale_x_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  coord_fixed()
+
+
+nnddist <- partnnd %>%
+  ggplot() +
+  #geom_histogram(aes(x = nnd)) +
+  geom_density(aes(x = nnd)) +
+  xlab(expression(NND~'['*mu*m*']')) +
+  #ggtitle(label = LabelfineID) +
+  theme_classic() +
+  scale_y_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  scale_x_continuous(expand = c(0, 0), sec.axis = sec_axis(~., labels = NULL)) +
+  theme(axis.text.x = element_text(colour = "black", size = 16),
+        axis.text.y = element_text(colour = "black", size = 16),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 16),
+        axis.title.y = element_text(colour = "black", size = 16),
+        legend.text = element_text(colour="black", size = 12))
+
+
+r3dist <- df_particles_fine %>%
+  mutate(R3 = 1.5*sqrt(Area)^3) %>%
+  mutate(Labelfine = substr(Label, 43, 100)) %>%
+  mutate(Label = substr(Label, 1, 5)) %>%
+  filter(Labelfine == LabelfineID) %>%
+  filter(R3 > minsize) %>%
+  #
+  ggplot() +
+  #ggtitle(label = LabelfineID) +
+  geom_density(size = 1, aes(x = R3, y = ..density..)) +
+  #geom_histogram(aes(x = R3)) +
+  scale_x_log10(sec.axis = sec_axis(~.^(1/3)*2, name = expression(D~'['*mu*m*']')),
+                expand = c(0, 0),
+                breaks = scales::trans_breaks("log10", function(x) 10^x),
+                labels = trans_format("log10", math_format(10^.x))) +
+  scale_y_continuous(limits = c(0,0.53), expand = c(0, 0), sec.axis = sec_axis(~., labels = NULL)) +
+  theme_classic() +
+  ylab("Normalized PSD") +
+  xlab(expression(R^3~'['*mu*m^3*']')) +
+  theme(axis.text.x = element_text(colour = "black", size = 16),
+        axis.text.y = element_text(colour = "black", size = 16),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 16),
+        axis.title.y = element_text(colour = "black", size = 16),
+        legend.text = element_text(colour="black", size = 12))
+
+
+print(ballandstick)
+print(nnddist)
+print(r3dist)
+
+#circles drawn for nnd radius
+
+#useful to understand how many other particles inside other than the nearest?
+#coordination number?
+
+cbind(partloc, partnnd, partnndID, nndR, partnnd2, partnndID2) %>%
+  mutate(part2X = partX[nndID]) %>%
+  mutate(part2Y = partY[nndID]) %>%
+  mutate(part3X = partX[nndID2]) %>%
+  mutate(part3Y = partY[nndID2]) %>%
+  ggplot() +
+  #geom_point(aes(x = partX, y = partY)) +
+  geom_circle(aes(x0 = partX, y0 = partY, r = nnd)) +
+  geom_circle(fill = 'black', alpha = 0.5, aes(x0 = partX, y0 = partY, r = nndR)) +
+  geom_segment(aes(x = partX, y = partY, xend = part2X, yend = part2Y), size = 1.5) +
+  geom_segment(aes(x = partX, y = partY, xend = part3X, yend = part3Y), size = 1.5, alpha = 0.2) +
+  theme_classic() +
+  scale_y_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  scale_x_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  coord_fixed()
+
+ggsave(filename = "./plotexports/plotexportballandstick.png", plot = ballandstick, 
+       device = "png", width = 4,height = 4, units = "in")
+       
+# rm(ballandstick)
+# rm(nnddist)
+# rm(r3dist)
+
+# rm(labellistID)
+# rm(minsize)
+# rm(LabelfineID)
+# 
+# rm(partloc)
+# rm(partnndID)
+# rm(partnndID2)
+# rm(partnnd) 
+# rm(partnnd2)
+# rm(nndR) 
+
+```
+-->
+
+```{r}
+#nnd data and map generator looped across all samples
+
+labellist <- df_particles_fine %>%
+  select(Labelfine) %>%
+  unique()
+
+minsize <- 0
+
+df_particles_fine_loop_compile <- data.frame()
+
+nnddensities <- data.frame()
+
+for (i in labellist[,1]){
+
+#particle location
+partloc <- df_particles_fine %>%
+  filter(Labelfine == i) %>%
+  filter(R3 > minsize) %>%
+  select(X,Y)
+
+colnames(partloc)[1] <- "partX"
+colnames(partloc)[2] <- "partY"
+
+#particle id of nearest neighbor
+partnndID <- df_particles_fine %>%
+  filter(Labelfine == i) %>%
+  filter(R3 > minsize) %>%
+  select(X,Y) %>%
+  nnwhich() %>%
+  as.data.frame()
+
+colnames(partnndID)[1] <- "nndID"
+
+#particle id of second nearest neighbor
+partnndID2 <- df_particles_fine %>%
+  filter(Labelfine == i) %>%
+  filter(R3 > minsize) %>%
+  select(X,Y) %>%
+  nnwhich(k = 2) %>%
+  as.data.frame()
+
+colnames(partnndID2)[1] <- "nndID2"
+
+#distance to nearest neihbor
+partnnd <- df_particles_fine %>%
+  filter(Labelfine == i) %>%
+  filter(R3 > minsize) %>%
+  select(X,Y) %>%
+  nndist() %>%
+  as.data.frame()
+  
+colnames(partnnd)[1] <- "nnd"
+
+#distance to second nearest neihbor
+partnnd2 <- df_particles_fine %>%
+  filter(Labelfine == i) %>%
+  filter(R3 > minsize) %>%
+  select(X,Y) %>%
+  nndist(k = 2) %>%
+  as.data.frame()
+  
+colnames(partnnd2)[1] <- "nnd2"
+
+#particle effective circular area -> radius
+nndR <- df_particles_fine %>%
+  filter(Labelfine == i) %>%
+  filter(R3 > minsize) %>%
+  mutate(partR = sqrt(Area/pi)) %>%
+  select(partR)
+
+colnames(nndR)[1] <- "nndR"
+
+
+
+df_particles_fine_loop_compile <- rbind(df_particles_fine_loop_compile, 
+                                        cbind(i, partloc, partnnd, partnndID, nndR, partnnd2, partnndID2))
+
+
+
+# ballandstick <- cbind(partloc, partnnd, partnndID, nndR, partnnd2, partnndID2) %>%
+#   mutate(part2X = partX[nndID]) %>%
+#   mutate(part2Y = partY[nndID]) %>%
+#   mutate(part3X = partX[nndID2]) %>%
+#   mutate(part3Y = partY[nndID2]) %>%
+#   ggplot() +
+#   geom_circle(alpha = 0.5, fill = 'black', aes(x0 = partX, y0 = partY, r = nndR)) +
+#   ggtitle(label = i) +
+#   geom_segment(aes(x = partX, y = partY, xend = part2X, yend = part2Y), size = 1.5) +
+#   geom_segment(aes(x = partX, y = partY, xend = part3X, yend = part3Y), size = 1.5, alpha = 0.2) + #second nearest neihbor
+#   theme_classic() +
+#   scale_y_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+#   scale_x_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+#   coord_fixed()
+# 
+#
+
+
+
+nnddist <- partnnd %>%
+  ggplot() +
+  #geom_histogram(aes(x = nnd)) +
+  geom_density(aes(x = nnd)) +
+  xlab(expression(NND~'['*mu*m*']')) +
+  #ggtitle(label = i) +
+  theme_classic() +
+  scale_y_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  scale_x_continuous(expand = c(0, 0), limits = c(0.05,7.25), sec.axis = sec_axis(~., labels = NULL)) +
+  theme(axis.text.x = element_text(colour = "black", size = 16),
+        axis.text.y = element_text(colour = "black", size = 16),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 16),
+        axis.title.y = element_text(colour = "black", size = 16),
+        legend.text = element_text(colour="black", size = 12))
+
+nnddensities <- ggplot_build(nnddist)$data[[1]] %>%
+  dplyr::select(2:3) %>%
+  cbind(., i) %>%
+  rbind(nnddensities, .)
+
+
+# r3dist <- df_particles_fine %>%
+#   mutate(R3 = 1.5*sqrt(Area)^3) %>%
+#   mutate(Labelfine = substr(Label, 43, 100)) %>%
+#   mutate(Label = substr(Label, 1, 5)) %>%
+#   filter(Labelfine == i) %>%
+#   #
+#   ggplot() +
+#   #ggtitle(label = i) +
+#   geom_density(size = 1, aes(x = R3, y = ..density..)) + 
+#   scale_x_log10(sec.axis = sec_axis(~.^(1/3)*2, name = expression(D~'['*mu*m*']')),
+#                 expand = c(0, 0),
+#                 breaks = scales::trans_breaks("log10", function(x) 10^x),
+#                 labels = trans_format("log10", math_format(10^.x))) +
+#   scale_y_continuous(limits = c(0,0.53), expand = c(0, 0), sec.axis = sec_axis(~., labels = NULL)) +
+#   theme_classic() +
+#   ylab("Normalized PSD") +
+#   xlab(expression(R^3~'['*mu*m^3*']')) +
+#   theme(axis.text.x = element_text(colour = "black", size = 16),
+#         axis.text.y = element_text(colour = "black", size = 16),
+#         axis.ticks = element_line(colour = "black", size = 1),
+#         axis.line = element_line(colour = 'black', size = 1),
+#         axis.title.x = element_text(colour = "black", size = 16),
+#         axis.title.y = element_text(colour = "black", size = 16),
+#         legend.text = element_text(colour="black", size = 12))
+#   
+# 
+#   filename1 <- paste("./nndmaps/",substr(i,1,5),"-",which(labellist[,1] == i),".png", sep = "")
+#   
+#   temp <- arrangeGrob(ballandstick, nnddist, r3dist, ncol = 1)
+#                       #layout_matrix = rbind(c(1,2), c(1,3)))
+#   
+#   ggsave(filename = filename1, plot = temp, device = "png", width = 3, height = 9, units = "in")
+
+  # rm(filename1)
+  # rm(temp)
+  
+
+rm(partloc)
+rm(partnndID)
+rm(partnndID2)
+rm(partnnd)
+rm(partnnd2)
+rm(nndR)
+
+rm(ballandstick)
+rm(nnddist)
+rm(r3dist)
+
+}
+
+rm(labellist)
+rm(minsize)
+rm(i)
+
+colnames(nnddensities) <- c("nndx", "nnddens", "Labelfine")
+
+colnames(df_particles_fine_loop_compile)[1] <- "Labelfine"
+```
+
+```{r}
+df_particles_fine <- cbind(df_particles_fine, df_particles_fine_loop_compile[,-1])
+
+rm(df_particles_fine_loop_compile)
+
+df_particles_fine <- df_particles_fine %>%
+  group_by(Label) %>%
+  summarise(avennd = mean(nnd)) %>%
+  left_join(df_particles_fine, ., by = "Label")
+
+df_particles_fine <- df_particles_fine %>%
+  group_by(Labelfine) %>%
+  summarise(totNifrac = sum(Area)) %>% #actual area of nickel particles
+  left_join(df_particles_fine, ., by = "Labelfine") %>%
+  mutate(totNifrac = totNifrac/imagearea)
+
+df_particles_fine <- df_particles_fine %>%
+  group_by(Labelfine) %>%
+  summarise(fineavennd = mean(nnd)) %>% #fine nnd average measured
+  left_join(df_particles_fine, ., by = "Labelfine")
+
+df_particles_fine <- df_particles_fine %>%
+  group_by(Label) %>%
+  summarise(avecountarea = mean(countperarea)) %>%
+  left_join(df_particles_fine, ., by = "Label")
+
+df_particles_fine <- df_particles_fine %>%
+  group_by(Labelfine) %>%
+  summarise(aveAreafine = mean(Area)) %>%
+  left_join(df_particles_fine, ., by = "Labelfine")
+```
+
+
+
+```{r}
+write.table(df_particles_fine, file = "./data-files/df_particles_fine.csv", row.names = FALSE, sep = ",")
+
+write.table(nnddensities, file = "./data-files/nnddensities.csv", row.names = FALSE, sep = ",")
+```
+
+```{r}
+rm(df_particles_fine)
+rm(nnddensities)
+```

@@ -1,0 +1,539 @@
+---
+title:  | 
+  | Ni Coarsening in Li~4~Ti~5~O~12~ Anode Composites
+author: "William Huddleston"
+date:  "`r format(Sys.time(), '%d %B, %Y')`"
+output: 
+  pdf_document:
+    toc: false
+    number_sections: false
+    toc_depth: 6
+    highlight: tango
+  html_document:
+    toc: yes
+urlcolor: blue
+---
+
+```{r setup, include=FALSE}
+#SETUP OF LIBRARIES
+knitr::opts_chunk$set(echo = FALSE, warning=FALSE, message=FALSE) #set echo to FALSE to hide code
+#knitr::opts_chunk$set(fig.pos = 'H')
+library(tidyverse)
+library(ggplot2)
+library(GGally)
+#library(gdata)
+library(leaps)
+library(MASS)
+#library(wesanderson)
+library(mclust)
+library(scales)
+library(ggridges) #ridgeline density plots
+library(plotly)
+library(tinytex)
+library(ggrepel)
+#library(spatstat)
+library(ggforce)
+library(gridExtra)
+library(factoextra)
+library(ggfortify)
+library(FactoMineR)
+library(pls) #loadingsplot
+```
+
+```{r, include=FALSE}
+options(tinytex.verbose = TRUE)
+```
+
+ \setcounter{section}{0}
+ \setcounter{subsection}{0}
+ \setcounter{subsubsection}{0}
+
+
+
+```{r, echo=FALSE}
+#density data import (also is the sample key)
+df_density <- read.csv("./data-files/Density.Data.csv")
+#clean up NA
+df_density <- df_density[1:118,]
+```
+
+```{r, echo=FALSE}
+df_particles <- read.csv("./data-files/PSD.Data.csv", header = TRUE)
+
+df_particles <- df_particles %>%
+  mutate(R3 = 1.5*sqrt(Area)^3) %>%
+  left_join(., df_density, by = "Label")
+```
+
+```{r}
+one <- df_particles %>%
+  dplyr::select(Label, Area) %>%
+  filter(Area >= 0.005) %>%
+  filter(Label != "WH01A") %>%
+  #filter(Label != "WH03A") %>% #remove outliers
+  filter(Label != "WH13A") %>%
+  filter(Label != "WH18B") %>%
+  filter(Label != "WH20A") %>%
+  group_by(Label) %>%
+  mutate(R3 = 1.5*sqrt(Area)^3) %>%
+  summarise(R3 = mean(R3)) %>%
+  merge(df_density, ., by = "Label", all = TRUE)
+
+one <- mutate(one, Tempk = Temp + 273.15)
+
+one <- mutate(one, z = 1/Tempk)
+
+one <- mutate(one, zz = log(Tempk*R3/hrs))
+```
+
+<!--
+```{r}
+powsize <- read.csv("./data-files/LTO_Ni_550.csv") %>%
+  dplyr::select(2,3) %>%
+  filter(Area >= 0.005) %>%
+  group_by(Label) %>%
+  mutate(R3 = 1.5*sqrt(Area)^3) %>%
+  summarise(R3 = mean(R3)) %>%
+  mutate(Temp = 550) %>%
+  mutate(hrs = 4) %>%
+  cbind(c(0.05,0.1,0.2,0.24,0.28,0.35,0.5))
+
+colnames(powsize)[5] <- "Ni.Vol.Corrected"
+
+powsize <- powsize %>%
+  mutate(Th.Density = NA) %>%
+  select(Label, Temp, hrs, Ni.Vol.Corrected, Th.Density, R3) %>%
+  mutate(Tempk = Temp + 273.15) %>%
+  mutate(z = 1/Tempk) %>%
+  mutate(zz = log(Tempk*R3/hrs))
+
+powsize %>%
+  pull(R3) %>%
+  mean() %>% "^" (1/3) %>% "*"(2)
+
+intredsize <- read.csv("./data-files/800-4A-900-10H-particles.csv") %>%
+  dplyr::select(2,3) %>%
+  filter(Area >= 0.005) %>%
+  group_by(Label) %>%
+  mutate(R3 = 1.5*sqrt(Area)^3) %>%
+  summarise(R3 = mean(R3)) %>%
+  mutate(Temp = 900) %>%
+  mutate(hrs = 10) %>%
+  cbind(c(0.10))
+
+colnames(intredsize)[5] <- "Ni.Vol.Corrected"
+
+intredsize <- intredsize %>%
+  mutate(Th.Density = NA) %>%
+  select(Label, Temp, hrs, Ni.Vol.Corrected, Th.Density, R3) %>%
+  mutate(Tempk = Temp + 273.15) %>%
+  mutate(z = 1/Tempk) %>%
+  mutate(zz = log(Tempk*R3/hrs))
+
+tempPow <- rbind(one,
+                 intredsize,
+                 powsize) %>%
+  #filter(Label != "WH39P") %>%
+  #filter(Label != "WH45P") %>%
+  filter(Label != "WH03A") %>%
+  ggplot() +
+  geom_point(aes(x = Temp, y = R3, size = 1,
+                 color = as.factor(Ni.Vol.Corrected))) +
+  xlab(expression(Temp~'['*degree*C*']')) +
+  ylab(expression(R^3~'['*mu*m^3*']')) +
+  theme_classic() +
+  scale_y_log10(limits = c(0.002,25), sec.axis = sec_axis(~.^(1/3)*2, name = expression(D~'['*mu*m*']'))) +
+  scale_x_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  guides(colour = guide_legend(reverse = TRUE, title = "Ni Vol.", override.aes = list(size=4), title.theme = element_text(colour="black", size = 12))) +
+  annotation_logticks(sides = "l") +
+  guides(size = FALSE) +
+  theme(axis.text.x = element_text(colour = "black", size = 16),
+        axis.text.y = element_text(colour = "black", size = 16),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 16),
+        axis.title.y = element_text(colour = "black", size = 16),
+        legend.text = element_text(colour="black", size = 12))
+
+print(tempPow)
+ggsave(filename = "./plotexports/plotexportpow.png", plot = tempPow, 
+    device = "png", width = 6,height = 4, units = "in")
+rm(tempPow)
+
+
+tempPow2 <- powsize %>%
+  ggplot(aes(x = Ni.Vol.Corrected,y = R3, size = 1,
+             color = as.factor(Ni.Vol.Corrected))) +
+  scale_y_log10(limits = c(.001,.05),sec.axis = sec_axis(~.^(1/3)*2, name = expression(D~'['*mu*m*']'))) +
+  scale_x_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  guides(colour = guide_legend(reverse = TRUE, title = "Ni Vol.", override.aes = list(size=4), title.theme = element_text(colour="black", size = 12))) +
+  annotation_logticks(sides = "l") +
+  geom_point() +
+  theme_classic() +
+  scale_color_manual(values=c("#F8766D", "#CD9600", "#7CAE00", "#00BE67", "#00BFC4", "#00A9FF", "#FF61CC")) +
+  guides(size = FALSE) +
+  theme(axis.text.x = element_text(colour = "black", size = 16),
+        axis.text.y = element_text(colour = "black", size = 16),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 16),
+        axis.title.y = element_text(colour = "black", size = 16),
+        legend.text = element_text(colour="black", size = 12))
+
+print(tempPow2)
+ggsave(filename = "./plotexports/plotexportpow2.png", plot = tempPow2, 
+    device = "png", width = 6,height = 4, units = "in")
+rm(tempPow2)
+
+
+rm(intredsize)
+rm(powsize)
+```
+-->
+
+```{r, results='hide'}
+#regsubsets model exploration for including compositional variable
+
+regmod <- one %>%
+  filter(Temp >= 800) %>%
+  dplyr::select(zz,z,Ni.Vol.Corrected) %>%
+  regsubsets(zz ~ ., data = .)
+
+#regmoderr <- summary(regmod)
+
+#print(regmoderr)
+
+#regmoderr$rsq
+
+#regmoderr$rss
+
+#regmoderr$adjr2[2]
+
+coef(regmod,2)[3]
+
+#vcov(regmod,2)
+
+#coef(regmod,2)[2]*-8.617E-5
+
+#diag(vcov(regmod,2)) %>%
+  #sqrt()
+
+#linear model construction for multiple regression
+#includes the Temp and composition variables
+
+#compmod <- one %>%
+  #filter(Temp >= 800) %>%
+  #dplyr::select(zz,z,Ni.Vol.Corrected) %>%
+  #lm(zz ~ ., data = .)
+
+#summary(compmod)
+
+#cms <- summary(compmod)
+#cms$sigma
+#cms$adj.r.squared
+```
+
+```{r}
+gammafun <- function(x){(x^(-2/3))*exp(-x)} #define gamma function
+
+three <- data.frame()
+
+three <- rbind(three, integrate(gammafun, 8*0.28, Inf)[1] %>%
+  as.numeric())
+three <- rbind(three, integrate(gammafun, 8*0.24, Inf)[1] %>%
+  as.numeric())
+three <- rbind(three, integrate(gammafun, 8*0.35, Inf)[1] %>%
+  as.numeric())
+three <- rbind(three, integrate(gammafun, 8*0.00, Inf)[1] %>%
+  as.numeric())
+three <- rbind(three, integrate(gammafun, 8*0.05, Inf)[1] %>%
+  as.numeric())
+three <- rbind(three, integrate(gammafun, 8*0.10, Inf)[1] %>%
+  as.numeric())
+three <- rbind(three, integrate(gammafun, 8*0.20, Inf)[1] %>%
+  as.numeric())
+three <- rbind(three, integrate(gammafun, 8*0.40, Inf)[1] %>%
+  as.numeric())
+three <- rbind(three, integrate(gammafun, 8*0.50, Inf)[1] %>%
+  as.numeric())
+
+three <- one %>%
+  dplyr::select(Ni.Vol.Corrected) %>%
+  unique() %>%
+  cbind(three)
+
+colnames(three)[2] <- "gamf"
+
+
+three <- mutate(three, 
+                beta = (6*(Ni.Vol.Corrected^(1/3))/(exp(8*Ni.Vol.Corrected)*gamf)))
+
+three <- mutate(three,
+                rhom = ((beta^2 + beta + 1)^(1/2) - (1 - beta))/beta)
+
+three <- mutate(three,
+                nu = (3*rhom^2)/(1 + 2*beta*rhom - beta))
+
+
+one <- merge(one, three, by = "Ni.Vol.Corrected")
+one <- mutate(one, zzz = log(Tempk*R3*nu/(hrs*rhom)))
+
+rm(gammafun)
+rm(three)
+```
+
+
+#LTO-Ni-Coarsening-Plots
+
+```{r}
+#Run all chunks above this to run LTO-Ni-Coarsening Plots
+```
+
+
+
+```{r}
+#LTO-Ni-Import-Mechanical
+
+fractSum <- read.csv("./data-files/fractSum.csv", header = TRUE)
+
+mechdata <- read.csv("./data-files/mechdata.csv", header = TRUE)
+```
+
+```{r}
+fracmodel <- fractSum %>%
+  filter(Ni.Vol.Corrected == 0.35) %>%
+  mutate(mody = log(stressf)) %>%
+  mutate(modx = ((100-Th.Density)/100)) %>%
+  lm(mody~modx,.)
+
+coef(fracmodel)[2]
+```
+
+```{r}
+condNi <- 143000
+condLTO <- 0.04
+ab <- condLTO/condNi
+```
+
+#LTO-Ni-Mechanical-Plots
+
+```{r}
+#Run all chunks above this to run LTO-Ni-Mechanical-Plots
+```
+
+
+
+#LTO-Ni-Conductivity-Plots
+
+```{r}
+#Run all chunks above this to run LTO-Ni-Conductivity-Plots
+```
+
+
+
+#LTO-Ni-NND-Plots
+
+```{r}
+df_particles_fine <- read.csv("./data-files/df_particles_fine.csv", header = TRUE)
+
+nnddensities <- read.csv("./data-files/nnddensities.csv", header = TRUE)
+```
+
+```{r}
+#Advanced NND Analysis
+
+df_particles_fine <- df_particles_fine %>%
+  #select(-partX, -partY, -nndID, -nnd2, -nndID2) %>%
+  select(-X.1, -X, -Y, -XM, -YM) %>%
+  select(-X.Area, -FeretX, -FeretY, -FeretAngle) %>%
+  select(-Round) %>%
+  left_join(., rename(fractSum, aveR3 = R3), by = "Label") #%>%
+  #select(-mkeydiam, -mkeythick)
+```
+
+```{r}
+#includes particles on edge and excludes holes
+nine <- read.csv("./data-files/PSD.Data.Verbose+edge.csv", header = TRUE) %>%
+  mutate(R3 = 1.5*sqrt(Area)^3) %>%
+  mutate(Labelfine = substr(Label, 43, 100)) %>%
+  mutate(Label = substr(Label, 1, 5)) %>%
+  mutate(magx = 10)
+
+nine5k <- read.csv("./data-files/PSD.Data.Verbose.5k+edge.csv", header = TRUE) %>%
+  mutate(R3 = 1.5*sqrt(Area)^3) %>%
+  mutate(Labelfine = substr(Label, 43, 100)) %>%
+  mutate(Label = substr(Label, 1, 5)) %>%
+  mutate(magx = 5)
+
+nine <- rbind(nine, nine5k) %>%
+  mutate(imagearea = if_else(magx == 5, 2904.643, 721.4068))
+
+rm(nine5k)
+
+
+nine <- nine %>%
+  group_by(Labelfine) %>%
+  summarise(totNifrac = sum(Area)) %>% #actual area fraction of nickel particles
+  left_join(nine, ., by = "Labelfine") %>%
+  mutate(totNifrac = totNifrac/imagearea)
+
+nine <- nine %>%
+  left_join(., rename(fractSum, aveR3 = R3), by = "Label")
+
+```
+
+```{r}
+#Run all chunks above this to run LTO-Ni-NND-Plots
+```
+
+
+
+
+
+
+
+
+#R3-PCA
+
+```{r}
+#Run all chunks above this to run LTO-Ni-Import-r3densities
+```
+
+
+
+```{r}
+r3densities <- read.csv("./data-files/r3densities.csv", header = TRUE)
+```
+
+```{r}
+#Run all chunks above this to run LTO-Ni-R3-PCA
+```
+
+
+
+
+
+#Voronoi Microstrucutre Analysis
+
+```{r}
+avevoronoi <- read.csv("./data-files/avevoronoi.csv", header = TRUE)
+
+voronoidens <- read.csv("./data-files/voronoidens.csv", header = TRUE)
+```
+
+```{r}
+#join df_particles_fine Label information to voronoidens
+voronoidens <- df_particles_fine %>%
+  select(Label, Labelfine,
+         magx, imagearea, finecount, countperarea,
+         avennd, totNifrac, fineavennd,
+         avecountarea, aveAreafine,
+         Ni.Vol.Corrected, Temp, hrs, Th.Density, aveR3,
+         stressf, condAve) %>%
+  unique() %>%
+  mutate(Labelfineshort = substr(Labelfine,7,50)) %>%
+  left_join(voronoidens, ., by = "Labelfineshort")
+
+#count number of images
+# voronoidens %>%
+#   select(Labelfine) %>%
+#   unique() %>%
+#   count()
+
+colnames(avevoronoi)[3] <- "Labelfineshort"
+colnames(avevoronoi)[2] <- "voronoicount"
+
+voronoidens <- avevoronoi %>%
+  mutate(Labelfineshort = as.character(Labelfineshort)) %>%
+  mutate(LabelLength = nchar(Labelfineshort)) %>%
+  mutate(Labelfineshort = substr(Labelfineshort, 36, LabelLength-4)) %>%
+  select(-LabelLength) %>%
+  left_join(voronoidens, ., by = "Labelfineshort")
+
+rm(avevoronoi)
+
+voronoidens <- voronoidens %>%
+  group_by(Label) %>%
+  summarise(avevcoarse = mean(avevoronoix)) %>%
+  left_join(voronoidens, ., by = "Label")
+
+
+
+temp1 <- nine %>%
+  select(Labelfine, totNifrac) %>%
+  mutate(totNifrace = totNifrac) %>%
+  select(-totNifrac) %>%
+  unique()
+
+temp2 <- df_particles_fine %>%
+  select(Labelfine, totNifrac) %>%
+  unique()
+
+voronoidens <- merge(temp1, temp2, by = "Labelfine") %>%
+  mutate(totNimult = totNifrace/totNifrac) %>%
+  select(-totNifrace, -totNifrac) %>%
+  left_join(voronoidens, ., by = "Labelfine") %>%
+  mutate(totNifrace = totNifrac*totNimult) %>%
+  select(-totNifrac, -totNimult)
+
+rm(temp1)
+rm(temp2)
+
+
+#plot voronoi distributions as a function of processing conditions
+```
+
+
+
+```{r}
+#Run All Chunks above to run LTO-Ni-Voronoi-Plots
+```
+
+
+
+```{r}
+#Run All Chunks above to run LTO-Ni-Machine-Learning
+```
+
+
+
+```{r}
+#code examples from kevin
+
+#filter(grepl("search string",column))
+
+#filter(!grepl("NA",column))
+
+#filter(!grepl("WH04B", Labelfine))
+
+#group = interaction(variable1, variable2)
+```
+
+
+```{r}
+
+#check nickel composition by comparing Ni.Vol.Corrected with totNifrace(total nickel fraction including edges)
+
+voronoidens %>%
+  select(Temp, hrs, Ni.Vol.Corrected, Label, Labelfine, totNifrace) %>%
+  unique() %>%
+  filter(Temp == 800) %>%
+  filter(hrs == 10) %>%
+  #filter(Ni.Vol.Corrected < 0.35) %>%
+  #filter(Ni.Vol.Corrected > 0.15) %>%
+  ggplot() +
+  geom_point(aes(x = Ni.Vol.Corrected, y = totNifrace, color = as.factor(Label)))
+
+voronoidens %>%
+  select(Temp, hrs, Ni.Vol.Corrected, Label, Labelfine, totNifrace) %>%
+  unique() %>%
+  #filter(Temp == 800) %>%
+  #filter(hrs == 5) %>%
+  #filter(Ni.Vol.Corrected < 0.35) %>%
+  #filter(Ni.Vol.Corrected > 0.15) %>%
+  ggplot() +
+  geom_point(aes(x = Ni.Vol.Corrected, y = totNifrace, color = as.factor(Temp))) +
+  coord_fixed() +
+  geom_abline(slope = 1, intercept = 0)
+```
+

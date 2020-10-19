@@ -1,0 +1,184 @@
+---
+title: "LTO-Ni-Import-Mechanical"
+author: "whh36"
+date: "8/16/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+#SETUP OF LIBRARIES
+knitr::opts_chunk$set(echo = FALSE, warning=FALSE, message=FALSE) #set echo to FALSE to hide code
+```
+
+```{r}
+poiss <- 0.2 #possion ratio
+rings <- c(10,4) #support and load ring diameter [mm]
+```
+
+```{r}
+mechdata <- data.frame()
+
+mechfiles <- list.files("./data-files/CWRU/", full.names = TRUE) #69 files, 68 samples
+
+for (i in mechfiles){
+  tempmech <- read.csv(i, skip = 6, header = FALSE, stringsAsFactors = FALSE)[,1:3] %>%
+    mutate(mTemp = substr(i,19,22)) %>%
+    mutate(mtime = substr(i,24,25)) %>%
+    mutate(mNi = substr(i,27,28)) %>%
+    mutate(mechID = substr(i,19,29))
+  
+  colnames(tempmech)[1] <- "load"
+  colnames(tempmech)[2] <- "time"
+  colnames(tempmech)[3] <- "exten"
+  
+  mechdata <- rbind(mechdata, tempmech)
+  
+  rm(tempmech)
+}
+
+mechdata <- mechdata %>%
+  mutate(mTemp = if_else(mTemp < 1000, 
+                         as.integer(substr(mTemp,2,4)), 
+                         as.integer(mTemp))) %>%
+  mutate(mtime = if_else(mtime < 10, 
+                         as.integer(substr(mtime,2,2)), 
+                         as.integer(mtime))) %>%
+  mutate(mNi = if_else(mNi < 10, 
+                       as.integer(substr(mNi,2,2)), 
+                       as.integer(mNi)))
+
+mechdata <- mechdata %>%
+  mutate(mtime = if_else(mtime == 15, as.integer(150), mtime))
+
+rm(mechfiles)
+rm(i)
+```
+
+```{r}
+mechkey <- read.csv("./data-files/mkey.csv", stringsAsFactors = FALSE)
+
+mechkey <- select(mechkey, -mkeyTemp, -mkeytime, -mkeyNi) #remove duplicate variables
+
+mechdata <- merge(mechdata, mechkey, by = "mechID")
+
+rm(mechkey)
+
+mechdata <- select(mechdata, -mechID)
+
+fractSum <- mechdata %>%
+  group_by(Label) %>%
+  slice(which.max(load))
+
+fractSum <- fractSum %>%
+  mutate(stressf1 = 3*load/(2*pi*mkeythick^2)) %>%
+  mutate(stressf2 = (1-poiss)*((rings[1]^2)-(rings[2]^2))/(2*(mkeydiam^2))+(1+poiss)*log(rings[1]/rings[2])) %>%
+  mutate(stressf = stressf1*stressf2)
+
+fractSum <- select(fractSum, -load, -time, -exten, -stressf1, -stressf2)
+
+fractSum <- filter(fractSum, Label != "WH12Y")
+
+fractSum <- filter(fractSum, Label != "WH11C")
+```
+
+```{r}
+mechdata3 <- data.frame()
+
+mechfiles3 <- list.files("./data-files/mech3/", full.names = TRUE)
+
+for (i in mechfiles3){
+  tempmech <- read.csv(i, skip = 6, header = FALSE, stringsAsFactors = FALSE)[,1:3] %>%
+    mutate(Label = substr(i,20,24))
+  
+  colnames(tempmech)[1] <- "load"
+  colnames(tempmech)[2] <- "time"
+  colnames(tempmech)[3] <- "exten"
+  
+  mechdata3 <- rbind(mechdata3, tempmech)
+  
+  rm(tempmech)
+}
+
+rm(mechfiles3)
+rm(i)
+
+mechkey3 <- read.csv("./data-files/mkey3.csv", stringsAsFactors = FALSE)
+
+fractSum3 <- select(mechdata3,1,4) %>%
+  group_by(Label) %>%
+  slice(which.max(load))
+
+fractSum3 <- merge(fractSum3, mechkey3, by = "Label")
+
+fractSum3 <- fractSum3 %>%
+  mutate(stressf1 = 3*load/(2*pi*mkeythick^2)) %>%
+  mutate(stressf2 = (1-poiss)*((rings[1]^2)-(rings[2]^2))/(2*(mkeydiam^2))+(1+poiss)*log(rings[1]/rings[2])) %>%
+  mutate(stressf = stressf1*stressf2)
+
+fractSum3 <- select(fractSum3, -Ni.Vol.Corrected, -Th.Density, -load, -stressf1, -stressf2)
+
+fractSum3 <- select(fractSum3, mTemp, mtime, mNi, mkeydiam, mkeythick, Label, stressf)
+
+mechdata3 <- select(mechkey3, -Ni.Vol.Corrected, -Th.Density) %>%
+  merge(mechdata3, ., by = "Label")
+
+mechdata3 <- select(mechdata3, 2,3,4,5,6,7,8,9,1)
+
+rm(mechkey3)
+
+mechdata <- rbind(mechdata, mechdata3)
+rm(mechdata3)
+
+fractSum <- bind_rows(fractSum, fractSum3)
+rm(fractSum3)
+```
+
+```{r}
+fractSum <- read.csv("./data-files/mkey3.csv", stringsAsFactors = FALSE) %>%
+  select(Ni.Vol.Corrected, Label) %>%
+  bind_rows(., one) %>%
+  merge(., fractSum, by = "Label", all = TRUE)
+
+#one is not used below this chunk, use fractSum instead
+
+fractSum <- fractSum %>%
+  mutate(Temp = if_else(is.na(Temp) == TRUE, 
+                        mTemp, 
+                        Temp))
+
+fractSum <- fractSum %>%
+  mutate(hrs = if_else(is.na(hrs) == TRUE, 
+                        mtime, 
+                        hrs))
+
+fractSum <- fractSum %>%
+  mutate(Ni.Vol.Corrected = if_else(is.na(Ni.Vol.Corrected) == TRUE, 
+                        as.numeric(mNi/100), 
+                        Ni.Vol.Corrected))
+
+fractSum <- mutate(fractSum, Tempk = Temp + 273.15)
+
+
+fractSum <- select(fractSum, -mTemp, -mtime, -mNi)
+
+fractSum <- select(fractSum, -gamf, -beta, -rhom, -nu)
+#extra code contains some chucks that can find means and replace *missing values*
+```
+
+```{r}
+conducdata <- read.csv("./data-files/conducdata.csv", stringsAsFactors = FALSE)
+
+fractSum <- merge(fractSum, conducdata, by = "Label", all = TRUE)
+
+rm(conducdata)
+```
+
+
+
+```{r}
+write.table(fractSum, file = "./data-files/fractSum.csv", row.names = FALSE, sep = ",")
+
+write.table(mechdata, file = "./data-files/mechdata.csv", row.names = FALSE, sep = ",")
+
+```
+

@@ -1,0 +1,146 @@
+---
+title: "LTO-Ni-NN"
+author: "whh36"
+date: "10/11/2020"
+output: html_document
+---
+
+```{r}
+library(neuralnet)
+```
+
+
+```{r}
+#linear model of conductivity
+cond.lm <- lm(condAve ~ ., data = trainset)
+
+cond.lm %>%
+  coef() %>%
+  as.data.frame() %>%
+  arrange(desc(.))
+
+predict(cond.lm, newdata = testset) %>%
+  as.data.frame() %>%
+  cbind(., testset) %>%
+  ggplot() +
+  geom_point(aes(y = ., x = condAve, color = as.factor(Ni.Vol.Corrected))) +
+  geom_abline(slope = 1, intercept = 0) +
+  guides(color = FALSE) +
+  theme_classic() +
+  scale_x_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  scale_y_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  coord_fixed()
+```
+
+
+```{r}
+#Subset Regression
+
+regsub <- regsubsets(condAve~., data = trainset)
+
+coef(regsub, 8) %>%
+  as.data.frame() %>%
+  rownames_to_column() %>%
+  arrange(desc(abs(.)))
+
+#plot(regsub)
+
+```
+
+```{r}
+nnform <- names(trainset) %>%
+  as.data.frame() %>%
+  filter(.!="condAve") %>%
+  pull() %>%
+  as.character() %>%
+  paste(., collapse = " + ") %>%
+  paste("condAve","~", .) %>%
+  as.formula()
+
+print(nnform)
+```
+
+```{r}
+condnn <- neuralnet(nnform, data = trainset, hidden = c(9,5,4), #16 variables
+                    linear.output = TRUE) #linear.output=TRUE determines regression, false=classification
+
+plot(condnn)
+
+predict(condnn, newdata = testset) %>%
+  as.data.frame() %>%
+  cbind(., testset) %>%
+  ggplot() +
+  geom_point(aes(y = V1, x = condAve, color = as.factor(Ni.Vol.Corrected))) +
+  geom_abline(slope = 1, intercept = 0) +
+  guides(color = FALSE) +
+  theme_classic() +
+  scale_x_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  scale_y_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  coord_fixed()
+```
+
+
+<!--
+#nnets
+
+```{r}
+#LDA
+
+#?train()
+
+#str(trainset)
+
+#control <- trainControl(method = "cv", number = 10)
+
+
+nnetmodel <- train(condAve ~ ., data = trainset, method = "nnet", 
+        #metric = metric,
+        ##trControl = control,
+        preProc = c("center","scale"),
+        trace = FALSE)
+
+nnetresults <- predict(nnetmodel, testset) %>%
+  as.data.frame()
+
+colnames(nnetresults)[1] <- "prediction"
+
+cbind(nnetresults, testset) %>%
+  ggplot() +
+  geom_point(aes(y = prediction, x = condAve, color = as.factor(Ni.Vol.Corrected))) +
+  geom_abline(slope = 1, intercept = 0) +
+  guides(color = FALSE)
+
+
+
+nnetimp <- varImp(nnetmodel)[1] %>%
+  as.data.frame() %>%
+  rownames_to_column() %>%
+  arrange(Overall)
+
+
+dotchart(nnetimp$Overall, labels = nnetimp$rowname, main = "nnet")
+
+varImp(nnetmodel)[1] %>%
+  as.data.frame() %>%
+  rownames_to_column() %>%
+  arrange(desc(Overall))
+```
+
+```{r}
+avennetresults <- train(condAve~., data = temp, method = "avNNet", trace = FALSE,
+                        trControl = treebagctrl)
+
+avennetpred <- predict(avennetresults, temp) %>%
+  as.data.frame()
+
+colnames(avennetpred)[1] <- "prediction"
+
+cbind(avennetpred, temp) %>%
+  ggplot() +
+  geom_point(aes(y = prediction, x = condAve, color = as.factor(Ni.Vol.Corrected))) +
+  geom_abline(slope = 1, intercept = 0) +
+  #coord_fixed() +
+  guides(color = FALSE)
+```
+-->
+

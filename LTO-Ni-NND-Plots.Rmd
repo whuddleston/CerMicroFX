@@ -1,0 +1,1150 @@
+---
+title: "LTO-Ni-NND-Plots"
+author: "whh36"
+date: "8/16/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+#SETUP OF LIBRARIES
+knitr::opts_chunk$set(echo = FALSE, warning=FALSE, message=FALSE) #set echo to FALSE to hide code
+```
+
+```{r}
+#eda of nnd data
+df_particles_fine %>%
+  select(Label, Labelfine, 
+         finecount,countperarea, avennd, fineavennd,
+         Ni.Vol.Corrected, Temp, hrs, Th.Density,
+         stressf, condAve) %>%
+  unique() %>%
+  filter(Temp == 900) %>%
+  filter(hrs == 5) %>%
+  filter(Labelfine != "WH15B/900-5-50B0008.tiff") %>%
+  ggplot() +
+  geom_boxplot(aes(group = Ni.Vol.Corrected, x = Ni.Vol.Corrected, y = fineavennd)) +
+  geom_point(size = 3, aes(x = Ni.Vol.Corrected, y = fineavennd, color = as.factor(Ni.Vol.Corrected))) +
+  scale_x_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  scale_y_continuous(limits = c(0, 1.5), sec.axis = sec_axis(~., labels = NULL)) +
+  ylab(expression(NND[Ave]~'['*mu*m*']')) +
+  xlab("Nickel Volume Fraction") +
+  guides(color = FALSE) +
+  theme_classic() +
+  theme(axis.text.x = element_text(colour = "black", size = 16),
+        axis.text.y = element_text(colour = "black", size = 16),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 16),
+        axis.title.y = element_text(colour = "black", size = 16),
+        legend.text = element_text(colour="black", size = 12))
+
+df_particles_fine %>%
+  select(Label, Labelfine, 
+         finecount,countperarea, fineavennd,
+         Ni.Vol.Corrected, Temp, hrs, Th.Density,
+         stressf, condAve) %>%
+  unique() %>%
+  filter(Ni.Vol.Corrected == 0.35) %>%
+  filter(hrs == 5) %>%
+  filter(Label != "WH03A") %>%
+  ggplot() +
+  geom_boxplot(aes(group = Temp, x = Temp, y = fineavennd)) +
+  geom_point(size = 3, aes(x = Temp, y = fineavennd, color = as.factor(Temp))) +
+  scale_x_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  scale_y_continuous(limits = c(0, 1.5), sec.axis = sec_axis(~., labels = NULL)) +
+  ylab(expression(NND[Ave]~'['*mu*m*']')) +
+  xlab(expression(Temp~'['*degree*C*']')) +
+  guides(color = FALSE) +
+  theme_classic() +
+  theme(axis.text.x = element_text(colour = "black", size = 16),
+        axis.text.y = element_text(colour = "black", size = 16),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 16),
+        axis.title.y = element_text(colour = "black", size = 16),
+        legend.text = element_text(colour="black", size = 12))
+
+df_particles_fine %>%
+  select(Label, Labelfine, 
+         finecount,countperarea, fineavennd, avennd,
+         Ni.Vol.Corrected, Temp, hrs, Th.Density,
+         stressf, condAve) %>%
+  unique() %>%
+  filter(Ni.Vol.Corrected == 0.35) %>%
+  filter(Temp == 900) %>%
+  filter(Labelfine != "WH35A/WH35A0010.tiff") %>%
+  ggplot() +
+  geom_boxplot(aes(group = hrs, x = hrs, y = fineavennd)) +
+  geom_point(size = 3, aes(x = hrs, y = fineavennd, color = as.factor(hrs))) +
+  scale_x_log10(breaks = c(5,10,50,150),
+                sec.axis = sec_axis(~., labels = NULL)) +
+  scale_y_continuous(limits = c(0, 1.5), sec.axis = sec_axis(~., labels = NULL)) +
+  ylab(expression(NND[Ave]~'['*mu*m*']')) +
+  xlab("Time [hrs]") +
+  scale_color_manual(values=c("#00BF7D", "#BF7D00", "#7C00BF", "#BF0041")) +
+  guides(color = FALSE) +
+  theme_classic() +
+  theme(axis.text.x = element_text(colour = "black", size = 16),
+        axis.text.y = element_text(colour = "black", size = 16),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 16),
+        axis.title.y = element_text(colour = "black", size = 16),
+        legend.text = element_text(colour="black", size = 12))
+
+df_particles_fine %>%
+  select(Label, Labelfine, 
+         finecount,countperarea, fineavennd, avennd,
+         Ni.Vol.Corrected, Temp, hrs, Th.Density,
+         stressf, condAve) %>%
+  unique() %>%
+  filter(Labelfine != "WH35A/WH35A0010.tiff") %>%
+  filter(Labelfine != "WH15B/900-5-50B0008.tiff") %>%
+  ggplot() +
+  #geom_boxplot(aes(group = hrs, x = finecount, y = fineavennd)) +
+  geom_point(size = 3, stroke = 1.5, aes(x = countperarea, y = fineavennd, shape = as.factor(hrs), color = as.factor(Temp))) +
+  scale_x_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  scale_y_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  #ylab(expression(NND[Ave]~'['*mu*m*']')) +
+  #xlab("Time [hrs]") +
+  #scale_color_manual(values=c("#00BF7D", "#BF7D00", "#7C00BF", "#BF0041")) +
+  scale_shape_manual(values=c(16, 17, 0, 2)) + #hrs
+  #guides(color = FALSE) +
+  theme_classic() +
+  theme(axis.text.x = element_text(colour = "black", size = 16),
+        axis.text.y = element_text(colour = "black", size = 16),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 16),
+        axis.title.y = element_text(colour = "black", size = 16),
+        legend.text = element_text(colour="black", size = 12))
+```
+
+```{r}
+df_particles_fine %>%
+  select(Label, Labelfine, 
+         finecount,countperarea, avennd,
+         Ni.Vol.Corrected, Temp, hrs, Th.Density,
+         stressf, condAve) %>%
+  unique() %>%
+  #mutate(stresso = stressf*exp((1.05-Th.Density/100)*coef(fracmodel)[2]*-1)) %>%
+  ggplot() +
+  geom_point(aes(x = avennd, y = stressf, color = as.factor(Temp))) +
+  theme_classic()
+
+df_particles_fine %>%
+  select(Label, Labelfine, 
+         finecount,countperarea, avennd,
+         Ni.Vol.Corrected, Temp, hrs, Th.Density,
+         stressf, condAve) %>%
+  unique() %>%
+  ggplot() +
+  geom_point(aes(x = avennd, y = condAve, color = as.factor(Temp))) +
+  scale_y_log10() +
+  theme_classic()
+```
+
+```{r}
+df_particles_fine %>%
+  select(Label, Labelfine, 
+         finecount,countperarea, avennd, avecountarea,
+         Ni.Vol.Corrected, Temp, hrs, Th.Density,
+         stressf, condAve) %>%
+  unique() %>%
+  filter(countperarea < 2.6) %>%
+  ggplot() +
+  geom_point(size = 3, aes(x = Ni.Vol.Corrected, y = countperarea, color = as.factor(Temp))) +
+  scale_x_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  scale_y_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  ylab(expression(Counts~Per~Area~'['*cts*'/'*mu*m^2*']')) +
+  guides(color = guide_legend(title = expression(Temp~'['*degree*C*']'), 
+                              override.aes = list(size=4), 
+                              title.theme = element_text(colour = "black",
+                                                         #face = "bold",
+                                                         size = 12))) +
+  theme_classic() +
+  theme(axis.text.x = element_text(colour = "black", size = 16),
+        axis.text.y = element_text(colour = "black", size = 16),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 16),
+        axis.title.y = element_text(colour = "black", size = 16),
+        legend.text = element_text(colour="black", size = 12))
+  
+
+df_particles_fine %>%
+  select(Label, Labelfine, 
+         finecount,countperarea, avennd, avecountarea,
+         Ni.Vol.Corrected, Temp, hrs, Th.Density,
+         stressf, condAve) %>%
+  unique() %>%
+  ggplot() +
+  geom_point(aes(x = Temp, y = avecountarea, color = as.factor(Ni.Vol.Corrected)))
+
+df_particles_fine %>%
+  select(Label, Labelfine, 
+         finecount,countperarea, avennd, avecountarea, aveR3,
+         Ni.Vol.Corrected, Temp, hrs, Th.Density,
+         stressf, condAve) %>%
+  unique() %>%
+  ggplot() +
+  geom_point(aes(x = aveR3, y = avecountarea, color = as.factor(Ni.Vol.Corrected))) +
+  scale_x_log10()
+
+df_particles_fine %>%
+  select(Label, Labelfine, 
+         finecount,countperarea, avennd, avecountarea,
+         Ni.Vol.Corrected, Temp, hrs, Th.Density,
+         stressf, condAve) %>%
+  unique() %>%
+  ggplot() +
+  geom_point(aes(x = hrs, y = avecountarea, color = as.factor(Temp))) +
+  scale_x_log10()
+
+df_particles_fine %>%
+  select(Label, Labelfine, 
+         finecount,countperarea, avennd, avecountarea,
+         Ni.Vol.Corrected, Temp, hrs, Th.Density,
+         stressf, condAve) %>%
+  unique() %>%
+  ggplot() +
+  geom_point(aes(x = avecountarea, y = stressf, color = as.factor(Temp)))
+
+df_particles_fine %>%
+  select(Label, Labelfine, 
+         finecount,countperarea, avennd, avecountarea,
+         Ni.Vol.Corrected, Temp, hrs, Th.Density,
+         stressf, condAve) %>%
+  unique() %>%
+  ggplot() +
+  geom_point(aes(x = avecountarea, y = condAve, color = as.factor(Temp))) +
+  scale_y_log10()
+```
+
+```{r}
+df_particles_fine %>%
+  select(Label, Labelfine, 
+         finecount,countperarea, avennd, avecountarea,
+         Ni.Vol.Corrected, Temp, hrs, Th.Density,
+         stressf, condAve) %>%
+  unique() %>%
+  ggplot() +
+  geom_point(aes(x = avennd, y = avecountarea,
+                 color = as.factor(Ni.Vol.Corrected), 
+                 shape = as.factor(Temp))) +
+  scale_y_log10() +
+  theme_classic()
+
+df_particles_fine %>%
+  select(Label, Labelfine, 
+         finecount,countperarea, avennd, avecountarea, aveR3,
+         Ni.Vol.Corrected, Temp, hrs, Th.Density,
+         stressf, condAve) %>%
+  unique() %>%
+  filter(aveR3 < 60) %>%
+  ggplot() +
+  geom_point(alpha = 0.5, aes(x = avennd, y = avecountarea,
+                 size = aveR3,
+                 color = as.factor(Temp))) +
+  scale_y_log10(sec.axis = sec_axis(~., labels = NULL)) +
+  scale_x_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  theme_classic()
+```
+
+```{r}
+df_particles_fine %>%
+  filter(substr(Label,1,3) == "WH3") %>%
+  select(Label, Labelfine, 
+         finecount,countperarea, avennd, avecountarea,
+         fineavennd, magx,
+         Ni.Vol.Corrected, Temp, hrs, Th.Density,
+         stressf, condAve) %>%
+  unique() %>%
+  ggplot() +
+  geom_point(aes(x = fineavennd, y = avennd, color = as.factor(magx)))
+
+df_particles_fine %>%
+  filter(substr(Label,1,3) == "WH3") %>%
+  select(Label, Labelfine, 
+         finecount,countperarea, avennd, avecountarea,
+         magx,
+         Ni.Vol.Corrected, Temp, hrs, Th.Density,
+         stressf, condAve) %>%
+  unique() %>%
+  ggplot() +
+  geom_point(aes(x = avecountarea, y = finecount, color = as.factor(magx)))
+
+df_particles_fine %>%
+  #filter(substr(Label,1,3) == "WH3") %>%
+  select(Label, Labelfine, 
+         finecount,countperarea, avennd, avecountarea,
+         magx,
+         Ni.Vol.Corrected, Temp, hrs, Th.Density,
+         stressf, condAve) %>%
+  unique() %>%
+  ggplot() +
+  geom_point(aes(y = countperarea, x = Ni.Vol.Corrected, color = as.factor(magx)))
+```
+
+```{r}
+nndtemp3d <- df_particles_fine %>%
+  filter(Label != "WH03A") %>%
+  filter(Label != "WH13A") %>%
+  #mutate(Label = substr(Label,0,4)) %>%
+  group_by(Label) %>%
+  #
+  filter(Area >= 0.005) %>%
+  filter(hrs == 5) %>%
+  filter(Ni.Vol.Corrected == 0.35) %>%
+  #
+  ggplot() +
+  geom_density_ridges(size = 1, aes(x = nnd, y = Temp, group = Label, 
+                                    #color = black,
+                                    fill = as.factor(Temp))) +
+
+  scale_x_log10(sec.axis = sec_axis(~., labels = NULL)) +
+  scale_y_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  
+  theme_classic() +
+  ylab(expression(Temp~'['*degree*C*']')) +
+  xlab(expression(Nearest~Neighbor~Distance~'['*mu*m*']')) +
+  #geom_vline(aes(xintercept = avennd, color = as.factor(Temp))) +
+  #geom_segment(aes(x = avennd, y = Temp, xend = avennd, yend = Temp+100)) +
+  geom_rect(color = "black", aes(xmin = avennd-0.01, 
+                ymin = Temp, 
+                xmax = avennd+0.01, 
+                ymax = Temp+100,
+                fill = as.factor(Temp))) +
+  guides(color = FALSE, fill = guide_legend(reverse = TRUE, title = expression(Temp~'['*degree*C*']'), 
+                               #override.aes = list(size=4), 
+                               title.theme = element_text(colour = "black",
+                                                          #face = "bold",
+                                                          size = 12))) +
+  theme(axis.text.x = element_text(colour = "black", size = 16),
+        axis.text.y = element_text(colour = "black", size = 16),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 16),
+        axis.title.y = element_text(colour = "black", size = 16),
+        legend.text = element_text(colour="black", size = 12))
+
+
+print(nndtemp3d)
+ggsave(filename = "./plotexports/plotexportnndtemp3d.png", plot = nndtemp3d, 
+       device = "png", width = 6,height = 4, units = "in")
+rm(nndtemp3d)
+```
+
+```{r}
+timefix <- function(y){
+  if(y == 150) 150 else if(y == 50) 100 else if(y == 10) 50 else if(y == 5) 0
+}
+
+nndtime3d <- df_particles_fine %>%
+  filter(Label != "WH13A") %>%
+  filter(Temp == 900) %>% #Temperature of interest
+  filter(Area >= 0.005) %>% #Noise reduction
+  filter(Ni.Vol.Corrected == 0.35) %>%
+  #mutate(Label = substr(Label,0,4)) %>%
+  
+  group_by(Label) %>%
+  #
+  mutate(hrs2 = timefix(hrs)) %>%
+  
+  ggplot() +
+  geom_density_ridges(size = 1, aes(x = nnd, y = hrs2, group = Label, fill = as.factor(hrs))) + 
+  scale_x_log10(sec.axis = sec_axis(~., labels = NULL)) +
+  scale_y_continuous(#sec.axis = sec_axis(~., labels = NULL)) +
+                     breaks = c(0,50,100,150),
+                     labels = c("5", "10", "50", "150"),
+                     sec.axis = sec_axis(~., breaks = c(0,50,100,150), labels = NULL)) +
+  geom_rect(color = "black", aes(xmin = avennd-0.01, 
+                ymin = hrs2, 
+                xmax = avennd+0.01, 
+                ymax = hrs2 + 50,
+                fill = as.factor(hrs))) +
+  theme_classic() +
+  guides(colour = FALSE, fill = guide_legend(title = "Time [hrs]", reverse = TRUE,
+                               #override.aes = list(size=4), 
+                               title.theme = element_text(colour="black",
+                                                          #face = "bold",
+                                                          size = 12))) +
+  ylab("Time [hrs]") +
+  xlab(expression(Nearest~Neighbor~Distance~'['*mu*m*']')) +
+  scale_fill_manual(values = c("#00BF7D", "#BF7D00", "#7C00BF", "#BF0041")) +
+  theme(axis.text.x = element_text(colour = "black", size = 16),
+        axis.text.y = element_text(colour = "black", size = 16),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 16),
+        axis.title.y = element_text(colour = "black", size = 16),
+        legend.text = element_text(colour = "black", size = 12))
+
+print(nndtime3d)
+ggsave(filename = "./plotexports/plotexportnndtime3d.png", plot = nndtime3d, 
+       device = "png", width = 6,height = 4, units = "in")
+rm(nndtime3d)
+
+rm(timefix)
+```
+
+```{r}
+nifix <- function(z){
+  if(z == 0.05) 1 else if(z == 0.1) 2 else if(z == 0.2) 3 else if(z == 0.24) 4 else if(z == 0.28) 5 else if(z == 0.35) 6 else if(z == 0.4) 7 else if(z == 0.5) 8
+}
+
+nndni3d <- df_particles_fine %>%
+  filter(Label != "WH13A") %>%
+  filter(Label != "WH15B") %>%
+  #mutate(Label = substr(Label,0,4)) %>%
+  #
+  group_by(Label) %>%
+  #
+  mutate(ni2 = nifix(Ni.Vol.Corrected)) %>%
+  #
+  filter(Area >= 0.005) %>%
+  filter(Temp == 900) %>%
+  filter(hrs == 5) %>%
+  #
+  ggplot() +
+  geom_density_ridges(size = 1, aes(x = nnd, y = ni2-1, group = Label, 
+                   fill = as.factor(Ni.Vol.Corrected))) + 
+  scale_x_log10(sec.axis = sec_axis(~., labels = NULL)) +
+  scale_y_continuous(breaks = c(0,1,2,3,4,5,6,7),
+                     labels = c("0.05", "0.10", "0.20", "0.24", "0.28", "0.35", "0.40", "0.50"),
+                     sec.axis = sec_axis(~., breaks = c(0,1,2,3,4,5,6,7), labels = NULL)) +
+  #geom_hline(yintercept = 0, color = "White", size = 1.5) +
+  theme_classic() +
+  ylab("Nickel Volume Fraction") +
+  xlab(expression(Nearest~Neighbor~Distance~'['*mu*m*']')) +
+  geom_rect(color = "black", aes(xmin = avennd-0.01, 
+                ymin = ni2-1, 
+                xmax = avennd+0.01, 
+                ymax = ni2,
+                fill = as.factor(Ni.Vol.Corrected))) +
+  #annotation_logticks(sides = "tb") +
+  guides(colour = FALSE, fill = guide_legend(reverse = TRUE, title = "Ni Vol.", 
+                               #override.aes = list(size=4), 
+                               title.theme = element_text(colour = "black",
+                                                          #face = "bold",
+                                                          size = 12))) +
+  theme(axis.text.x = element_text(colour = "black", size = 16),
+        axis.text.y = element_text(colour = "black", size = 16),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 16),
+        axis.title.y = element_text(colour = "black", size = 16),
+        legend.text = element_text(colour="black", size = 12))
+
+print(nndni3d)
+ggsave(filename = "./plotexports/plotexportnndni3d.png", plot = nndni3d, 
+       device = "png", width = 6,height = 4, units = "in")
+rm(nndni3d)
+
+rm(nifix)
+```
+
+<!--
+```{r}
+nnddistEDA <- df_particles_fine %>%
+  mutate(stresso = stressf*exp((1.05-Th.Density/100)*coef(fracmodel)[2]*-1)) %>%
+  filter(Label != "WH03A") %>%
+  filter(Label != "WH13A") %>%
+  filter(Label != "WH15B") %>%
+  filter(is.na(condAve) == FALSE) %>%
+  #filter(is.na(stressf) == FALSE) %>%
+  #mutate(Label = substr(Label,0,4)) %>%
+  group_by(Labelfine) %>%
+  #
+  filter(Area >= 0.005) %>%
+  filter(aveR3 < 60) %>%
+  #filter(hrs == 5) %>%
+  #filter(Ni.Vol.Corrected == 0.35) %>%
+  #
+  ggplot() +
+  geom_density_ridges_gradient(stat = "density", trim = TRUE, scale = 5, size = 1, 
+                      aes(height = ..density.., x = nnd, y = condAve, 
+                          group = Labelfine, fill = Ni.Vol.Corrected)) +
+  geom_rect(color = "black", aes(xmin = avennd-0.01,
+                ymin = condAve,
+                xmax = avennd+0.01,
+                ymax = condAve*2, #needs to be max of nnd dist
+                fill = Ni.Vol.Corrected)) +
+  scale_x_log10(limits = c(0.05, 10), sec.axis = sec_axis(~., labels = NULL)) +
+  scale_y_log10(sec.axis = sec_axis(~., labels = NULL)) +
+  scale_fill_gradientn(colours = hue_pal()(8)) +
+  theme_classic()
+
+print(nnddistEDA)
+ggsave(filename = "./plotexports/plotexportnnddistEDA.png", plot = nnddistEDA, 
+       device = "png", width = 10,height = 8, units = "in")
+rm(nnddistEDA)
+```
+
+```{r}
+aveR3nnddist <- df_particles_fine %>%
+  mutate(stresso = stressf*exp((1.05-Th.Density/100)*coef(fracmodel)[2]*-1)) %>%
+  filter(Label != "WH03A") %>%
+  filter(Label != "WH13A") %>%
+  filter(Label != "WH15B") %>%
+  filter(is.na(aveR3) == FALSE) %>%
+  filter(is.na(stressf) == FALSE) %>%
+  #mutate(Label = substr(Label,0,4)) %>%
+  group_by(Labelfine) %>%
+  #
+  filter(Area >= 0.005) %>%
+  filter(aveR3 < 60) %>%
+  #filter(hrs == 5) %>%
+  #filter(Ni.Vol.Corrected == 0.35) %>%
+  #
+  ggplot() +
+  geom_density_ridges_gradient(stat = "density", trim = TRUE, scale = 5, size = 1, 
+                      aes(height = ..density.., x = nnd, y = stressf, 
+                          group = Labelfine, fill = Temp)) +
+  scale_x_log10(limits = c(0.05, 10), sec.axis = sec_axis(~., labels = NULL)) +
+  scale_y_log10(sec.axis = sec_axis(~., labels = NULL)) +
+  scale_fill_gradientn(colours = hue_pal()(8)) +
+  theme_classic()
+
+print(aveR3nnddist)
+ggsave(filename = "./plotexports/plotexportaveR3nnddist.png", plot = aveR3nnddist, 
+       device = "png", width = 10,height = 8, units = "in")
+rm(aveR3nnddist)
+```
+
+```{r}
+#pair correlation plots
+  
+fcpairs <- df_particles_fine %>%
+  filter(condAve >= 0.01) %>%
+  #mutate(R3 = log(R3)) %>%
+  mutate(condAve = log10(condAve)) %>%
+  filter(aveR3 <= 45) %>%
+  select(-Label, -Temp, -z) %>%
+  select(Ni.Vol.Corrected, Tempk, hrs, Th.Density, aveR3, 
+         zz, zzz,
+         avennd, avecountarea,
+         condAve, stressf) %>%
+  unique() %>%
+  ggpairs(aes(color = as.factor(Ni.Vol.Corrected)))
+
+print(fcpairs)
+
+ggsave(filename = "./plotexports/plotexportpairs.png", plot = fcpairs, 
+       device = "png", width = 10,height = 8, units = "in") #ggsave has a dpi setting
+rm(fcpairs)
+```
+-->
+
+```{r}
+#nnd models need to be improved
+#image by image
+
+df_particles_fine %>%
+  filter(Temp >= 800) %>%
+  filter(Ni.Vol.Corrected <= 0.4) %>%
+  filter(Ni.Vol.Corrected >= 0.2) %>%
+  lm(totNifrac ~ Ni.Vol.Corrected, .)
+  
+
+#comparison of actual vs nominal nickel fractions
+
+df_particles_fine %>%
+  filter(Temp >= 800) %>%
+  ggplot() +
+  geom_boxplot(aes(x = Ni.Vol.Corrected, y = totNifrac, group = Ni.Vol.Corrected)) +
+  geom_point(aes(x = Ni.Vol.Corrected, 
+                 y = totNifrac,
+                 shape = as.factor(hrs),
+                 color = as.factor(Temp))) +
+  geom_abline(slope = 1, intercept = 0) +
+  geom_abline(slope = 0.3753, intercept = 0.1448) +
+  scale_x_continuous(limits = c(-0.005,0.6), expand = c(0,0),
+                     sec.axis = sec_axis(~., labels = NULL)) +
+  scale_y_continuous(limits = c(-0.005,0.6), expand = c(0,0),
+                     sec.axis = sec_axis(~., labels = NULL)) +
+  scale_shape_manual(values=c(16, 17, 0, 2)) + #hrs
+  theme_classic()
+
+df_particles_fine %>%
+  mutate(totNifrac2 = if_else(Ni.Vol.Corrected <= 0.2, 
+                              totNifrac, 
+                              totNifrac + (1-0.3753)*Ni.Vol.Corrected - 0.1448)) %>%
+  
+  filter(Temp >= 800) %>%
+  ggplot() +
+  #geom_boxplot(aes(x = Ni.Vol.Corrected, y = totNifrac, group = Ni.Vol.Corrected)) +
+  geom_boxplot(aes(x = Ni.Vol.Corrected, y = totNifrac2, group = Ni.Vol.Corrected)) +
+  geom_point(aes(x = Ni.Vol.Corrected, 
+                 #y = totNifrac,
+                 y = totNifrac2,
+                 shape = as.factor(hrs),
+                 color = as.factor(Temp))) +
+  geom_abline(slope = 1, intercept = 0) +
+  #geom_abline(slope = 0.3753, intercept = 0.1448) +
+  scale_x_continuous(limits = c(-0.005,0.6), expand = c(0,0),
+                     sec.axis = sec_axis(~., labels = NULL)) +
+  scale_y_continuous(limits = c(-0.005,0.6), expand = c(0,0),
+                     sec.axis = sec_axis(~., labels = NULL)) +
+  scale_shape_manual(values=c(16, 17, 0, 2)) + #hrs
+  theme_classic()
+```
+
+```{r}
+nine %>%
+  filter(Temp >= 800) %>%
+  ggplot() +
+  geom_boxplot(aes(x = Ni.Vol.Corrected, y = totNifrac, group = Ni.Vol.Corrected)) +
+  geom_point(aes(x = Ni.Vol.Corrected, y = totNifrac, 
+                 shape = as.factor(hrs),
+                 color = as.factor(Temp))) +
+  geom_abline(slope = 1, intercept = 0) +
+  scale_x_continuous(limits = c(-0.005,0.6), expand = c(0,0),
+                     sec.axis = sec_axis(~., labels = NULL)) +
+  scale_y_continuous(limits = c(-0.005,0.6), expand = c(0,0),
+                     sec.axis = sec_axis(~., labels = NULL)) +
+  scale_shape_manual(values=c(16, 17, 0, 2)) + #hrs
+  theme_classic()
+```
+
+```{r}
+timefix <- function(y){
+  if(y == 150) 150 else if(y == 50) 100 else if(y == 10) 50 else if(y == 5) 0
+}
+
+df_particles_fine %>%
+  filter(Temp == 900) %>% #Temperature of interest
+  filter(Area >= 0.005) %>% #Noise reduction
+  filter(hrs > 5) %>%
+  #
+  filter(Label != "WH15B") %>% #weird distro
+  #
+  group_by(Labelfine) %>%
+  #
+  mutate(hrs2 = timefix(hrs)) %>%
+  #
+  ggplot() +
+  geom_density_ridges(size = 1, alpha = 0.1, aes(x = R3, y = hrs2, group = Labelfine,
+                                                 fill = as.factor(magx),
+                                                 color = as.factor(magx))) + 
+  scale_x_log10(sec.axis = sec_axis(~.^(1/3)*2, name = expression(D~'['*mu*m*']')),
+                limits = c(0.0001, 10000),
+                breaks = scales::trans_breaks("log10", function(x) 10^x),
+                labels = trans_format("log10", math_format(10^.x))) +
+  scale_y_continuous(breaks = c(50,100,150),
+                     labels = c("10", "50", "150"),
+                     sec.axis = sec_axis(~., breaks = c(0,50,100,150), labels = NULL)) +
+  theme_classic() +
+  guides(fill = FALSE, colour = guide_legend(title = "Mag [x]", reverse = TRUE,
+                               #override.aes = list(size=4), 
+                               title.theme = element_text(colour="black",
+                                                          #face = "bold",
+                                                          size = 12))) +
+  ggtitle("10k vs 5k no edges") +
+  ylab("") +
+  xlab(expression(R^3~'['*mu*m^3*']')) +
+  geom_hline(yintercept = 0, color = "White", size = 1.5) +
+  #annotation_logticks() +
+  #scale_fill_manual(values=c("#00BF7D", "#BF7D00", "#7C00BF", "#BF0041")) +
+  theme(axis.text.x = element_text(colour = "black", size = 16),
+        axis.text.y = element_text(colour = "black", size = 16),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 16),
+        axis.title.y = element_text(colour = "black", size = 16),
+        legend.text = element_text(colour="black", size = 12))
+
+nine %>%
+  filter(Temp == 900) %>% #Temperature of interest
+  filter(Area >= 0.005) %>% #Noise reduction
+  filter(hrs > 5) %>%
+  #
+  filter(Label != "WH15B") %>% #weird distro
+  #
+  group_by(Labelfine) %>%
+  #
+  mutate(hrs2 = timefix(hrs)) %>%
+  #
+  ggplot() +
+  geom_density_ridges(size = 1, alpha = 0.1, aes(x = R3, y = hrs2, group = Labelfine,
+                                                 fill = as.factor(magx),
+                                                 color = as.factor(magx))) + 
+  scale_x_log10(sec.axis = sec_axis(~.^(1/3)*2, name = expression(D~'['*mu*m*']')),
+                limits = c(0.0001, 10000),
+                breaks = scales::trans_breaks("log10", function(x) 10^x),
+                labels = trans_format("log10", math_format(10^.x))) +
+  scale_y_continuous(breaks = c(50,100,150),
+                     labels = c("10", "50", "150"),
+                     sec.axis = sec_axis(~., breaks = c(0,50,100,150), labels = NULL)) +
+  theme_classic() +
+  guides(fill = FALSE, colour = guide_legend(title = "Mag [x]", reverse = TRUE,
+                               #override.aes = list(size=4), 
+                               title.theme = element_text(colour="black",
+                                                          #face = "bold",
+                                                          size = 12))) +
+  ggtitle("10k vs 5k + edges") +
+  ylab("") +
+  xlab(expression(R^3~'['*mu*m^3*']')) +
+  geom_hline(yintercept = 0, color = "White", size = 1.5) +
+  #annotation_logticks() +
+  #scale_fill_manual(values=c("#00BF7D", "#BF7D00", "#7C00BF", "#BF0041")) +
+  theme(axis.text.x = element_text(colour = "black", size = 16),
+        axis.text.y = element_text(colour = "black", size = 16),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 16),
+        axis.title.y = element_text(colour = "black", size = 16),
+        legend.text = element_text(colour="black", size = 12))
+
+rm(timefix)
+```
+
+```{r}
+#need to compare totNifrace (edge tot Ni) with totNifrac for 1000 samples
+#see if the two groups seperate
+
+temp1 <- nine %>%
+  select(Labelfine, totNifrac) %>%
+  mutate(totNifrace = totNifrac) %>%
+  select(-totNifrac) %>%
+  unique()
+
+temp2 <- df_particles_fine %>%
+  select(Labelfine, totNifrac) %>%
+  unique()
+
+merge(temp1, temp2, by = "Labelfine") %>%
+  mutate(totNimult = totNifrace/totNifrac) %>%
+  select(-totNifrace, -totNifrac) %>%
+  left_join(df_particles_fine, ., by = "Labelfine") %>%
+  
+  #linear correction
+  mutate(totNifrac2 = if_else(Ni.Vol.Corrected <= 0.2, 
+                              totNifrac, 
+                              totNifrac + (1-0.3753)*Ni.Vol.Corrected - 0.1448)) %>%
+  #
+  filter(Temp >= 800) %>%
+  ggplot() +
+  #geom_boxplot(aes(x = Ni.Vol.Corrected, y = totNifrac, group = Ni.Vol.Corrected)) +
+  geom_boxplot(aes(x = Ni.Vol.Corrected, y = totNifrac*totNimult, group = Ni.Vol.Corrected)) +
+  geom_point(aes(x = Ni.Vol.Corrected, 
+                 #y = totNifrac,
+                 y = totNifrac*totNimult,
+                 shape = as.factor(hrs),
+                 color = as.factor(Temp))) +
+  geom_abline(slope = 1, intercept = 0) +
+  #geom_abline(slope = 0.3753, intercept = 0.1448) +
+  scale_x_continuous(limits = c(-0.005,0.6), expand = c(0,0),
+                     sec.axis = sec_axis(~., labels = NULL)) +
+  scale_y_continuous(limits = c(-0.005,0.6), expand = c(0,0),
+                     sec.axis = sec_axis(~., labels = NULL)) +
+  scale_shape_manual(values=c(16, 17, 0, 2)) + #hrs
+  theme_classic()
+
+
+
+merge(temp1, temp2, by = "Labelfine") %>%
+  mutate(totNimult = totNifrace/totNifrac) %>%
+  select(-totNifrace, -totNifrac) %>%
+  left_join(df_particles_fine, ., by = "Labelfine") %>%
+  #
+  #mutate(nndestim = sqrt(imagearea)/sqrt(avecountarea*imagearea)) %>%
+  mutate(nndestim2 = sqrt(imagearea)/sqrt(finecount)) %>%
+  #
+  mutate(finecountest = totNifrac*totNimult*imagearea/aveAreafine) %>% #corrected nickel area divided by average particle area
+  #
+  mutate(nndest.countest = sqrt(imagearea)/sqrt(finecountest)) %>%
+  #
+  
+  
+  #filter(finecountest > 6000)
+  # filter(substr(Label,1,4) == "WH15") %>%
+  # group_by(Labelfine) %>%
+  # filter(Area >= 0.005) %>%
+  # ggplot() +
+  # geom_density(size = 1, aes(x = R3, y = ..density.., group = Labelfine,
+  #                  color = as.factor(Labelfine))) +
+  # scale_x_log10(sec.axis = sec_axis(~.^(1/3)*2, name = expression(D~'['*mu*m*']')),
+  #               limits = c(0.0001, 100000),
+  #               breaks = scales::trans_breaks("log10", function(x) 10^x),
+  #               labels = trans_format("log10", math_format(10^.x))) +
+  # scale_y_continuous(expand = c(0, 0), sec.axis = sec_axis(~., labels = NULL)) +
+  # geom_hline(yintercept = 0, color = "White", size = 1.5) +
+  # theme_classic() +
+  # ylab("Normalized PSD") +
+  # xlab(expression(R^3~'['*mu*m^3*']')) +
+  # #annotation_logticks(sides = "b") +
+  # guides(colour = guide_legend(title = "Image",
+  #                              #override.aes = list(size=4),
+  #                              title.theme = element_text(colour = "black",
+  #                                                         face = "bold",
+  #                                                         size = 12))) +
+  # theme(axis.text.x = element_text(colour = "black", size = 16),
+  #       axis.text.y = element_text(colour = "black", size = 16),
+  #       axis.ticks = element_line(colour = "black", size = 1),
+  #       axis.line = element_line(colour = 'black', size = 1),
+  #       axis.title.x = element_text(colour = "black", size = 16),
+  #       axis.title.y = element_text(colour = "black", size = 16),
+  #       legend.text = element_text(colour="black", size = 12))
+  #
+
+
+  filter(finecountest < 6000) %>% #removes WH15B 008 image outlier
+  ggplot() +
+  geom_point(aes(x = finecount, y = finecountest, color = as.factor(Ni.Vol.Corrected))) +
+  geom_abline(slope = 1, intercept = 0) +
+  scale_x_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  scale_y_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  theme_classic() +
+  coord_fixed() +
+  theme(axis.text.x = element_text(colour = "black", size = 16),
+        axis.text.y = element_text(colour = "black", size = 16),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 16),
+        axis.title.y = element_text(colour = "black", size = 16),
+        legend.text = element_text(colour="black", size = 12))
+
+rm(temp1)
+rm(temp2)
+```
+
+```{r}
+df_particles_fine %>%
+  filter(Ni.Vol.Corrected == 0.35) %>%
+  ggplot() +
+  geom_point(aes(x = Temp, y = totNifrac, 
+                 shape = as.factor(hrs),
+                 color = as.factor(Temp))) +
+  geom_hline(yintercept = 0.35) +
+  scale_x_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  scale_y_continuous(limits = c(0,1), sec.axis = sec_axis(~., labels = NULL)) +
+  scale_shape_manual(values=c(16, 17, 0, 2)) + #hrs
+  theme_classic()
+```
+
+```{r}
+#improve nnd estimate model to use actual count
+df_particles_fine %>%
+  filter(Temp >= 800) %>%
+  select(Label, Labelfine, 
+         finecount,countperarea, avennd, avecountarea,
+         fineavennd, magx, imagearea,
+         Ni.Vol.Corrected, Temp, hrs, Th.Density,
+         stressf, condAve) %>%
+  unique() %>%
+  mutate(nndestim = sqrt(imagearea)/sqrt(avecountarea*imagearea)) %>%
+  mutate(nndestim2 = sqrt(imagearea)/sqrt(finecount)) %>%
+  ggplot() +
+  geom_point(aes(x = fineavennd, y = nndestim2, size = Temp, #fine average nnd and nndestim2 using actual count
+                 shape = as.factor(hrs),
+                 color = as.factor(Ni.Vol.Corrected))) +
+  geom_point(aes(x = avennd, y = nndestim, size = Temp/2,
+                 shape = as.factor(hrs))) +
+  scale_shape_manual(values=c(16, 17, 0, 2)) + #hrs
+  scale_x_continuous(limits = c(0.5,2), sec.axis = sec_axis(~., labels = NULL)) +
+  scale_y_continuous(limits = c(0.5,3), breaks = c(0.5,1,1.5,2,2.5,3), sec.axis = sec_axis(~., labels = NULL)) +
+  theme_classic() +
+  coord_fixed() +
+  theme(axis.text.x = element_text(colour = "black", size = 16),
+        axis.text.y = element_text(colour = "black", size = 16),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 16),
+        axis.title.y = element_text(colour = "black", size = 16),
+        legend.text = element_text(colour="black", size = 12))
+
+df_particles_fine %>%
+  filter(Temp >= 800) %>%
+  select(Label, Labelfine, 
+         finecount,countperarea, avennd, avecountarea,
+         fineavennd, magx, imagearea,
+         Ni.Vol.Corrected, Temp, hrs, Th.Density,
+         stressf, condAve) %>%
+  unique() %>%
+  mutate(nndestim = sqrt(imagearea)/sqrt(avecountarea*imagearea)) %>%
+  ggplot() +
+  geom_point(aes(x = avennd, y = nndestim, size = Temp,
+                 shape = as.factor(hrs),
+                 color = as.factor(Ni.Vol.Corrected))) +
+  scale_shape_manual(values=c(16, 17, 0, 2)) + #hrs
+  scale_x_continuous(limits = c(0.5,2), sec.axis = sec_axis(~., labels = NULL)) +
+  scale_y_continuous(limits = c(0.5,3), breaks = c(0.5,1,1.5,2,2.5,3), sec.axis = sec_axis(~., labels = NULL)) +
+  theme_classic() +
+  coord_fixed() +
+  theme(axis.text.x = element_text(colour = "black", size = 16),
+        axis.text.y = element_text(colour = "black", size = 16),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 16),
+        axis.title.y = element_text(colour = "black", size = 16),
+        legend.text = element_text(colour="black", size = 12))
+
+df_particles_fine %>%
+  filter(Temp >= 800) %>%
+  select(Label, Labelfine, 
+         finecount,countperarea, avennd, avecountarea,
+         fineavennd, magx, imagearea,
+         Ni.Vol.Corrected, Temp, hrs, Th.Density,
+         stressf, condAve) %>%
+  unique() %>%
+  mutate(nndestim = sqrt(imagearea)/sqrt(avecountarea*imagearea)) %>%
+  ggplot() +
+  geom_point(aes(x = Ni.Vol.Corrected, y = nndestim, size = Temp,
+                 shape = as.factor(hrs))) +
+  geom_point(aes(x = Ni.Vol.Corrected, y = avennd, size = Temp,
+                 shape = as.factor(hrs),
+                 color = as.factor(Ni.Vol.Corrected))) +
+  scale_shape_manual(values=c(16, 17, 0, 2)) + #hrs
+  scale_x_continuous(#limits = c(0.5,2), 
+                     sec.axis = sec_axis(~., labels = NULL)) +
+  scale_y_continuous(limits = c(0.5,3), breaks = c(0.5,1,1.5,2,2.5,3), sec.axis = sec_axis(~., labels = NULL)) +
+  theme_classic() +
+  #coord_fixed() +
+  theme(axis.text.x = element_text(colour = "black", size = 16),
+        axis.text.y = element_text(colour = "black", size = 16),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 16),
+        axis.title.y = element_text(colour = "black", size = 16),
+        legend.text = element_text(colour="black", size = 12))
+```
+
+```{r}
+df_particles_fine %>%
+  select(Label, Labelfine, 
+         finecount,countperarea,
+         Ni.Vol.Corrected, Temp, hrs, Th.Density,
+         stressf, condAve) %>%
+  unique() %>%
+  #
+  filter(Temp == 900) %>%
+  #filter(Ni.Vol.Corrected == 0.35) %>%
+  filter(hrs == 5) %>%
+  filter(Label != "WH13A") %>%
+  filter(Labelfine != "WH15B/900-5-50B0008.tiff") %>%
+  #
+  mutate(stresso = stressf*exp((1.05-Th.Density/100)*coef(fracmodel)[2]*-1)) %>%
+  #
+  ggplot() +
+  geom_boxplot(aes(group = Ni.Vol.Corrected, x = Ni.Vol.Corrected, y = countperarea)) +
+  geom_point(size = 2, aes(y = countperarea, x = Ni.Vol.Corrected, 
+                 #size = as.factor(hrs),
+                 shape = as.factor(Temp),
+                 color = as.factor(Ni.Vol.Corrected))) +
+  xlab("Nickel Volume Fraction") +
+  ylab(expression(Counts~Per~Area~'['*cts*'/'*mu*m^2*']')) +
+  scale_y_continuous(limits = c(0, 1), sec.axis = sec_axis(~., labels = NULL)) +
+  scale_x_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  guides(color = FALSE) +
+  guides(shape = FALSE) +
+  theme_classic() +
+  theme(axis.text.x = element_text(colour = "black", size = 16),
+        axis.text.y = element_text(colour = "black", size = 16),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 16),
+        axis.title.y = element_text(colour = "black", size = 16),
+        legend.text = element_text(colour="black", size = 12))
+
+df_particles_fine %>%
+  select(Label, Labelfine, 
+         finecount,countperarea,
+         Ni.Vol.Corrected, Temp, hrs, Th.Density,
+         stressf, condAve) %>%
+  unique() %>%
+  #
+  filter(Ni.Vol.Corrected == 0.35) %>%
+  filter(hrs == 5) %>%
+  filter(Label != "WH13A") %>%
+  filter(Label != "WH03A") %>%
+  #
+  mutate(stresso = stressf*exp((1.05-Th.Density/100)*coef(fracmodel)[2]*-1)) %>%
+  #
+  ggplot() +
+  geom_boxplot(aes(group = Temp, x = Temp, y = countperarea)) +
+  geom_point(size = 2, aes(y = countperarea, x = Temp, 
+                 #size = as.factor(hrs),
+                 #shape = as.factor(Temp),
+                 color = as.factor(Temp))) +
+  xlab(expression(Temp~'['*degree*C*']')) +
+  ylab(expression(Counts~Per~Area~'['*cts*'/'*mu*m^2*']')) +
+  scale_y_continuous(limits = c(0, 2.5), sec.axis = sec_axis(~., labels = NULL)) +
+  scale_x_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  guides(color = FALSE) +
+  theme_classic() +
+  theme(axis.text.x = element_text(colour = "black", size = 16),
+        axis.text.y = element_text(colour = "black", size = 16),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 16),
+        axis.title.y = element_text(colour = "black", size = 16),
+        legend.text = element_text(colour="black", size = 12))
+
+df_particles_fine %>%
+  select(Label, Labelfine, 
+         finecount,countperarea,
+         Ni.Vol.Corrected, Temp, hrs, Th.Density,
+         stressf, condAve) %>%
+  unique() %>%
+  #
+  filter(Ni.Vol.Corrected == 0.35) %>%
+  filter(Temp == 900) %>%
+  filter(Label != "WH13A") %>%
+  filter(Labelfine != "WH35A/WH35A0010.tiff") %>%
+  #
+  mutate(stresso = stressf*exp((1.05-Th.Density/100)*coef(fracmodel)[2]*-1)) %>%
+  #
+  ggplot() +
+  geom_boxplot(aes(group = hrs, x = hrs, y = countperarea)) +
+  geom_point(size = 2, aes(y = countperarea, x = hrs, 
+                 #size = as.factor(hrs),
+                 shape = as.factor(Temp),
+                 color = as.factor(hrs))) +
+  xlab("Time [hrs]") +
+  ylab(expression(Counts~Per~Area~'['*cts*'/'*mu*m^2*']')) +
+  scale_y_continuous(limits = c(0, 0.5), sec.axis = sec_axis(~., labels = NULL)) +
+  scale_x_log10(breaks = c(5,10,50,150),sec.axis = sec_axis(~., labels = NULL)) +
+  guides(colour = guide_legend(reverse = TRUE, title = "Time [hrs]", 
+                               title.theme = element_text(colour="black", 
+                                                          #face = "bold", 
+                                                          size = 12))) +
+  scale_color_manual(values=c("#00BF7D", "#BF7D00", "#7C00BF", "#BF0041")) +
+  guides(shape = FALSE) +
+  guides(color = FALSE) +
+  theme_classic() +
+  theme(axis.text.x = element_text(colour = "black", size = 16),
+        axis.text.y = element_text(colour = "black", size = 16),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 16),
+        axis.title.y = element_text(colour = "black", size = 16),
+        legend.text = element_text(colour="black", size = 12))
+```
+
+#NND-PCA
+
+```{r}
+#nnd PCA
+
+# nnddensities %>%
+#   mutate(Label = substr(Labelfine,0,5)) %>%
+#   select(nndx, nnddens, Label) %>%
+#   mutate(nndx = round(nndx, digits = 3)) %>%
+#   ggplot() +
+#   geom_point(aes(x = nndx, y = nnddens, color = Label)) +
+#   guides(color = FALSE) +
+#   theme_classic() +
+#   scale_x_log10()
+
+prcompNND <- nnddensities %>%
+  mutate(Label = substr(Labelfine,0,5)) %>%
+  left_join(., fractSum, by = "Label") %>%
+  #filter(Ni.Vol.Corrected == 0.35) %>%
+  filter(Temp == 900) %>%
+  filter(hrs == 5) %>%
+  filter(Label != "WH13A") %>%
+  filter(Label != "WH15B") %>%
+  select(nndx, nnddens, Labelfine) %>%
+  mutate(nndx = round(nndx, digits = 4)) %>%
+  spread(., key = nndx, value = nnddens) %>%
+  select(-Labelfine) %>%
+  prcomp(scale = TRUE)
+
+fviz_eig(prcompNND, addlabels = TRUE)
+
+loadingplot(prcompNND, comps = 1:4, legendpos = "right", labels = 'numbers', 
+            pretty.xlabels = TRUE, #xlab = 'Time (s)',
+            ylab = 'Loading Value')
+
+fractSumfine.Ni.NND <- df_particles_fine %>%
+  select(Labelfine) %>%
+  unique() %>%
+  mutate(Label = substr(Labelfine, 1, 5)) %>%
+  left_join(., fractSum, by = "Label") %>%
+  filter(Temp == 900) %>%
+  filter(hrs == 5) %>%
+  filter(Label != "WH13A") %>%
+  filter(Label != "WH15B")
+
+fractSumfine.Ni.NND$Ni.Vol.Corrected <- as.factor(fractSumfine.Ni.NND$Ni.Vol.Corrected)
+
+autoplot(prcompNND, data = fractSumfine.Ni.NND,
+         x = 1,
+         y = 2,
+         colour = "Ni.Vol.Corrected",
+         label = TRUE, frame = TRUE) +
+  scale_x_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  scale_y_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  theme_classic()
+
+autoplot(prcompNND, data = fractSumfine.Ni.NND,
+         x = 1,
+         y = 3,
+         colour = "Ni.Vol.Corrected",
+         label = TRUE, frame = TRUE) +
+  scale_x_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  scale_y_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  theme_classic()
+
+
+rm(prcompNND)
+rm(fractSumfine.Ni.NND)
+```
+
+```{r}
+prcompNND.Temp <- nnddensities %>%
+  mutate(Label = substr(Labelfine,0,5)) %>%
+  left_join(., fractSum, by = "Label") %>%
+  filter(Ni.Vol.Corrected == 0.35) %>%
+  #filter(Temp == 900) %>%
+  filter(hrs == 5) %>%
+  filter(Label != "WH13A") %>%
+  filter(Label != "WH15B") %>%
+  select(nndx, nnddens, Labelfine) %>%
+  mutate(nndx = round(nndx, digits = 4)) %>%
+  spread(., key = nndx, value = nnddens) %>%
+  select(-Labelfine) %>%
+  prcomp(scale = TRUE)
+
+fviz_eig(prcompNND.Temp, addlabels = TRUE)
+
+loadingplot(prcompNND.Temp, comps = 1:4, legendpos = "right", labels = 'numbers', 
+            pretty.xlabels = TRUE, #xlab = 'Time (s)',
+            ylab = 'Loading Value')
+
+fractSumfine.Ni.NND.Temp <- df_particles_fine %>%
+  select(Labelfine) %>%
+  unique() %>%
+  mutate(Label = substr(Labelfine, 1, 5)) %>%
+  left_join(., fractSum, by = "Label") %>%
+  filter(Ni.Vol.Corrected == 0.35) %>%
+  #filter(Temp == 900) %>%
+  filter(hrs == 5) %>%
+  filter(Label != "WH13A") %>%
+  filter(Label != "WH15B")
+
+fractSumfine.Ni.NND.Temp$Temp <- as.factor(fractSumfine.Ni.NND.Temp$Temp)
+
+autoplot(prcompNND.Temp, data = fractSumfine.Ni.NND.Temp,
+         x = 1,
+         y = 2,
+         colour = "Temp",
+         label = TRUE, frame = TRUE) +
+  scale_x_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  scale_y_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  theme_classic()
+
+autoplot(prcompNND.Temp, data = fractSumfine.Ni.NND.Temp,
+         x = 1,
+         y = 3,
+         colour = "Temp",
+         label = TRUE, frame = TRUE) +
+  scale_x_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  scale_y_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  theme_classic()
+
+
+rm(prcompNND.Temp)
+rm(fractSumfine.Ni.NND.Temp)
+```

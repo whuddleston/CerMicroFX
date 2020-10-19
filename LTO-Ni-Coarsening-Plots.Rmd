@@ -1,0 +1,505 @@
+---
+title: "LTO-Ni-Coarsening-Plots"
+author: "whh36"
+date: "8/16/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+#SETUP OF LIBRARIES
+knitr::opts_chunk$set(echo = FALSE, warning=FALSE, message=FALSE) #set echo to FALSE to hide code
+```
+
+```{r, fig.cap="Bulk density as a function of nickel content, sintering temperature, and time."}
+#density plotting #used
+temp00 <- df_density %>%
+  filter(Temp <= 900) %>%
+ggplot() +
+  geom_point(size = 2.5, aes(x = Ni.Vol.Corrected, y = Th.Density, 
+                 color = factor(Temp), shape = factor(hrs))) +
+  annotate("rect", ymin = 50, ymax = 65, xmin = -Inf, xmax = Inf, 
+           fill="red", alpha = 0.1) +
+  annotate("rect", ymin = 65, ymax = 87, xmin = -Inf, xmax = Inf, 
+           fill="orange", alpha = 0.1) +
+  annotate("rect", ymin = 87, ymax = Inf, xmin = -Inf, xmax = Inf, 
+           fill="green", alpha = 0.1) +
+  theme_classic() +
+  scale_y_continuous(limits = c(50,100), expand = c(0,0), 
+                     sec.axis = sec_axis(~., labels = NULL)) +
+  scale_x_continuous(limits = c(-0.005,0.505), expand = c(0,0),
+                     sec.axis = sec_axis(~., labels = NULL)) +
+  scale_color_manual(values=c("#ff0000", "#ff9900", "#009900")) +
+  scale_shape_manual(values=c(16, 17, 0, 2)) + #hrs
+  xlab("Nickel Volume Fraction") +
+  ylab("Theoretical Density [%]") +
+  guides(shape = guide_legend(reverse = TRUE, title = "Time [hrs]", 
+                              title.theme = element_text(colour="black", 
+                                                         size = 12, 
+                                                         face = "bold"))) +
+  guides(colour = guide_legend(reverse = TRUE, title = expression(bold(Temp~'['*degree*C*']')), 
+                               title.theme = element_text(colour="black", 
+                                                          size = 12, 
+                                                          face = "bold"))) +
+  theme(axis.text.x = element_text(colour = "black", size = 16,face = "bold"),
+        axis.text.y = element_text(colour = "black", size = 16,face = "bold"),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 16,face = "bold"),
+        axis.title.y = element_text(colour = "black", size = 16,face = "bold"),
+        legend.text = element_text(colour="black", size = 12, face = "bold"))
+
+print(temp00)
+ggsave(filename = "./plotexports/plotexport00.png", plot = temp00, device = "png", width = 8, height = 5.5, units = "in")
+rm(temp00)
+```
+
+```{r, fig.cap="Raw size data"}
+#raw data plotting
+#used
+
+temp1 <- one %>%
+  filter(Label != "WH03A") %>%
+  ggplot() +
+  geom_point(aes(x = Temp, y = R3,
+                 size = 1,
+                 color = as.factor(Ni.Vol.Corrected))) +
+  xlab(expression(Temp~'['*degree*C*']')) +
+  ylab(expression(R^3~'['*mu*m^3*']')) +
+  theme_classic() +
+  scale_y_log10(limits = c(0.002,25), sec.axis = sec_axis(~.^(1/3)*2, name = expression(D~'['*mu*m*']'))) +
+  scale_x_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  guides(colour = guide_legend(reverse = TRUE, title = "Ni Vol.", override.aes = list(size=4), title.theme = element_text(colour="black", size = 12))) +
+  annotation_logticks(sides = "l") +
+  guides(size = FALSE) +
+  theme(axis.text.x = element_text(colour = "black", size = 16),
+        axis.text.y = element_text(colour = "black", size = 16),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 16),
+        axis.title.y = element_text(colour = "black", size = 16),
+        legend.text = element_text(colour="black", size = 12))
+
+temp2 <- one %>%
+  filter(Label != "WH03A") %>%
+  filter(hrs <= 5) %>%
+  filter(Ni.Vol.Corrected <= 0.35) %>%
+  filter(Ni.Vol.Corrected >= 0.24) %>%
+  filter(Ni.Vol.Corrected != 0.28) %>%
+  ggplot() +
+  geom_point(aes(x = Temp, y = R3,
+                 size = 1,
+                 color = as.factor(Ni.Vol.Corrected))) +
+  xlab(expression(Temp~'['*degree*C*']')) +
+  ylab(expression(R^3~'['*mu*m^3*']')) +
+  theme_classic() +
+  scale_y_log10(limits = c(0.002,25), sec.axis = sec_axis(~.^(1/3)*2, name = expression(D~'['*mu*m*']'))) +
+  scale_x_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  scale_color_manual(values=c("#00BE67", "#00A9FF")) +
+  guides(colour = guide_legend(reverse = TRUE, title = "Ni Vol.", override.aes = list(size=4), title.theme = element_text(colour="black", size = 12))) +
+  annotation_logticks(sides = "l") +
+  guides(size = FALSE) +
+  theme(axis.text.x = element_text(colour = "black", size = 16),
+        axis.text.y = element_text(colour = "black", size = 16),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 16),
+        axis.title.y = element_text(colour = "black", size = 16),
+        legend.text = element_text(colour="black", size = 12))
+
+print(temp1)
+print(temp2)
+ggsave(filename = "./plotexports/plotexport1.png", plot = temp1, 
+       device = "png", width = 6,height = 4, units = "in")
+ggsave(filename = "./plotexports/plotexport2.png", plot = temp2, 
+       device = "png", width = 6,height = 4, units = "in")
+rm(temp1)
+rm(temp2)
+```
+
+```{r, fig.cap="Grain growth exponent prelim", fig.show='asis'}
+#used
+tempy <- one %>%
+  #filter(Ni.Vol.Corrected < 0.5) %>%
+  #filter(Ni.Vol.Corrected > 0.05) %>%
+  #filter(Ni.Vol.Corrected == 0.35) %>%
+  filter(Temp == 900) %>%
+  ggplot(aes(x = hrs, y = R3, color = as.factor(Ni.Vol.Corrected))) +
+  scale_x_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  scale_y_log10(sec.axis = sec_axis(~.^(1/3)*2, name = expression(D~'['*mu*m*']'))) +
+  ylab(expression(R^3)) +
+  geom_point(size = 3) +
+  geom_smooth(size = 1.25, method = lm, formula = y ~ log(x), se = FALSE) +
+  theme_classic() +
+  annotation_logticks(sides = "l") +
+  xlab("Time [hrs]") +
+  ylab(expression(R^3~'['*mu*m^3*']')) +
+  guides(colour = guide_legend(reverse = TRUE, title = "Ni Vol.", 
+                               #override.aes = list(size=4), 
+                               title.theme = element_text(colour="black",
+                                                          size = 12))) +
+  theme(axis.text.x = element_text(colour = "black", size = 16),
+        axis.text.y = element_text(colour = "black", size = 16),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 16),
+        axis.title.y = element_text(colour = "black", size = 16),
+        legend.text = element_text(colour="black", size = 12))
+print(tempy)
+
+ggsave(filename = "./plotexports/plotexporty.png", plot = tempy, 
+       device = "png", width = 6,height = 4, units = "in")
+rm(tempy)
+```
+
+```{r}
+#used
+
+#pure ostwald model (no composition fitting using regsubsets)
+modost <- one %>%
+  filter(Temp >= 800) %>%
+  lm(zz~z,.) %>%
+  coef()
+
+one %>%
+  filter(Temp >= 800) %>%
+  lm(zz~z,.) %>%
+  summary()
+
+modost[2]*-8.617E-5
+
+
+#pure ostwald model (LSW) (no composition fitting using regsubsets) plotting
+temp4 <- one %>%
+  filter(Temp >= 800) %>%
+  ggplot() +
+  geom_point(size = 2, aes(x = z*1000, y = zz, 
+                 shape = as.factor(hrs))) +
+                 #size = Temp,
+                 #color = Ni.Vol.Corrected)) +
+  ylab(expression(ln~(T*R^'3'*'/'~t))) +
+  xlab(expression('1000'*'/'*T~~'['*K*']'^-'1')) +
+  theme_classic() +
+  scale_y_continuous(limits = c(-2,10), 
+                     sec.axis = sec_axis(~., labels = NULL)) +
+  scale_x_continuous(sec.axis = sec_axis(~(1000/.)-273, 
+                                         breaks = scales::pretty_breaks(n = 4),
+                                         name = expression(Temp~'['*degree*C*']'))) +
+  scale_shape_manual(values=c(16, 17, 0, 2)) +
+  guides(shape = guide_legend(title = "Time [hrs]", title.theme = element_text(colour="black", size = 12))) +
+  theme(axis.text.x = element_text(colour = "black", size = 16),
+        axis.text.y = element_text(colour = "black", size = 16),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 16),
+        axis.title.y = element_text(colour = "black", size = 16),
+        legend.text = element_text(colour="black", size = 12)) +
+  geom_abline(slope = as.numeric(modost[2])/1000, 
+              intercept = as.numeric(modost[1])) +
+  geom_abline(slope = as.numeric(modost[2])/1000, 
+              intercept = as.numeric(modost[1])+1.013,
+              color = "red",linetype = "dashed") +
+  geom_abline(slope = as.numeric(modost[2])/1000, 
+              intercept = as.numeric(modost[1])-1.013,
+              color = "red",linetype = "dashed") +
+  annotate("text", x = 0.76, y = 0, fontface = 1,
+           label = paste("Ea =", round(modost[2]*-8.617E-5,3),"eV")) +
+  annotate("text", x = 0.76, y = 1, fontface = 1,
+           label = paste("Adj. Rsq =", 0.296))
+
+print(temp4)
+
+ggsave(filename = "./plotexports/plotexport4.png", plot = temp4, 
+       device = "png", width = 6,height = 4, units = "in")
+
+rm(temp4)
+rm(modost)
+```
+
+
+```{r}
+#Ardell MLSW Theory 1972 plotting #used
+
+mlswmod <- one %>%
+  filter(Temp >= 800) %>%
+  lm(zzz~z,.) %>%
+  summary()
+
+#mlswmod$coefficients[1]
+#mlswmod$coefficients[2]
+#mlswmod$adj.r.squared
+#mlswmod$sigma
+
+tempzzz <- one %>%
+  filter(Temp >= 800) %>%
+  ggplot() +
+  geom_point(size = 2, aes(x = z*1000, y = zzz, 
+                 shape = as.factor(hrs))) +
+                 #size = Temp,
+                 #color = Ni.Vol.Corrected)) +
+  ylab(expression(ln~(T*R^3*nu/t*rho))) +
+  #xlab("1000/T") +
+  xlab(expression('1000'*'/'*T~~'['*K*']'^-'1')) +
+  theme_classic() +
+  scale_y_continuous(limits = c(-2,10), 
+                     sec.axis = sec_axis(~., labels = NULL)) +
+  scale_x_continuous(sec.axis = sec_axis(~(1000/.)-273, 
+                                         breaks = scales::pretty_breaks(n = 4),
+                                         name = expression(Temp~'['*degree*C*']'))) +
+  scale_shape_manual(values=c(16, 17, 0, 2)) +
+  guides(shape = guide_legend(title = "Time [hrs]", title.theme = element_text(colour="black", size = 12))) +
+  theme(axis.text.x = element_text(colour = "black", size = 16),
+        axis.text.y = element_text(colour = "black", size = 16),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 16),
+        axis.title.y = element_text(colour = "black", size = 16),
+        legend.text = element_text(colour="black", size = 12)) +
+  geom_abline(slope = as.numeric(mlswmod$coefficients[2])/1000, 
+              intercept = as.numeric(mlswmod$coefficients[1])) +
+  geom_abline(slope = as.numeric(mlswmod$coefficients[2])/1000, 
+              intercept = as.numeric(mlswmod$coefficients[1])+mlswmod$sigma,
+              color = "red",linetype = "dashed") +
+  geom_abline(slope = as.numeric(mlswmod$coefficients[2])/1000, 
+              intercept = as.numeric(mlswmod$coefficients[1])-mlswmod$sigma,
+              color = "red",linetype = "dashed") +
+  annotate("text", x = 0.76, y = 0, fontface = 1,
+           label = paste("Ea =", round(mlswmod$coefficients[2]*-8.617E-5,3),"eV")) +
+  annotate("text", x = 0.76, y = 1, fontface = 1,
+           label = paste("Adj. Rsq =", round(mlswmod$adj.r.squared,2)))
+
+
+print(tempzzz)
+ggsave(filename = "./plotexports/plotexportzzz.png", plot = tempzzz, 
+       device = "png", width = 6,height = 4, units = "in")
+rm(tempzzz)
+
+#paste('\u03b2')
+
+rm(mlswmod)
+```
+
+
+
+```{r}
+#regsubsets model: LSW + (normalized for composition variable) plotting #used
+temp6 <- one %>%
+  filter(Temp >= 800) %>%
+  ggplot() +
+  geom_point(size = 2,aes(x = z*1000, y = zz-coef(regmod,2)[3]*Ni.Vol.Corrected, 
+                 shape = as.factor(hrs),
+                 
+                 color = Ni.Vol.Corrected)) +
+  ylab(expression(ln~(T*R^'3'*'/'~t)-~beta~(Ni))) +
+  xlab(expression('1000'*'/'*T~~'['*K*']'^-'1')) +
+  theme_classic() +
+  scale_y_continuous(limits = c(-2,10), 
+                     sec.axis = sec_axis(~., labels = NULL)) +
+  scale_x_continuous(sec.axis = sec_axis(~(1000/.)-273, 
+                                         breaks = scales::pretty_breaks(n = 4),
+                                         name = expression(Temp~'['*degree*C*']'))) +
+  scale_shape_manual(values=c(16, 17, 0, 2)) +
+  scale_color_gradientn(colours = hue_pal()(8)) +
+  guides(shape = guide_legend(title = "Time [hrs]", 
+                              title.theme = element_text(colour="black", 
+                                                         size = 12)),
+         size = FALSE,
+         color = guide_colorbar(title = "Ni Vol.",
+                                title.theme = element_text(colour="black", 
+                                                           size = 12))) +
+  theme(axis.text.x = element_text(colour = "black", size = 16),
+        axis.text.y = element_text(colour = "black", size = 16),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 16),
+        axis.title.y = element_text(colour = "black", size = 16),
+        legend.text = element_text(colour="black", size = 12)) +
+  geom_abline(slope = as.numeric(coef(regmod,2)[2])/1000, 
+              intercept = as.numeric(coef(regmod,2)[1])) +
+  geom_abline(slope = as.numeric(coef(regmod,2)[2])/1000, 
+              intercept = as.numeric(coef(regmod,2)[1])+0.7416,
+              color = "red",linetype = "dashed") +
+  geom_abline(slope = as.numeric(coef(regmod,2)[2])/1000, 
+              intercept = as.numeric(coef(regmod,2)[1])-0.7416,
+              color = "red",linetype = "dashed") +
+  annotate("text", x = 0.76, y = 0, fontface = 1,
+           label = paste("Ea =", round(coef(regmod,2)[2]*-8.617E-5,3),"eV")) +
+  annotate("text", x = 0.76, y = 1, fontface = 1,
+           label = paste("Adj. Rsq =", round(summary(regmod)$adjr2[2],2)))
+
+print(temp6)
+ggsave(filename = "./plotexports/plotexport6.png", plot = temp6, 
+       device = "png", width = 6,height = 4, units = "in")
+rm(temp6)
+#rm(regmod)
+```
+
+```{r}
+#used
+
+temp3d <- df_particles %>%
+  filter(Label != "WH19A") %>%
+  mutate(Label = substr(Label,0,4)) %>%
+  #
+  group_by(Label) %>%
+  mutate(rstar = R3/mean(R3)) %>%
+  #
+  filter(Label != "WH15B") %>%
+  filter(Area >= 0.005) %>%
+  filter(hrs == 5) %>%
+  filter(Label != "WH19") %>%
+  filter(Ni.Vol.Corrected == 0.35) %>%
+  ggplot() +
+  geom_density_ridges(size = 1, aes(x = R3, y = Temp, group = Temp, 
+                                    #color = black,
+                                    fill = as.factor(Temp))) +
+
+
+  scale_x_log10(sec.axis = sec_axis(~.^(1/3)*2, name = expression(D~'['*mu*m*']')),
+                limits = c(0.0001, 10000),
+                breaks = scales::trans_breaks("log10", function(x) 10^x),
+                labels = trans_format("log10", math_format(10^.x))) +
+  scale_y_continuous(breaks = c(700,800,900,1000,1100),
+                     sec.axis = sec_axis(~., labels = NULL)) +
+  
+  #geom_hline(yintercept = 0, color = "White", size = 1.5) +
+  theme_classic() +
+
+
+  ylab("") +
+  xlab(expression(R^3~'['*mu*m^3*']')) +
+  #annotation_logticks(sides = "b") +
+  guides(color = FALSE, fill = guide_legend(reverse = TRUE, title = expression(Temp~'['*degree*C*']'), 
+                               #override.aes = list(size=4), 
+                               title.theme = element_text(colour = "black",
+                                                          #face = "bold",
+                                                          size = 12))) +
+  theme(axis.text.x = element_text(colour = "black", size = 16),
+        axis.text.y = element_text(colour = "black", size = 16),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 16),
+        axis.title.y = element_text(colour = "black", size = 16),
+        legend.text = element_text(colour="black", size = 12))
+
+print(temp3d)
+ggsave(filename = "./plotexports/plotexporttemp3d.png", plot = temp3d, 
+       device = "png", width = 6,height = 4, units = "in")
+rm(temp3d)
+```
+
+```{r}
+#used
+
+#manually equally space the curves by changing the y value and breaks, 
+#then changing the value back to the real value using labels
+timefix <- function(y){
+  if(y == 150) 150 else if(y == 50) 100 else if(y == 10) 50 else if(y == 5) 0
+}
+
+time3d <- df_particles %>%
+  filter(Temp == 900) %>% #Temperature of interest
+  filter(Area >= 0.005) %>% #Noise reduction
+  filter(Label != "WH15B") %>% #weird distro
+  filter(Ni.Vol.Corrected == 0.35) %>%
+  mutate(Label = substr(Label,0,4)) %>%
+  #filter(Ni.Vol.Corrected == 0.28) %>%
+  #filter(Label != "WH31") %>%
+  #filter(Label != "WH37") %>%
+  #
+  group_by(Label) %>%
+  mutate(rstar = R3/mean(R3)) %>%
+  #
+  mutate(hrs2 = timefix(hrs)) %>%
+  
+  #filter(Area >= 0.002) %>%
+  ggplot() +
+  geom_density_ridges(size = 1, aes(x = R3, y = hrs2, group = hrs, fill = as.factor(hrs))) + 
+  scale_x_log10(sec.axis = sec_axis(~.^(1/3)*2, name = expression(D~'['*mu*m*']')),
+                limits = c(0.0001, 10000),
+                breaks = scales::trans_breaks("log10", function(x) 10^x),
+                labels = trans_format("log10", math_format(10^.x))) +
+  scale_y_continuous(breaks = c(0,50,100,150),
+                     labels = c("5", "10", "50", "150"),
+                     sec.axis = sec_axis(~., breaks = c(0,50,100,150), labels = NULL)) +
+  theme_classic() +
+  guides(colour = FALSE, fill = guide_legend(title = "Time [hrs]", reverse = TRUE,
+                               #override.aes = list(size=4), 
+                               title.theme = element_text(colour="black",
+                                                          #face = "bold",
+                                                          size = 12))) +
+  ylab("") +
+  xlab(expression(R^3~'['*mu*m^3*']')) +
+  geom_hline(yintercept = 0, color = "White", size = 1.5) +
+  #annotation_logticks() +
+  scale_fill_manual(values=c("#00BF7D", "#BF7D00", "#7C00BF", "#BF0041")) +
+  theme(axis.text.x = element_text(colour = "black", size = 16),
+        axis.text.y = element_text(colour = "black", size = 16),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 16),
+        axis.title.y = element_text(colour = "black", size = 16),
+        legend.text = element_text(colour="black", size = 12))
+
+print(time3d)
+ggsave(filename = "./plotexports/plotexporttime3d.png", plot = time3d, 
+       device = "png", width = 6,height = 4, units = "in")
+rm(time3d)
+rm(timefix)
+```
+
+```{r}
+#used
+
+#manually equally space the curves by changing the y value and breaks, 
+#then changing the value back to the real value using labels
+nifix <- function(z){
+  if(z == 0.05) 1 else if(z == 0.1) 2 else if(z == 0.2) 3 else if(z == 0.24) 4 else if(z == 0.28) 5 else if(z == 0.35) 6 else if(z == 0.4) 7 else if(z == 0.5) 8
+}
+
+ni3d <- df_particles %>%
+  mutate(Label = substr(Label,0,4)) %>%
+  #
+  group_by(Label) %>%
+  mutate(rstar = R3/mean(R3)) %>%
+  #
+  mutate(ni2 = nifix(Ni.Vol.Corrected)) %>%
+  #
+  filter(Label != "WH15B") %>%
+  filter(Area >= 0.005) %>%
+  filter(Label != "WH19") %>%
+  filter(Temp == 900) %>%
+  filter(hrs == 5) %>%
+  ggplot() +
+  geom_density_ridges(size = 1, aes(x = R3, y = ni2-1, group = Ni.Vol.Corrected, 
+                   fill = as.factor(Ni.Vol.Corrected))) + 
+  scale_x_log10(sec.axis = sec_axis(~.^(1/3)*2, name = expression(D~'['*mu*m*']')),
+                limits = c(0.0001, 10000),
+                breaks = scales::trans_breaks("log10", function(x) 10^x),
+                labels = trans_format("log10", math_format(10^.x))) +
+  scale_y_continuous(breaks = c(0,1,2,3,4,5,6,7),
+                     labels = c("0.05", "0.10", "0.20", "0.24", "0.28", "0.35", "0.40", "0.50"),
+                     sec.axis = sec_axis(~., breaks = c(0,1,2,3,4,5,6,7), labels = NULL)) +
+  geom_hline(yintercept = 0, color = "White", size = 1.5) +
+  theme_classic() +
+  ylab("") +
+  xlab(expression(R^3~'['*mu*m^3*']')) +
+  #annotation_logticks(sides = "tb") +
+  guides(colour = FALSE, fill = guide_legend(reverse = TRUE, title = "Ni Vol.", 
+                               #override.aes = list(size=4), 
+                               title.theme = element_text(colour = "black",
+                                                          #face = "bold",
+                                                          size = 12))) +
+  theme(axis.text.x = element_text(colour = "black", size = 16),
+        axis.text.y = element_text(colour = "black", size = 16),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 16),
+        axis.title.y = element_text(colour = "black", size = 16),
+        legend.text = element_text(colour="black", size = 12))
+
+print(ni3d)
+ggsave(filename = "./plotexports/plotexportni3d.png", plot = ni3d, 
+       device = "png", width = 6,height = 4, units = "in")
+rm(ni3d)
+rm(nifix)
+```

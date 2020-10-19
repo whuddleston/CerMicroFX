@@ -1,0 +1,405 @@
+---
+title: "LTO-Ni-Conductivity-Plots"
+author: "whh36"
+date: "8/16/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+#SETUP OF LIBRARIES
+knitr::opts_chunk$set(echo = FALSE, warning=FALSE, message=FALSE) #set echo to FALSE to hide code
+```
+
+
+```{r}
+#conductivity vs time and temp (and vs Nickel)
+
+condhrs <- fractSum %>%
+  filter(Temp == 900) %>%
+  #
+  ggplot() +
+  geom_point(size = 3, aes(y = condAve, x = Ni.Vol.Corrected, 
+                 color = as.factor(hrs))) +
+  scale_y_log10(breaks = scales::trans_breaks("log10", function(x) 10^x),
+                labels = trans_format("log10", math_format(10^.x)),
+                sec.axis = sec_axis(~., labels = NULL)) +
+  scale_x_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  xlab("Nickel Volume Fraction") +
+  guides(colour = guide_legend(reverse = TRUE, title = "Time [hrs]", 
+                               title.theme = element_text(colour="black", 
+                                                          #face = "bold", 
+                                                          size = 12))) +
+  scale_color_manual(values=c("#00BF7D", "#BF7D00", "#7C00BF", "#BF0041")) +
+  theme_classic() +
+  theme(axis.text.x = element_text(colour = "black", size = 16),
+        axis.text.y = element_text(colour = "black", size = 16),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 16),
+        axis.title.y = element_text(colour = "black", size = 16),
+        legend.text = element_text(colour="black", size = 12))
+
+print(condhrs)
+ggsave(filename = "./plotexports/plotexportcondhrs.png", plot = condhrs, device = "png", width = 8, height = 6, units = "in")
+rm(condhrs)
+
+condtemp <- fractSum %>%
+  filter(hrs == 5) %>%
+  #
+  ggplot() +
+  geom_point(size = 3, aes(y = condAve, x = Ni.Vol.Corrected, 
+                 color = as.factor(Temp))) +
+  scale_y_log10(breaks = scales::trans_breaks("log10", function(x) 10^x),
+                labels = trans_format("log10", math_format(10^.x)),
+                sec.axis = sec_axis(~., labels = NULL)) +
+  scale_x_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  xlab("Nickel Volume Fraction") +
+  guides(colour = guide_legend(reverse = TRUE, title = expression(Temp~'['*degree*C*']'), 
+                               title.theme = element_text(colour="black", 
+                                                          #face = "bold", 
+                                                          size = 12))) +
+  theme_classic() +
+  theme(axis.text.x = element_text(colour = "black", size = 16),
+        axis.text.y = element_text(colour = "black", size = 16),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 16),
+        axis.title.y = element_text(colour = "black", size = 16),
+        legend.text = element_text(colour="black", size = 12))
+
+print(condtemp)
+ggsave(filename = "./plotexports/plotexportcondtemp.png", plot = condtemp, device = "png", width = 8, height = 6, units = "in")
+rm(condtemp)
+```
+
+```{r}
+#initial conductivity modeling
+#
+#need to rework all models using measured nickel coverage*edge correction factor 
+#rather than nominal ni.vol.corrected
+
+fractSum %>%
+  #calculate initial model parameters based on density
+  #initialt thought was to calculate if nickel was higher than the sample critical amount based on density
+  mutate(ncp = 0.33/(Th.Density/105)) %>%
+  mutate(condgamma = (0.5*Ni.Vol.Corrected) + 0.5) %>%
+  mutate(K1 = condgamma/((1 - ncp)^2)) %>%
+  mutate(sigmaideal = if_else(Ni.Vol.Corrected > ncp, 
+                              K1*condNi*(Ni.Vol.Corrected - ncp)^2,
+                              ((((2*Ni.Vol.Corrected*(1-ab))/((2*ab)+1))+1) / (1-(((1-ab)*Ni.Vol.Corrected)/(ab+1))))*condLTO)) %>%
+  mutate(condnorm = condAve/sigmaideal) %>%
+  #
+  ggplot() +
+  geom_point(size = 3, aes(x = Ni.Vol.Corrected, y = condAve, shape = as.factor(hrs), color = as.factor(Ni.Vol.Corrected))) +
+  geom_point(size = 3, aes(x = Ni.Vol.Corrected, y = sigmaideal)) +
+  scale_y_log10(limits = c(0.0001, 50000), 
+                breaks = scales::trans_breaks("log10", function(x) 10^x),
+                labels = trans_format("log10", math_format(10^.x)),
+                sec.axis = sec_axis(~., labels = NULL)) +
+  scale_x_continuous(#limits = c(0.01, 10000),
+                sec.axis = sec_axis(~., labels = NULL)) +
+  xlab("Nickel Volume Fraction") +
+  guides(color = guide_legend(reverse = TRUE, title = "Ni Vol.", 
+                              title.theme = element_text(colour="black",
+                                                         #face = "bold",
+                                                         size = 12))) +
+  guides(shape = guide_legend(reverse = TRUE, title = "Time [hrs]", 
+                              title.theme = element_text(colour="black",
+                                                         #face = "bold",
+                                                         size = 12))) +
+  scale_shape_manual(values=c(16, 17, 0, 2)) + #hrs
+  theme_classic() +
+  theme(axis.text.x = element_text(colour = "black", size = 16),
+        axis.text.y = element_text(colour = "black", size = 16),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 16),
+        axis.title.y = element_text(colour = "black", size = 16),
+        legend.text = element_text(colour="black", size = 12))
+```
+
+```{r}
+condnorm <- fractSum %>%
+  mutate(ncp = 0.33/(Th.Density/105)) %>%
+  mutate(condgamma = (0.5*Ni.Vol.Corrected) + 0.5) %>%
+  mutate(K1 = condgamma/((1 - ncp)^2)) %>%
+  mutate(sigmaideal = if_else(Ni.Vol.Corrected > ncp, 
+                              K1*condNi*(Ni.Vol.Corrected - ncp)^2,
+                              ((((2*Ni.Vol.Corrected*(1-ab))/((2*ab)+1))+1) / (1-(((1-ab)*Ni.Vol.Corrected)/(ab+1))))*condLTO)) %>%
+  mutate(condnorm = condAve/sigmaideal) %>%
+  #
+  ggplot() +
+  geom_point(size = 3, aes(x = Ni.Vol.Corrected, y = condnorm,
+                           shape = as.factor(hrs),
+                           color = as.factor(Ni.Vol.Corrected))) +
+  scale_y_log10(limits = c(0.0001, 50000), 
+                breaks = scales::trans_breaks("log10", function(x) 10^x),
+                labels = trans_format("log10", math_format(10^.x)),
+                sec.axis = sec_axis(~., labels = NULL)) +
+  scale_x_continuous(#limits = c(0.01, 10000),
+                sec.axis = sec_axis(~., labels = NULL)) +
+  scale_shape_manual(values=c(16, 17, 0, 2)) + #hrs
+  xlab("Nickel Volume Fraction") +
+  guides(color = guide_legend(reverse = TRUE, title = "Ni Vol.", 
+                              title.theme = element_text(colour="black",
+                                                         #face = "bold",
+                                                         size = 12))) +
+  theme_classic() +
+  theme(axis.text.x = element_text(colour = "black", size = 16),
+        axis.text.y = element_text(colour = "black", size = 16),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 16),
+        axis.title.y = element_text(colour = "black", size = 16),
+        legend.text = element_text(colour="black", size = 12))
+
+
+print(condnorm)
+ggsave(filename = "./plotexports/plotexportcondnorm.png", plot = condnorm, device = "png", width = 8, height = 6, units = "in")
+rm(condnorm)
+```
+
+
+```{r}
+condavemod <- fractSum %>%
+  mutate(ncp = 0.33/(Th.Density/105)) %>%
+  mutate(condgamma = (0.5*Ni.Vol.Corrected) + 0.5) %>%
+  mutate(K1 = condgamma/((1 - ncp)^2)) %>%
+  mutate(sigmaideal2 = if_else(condAve > 0.5 & Ni.Vol.Corrected > 0.33, 
+                              K1*condNi*(Ni.Vol.Corrected - ncp)^2,
+                              ((((2*Ni.Vol.Corrected*(1-ab))/((2*ab)+1))+1) / (1-(((1-ab)*Ni.Vol.Corrected)/(ab+1))))*condLTO)) %>%
+  mutate(condnorm = condAve/sigmaideal2) %>%
+  #
+  ggplot() +
+  geom_point(size = 3, aes(x = Ni.Vol.Corrected, y = condAve, shape = as.factor(hrs), color = as.factor(Ni.Vol.Corrected))) +
+  geom_point(size = 3, aes(x = Ni.Vol.Corrected, y = sigmaideal2)) +
+  geom_hline(yintercept = 0.5) +
+  geom_vline(xintercept = 0.33) +
+  scale_y_log10(limits = c(0.0001, 50000), 
+                breaks = scales::trans_breaks("log10", function(x) 10^x),
+                labels = trans_format("log10", math_format(10^.x)),
+                sec.axis = sec_axis(~., labels = NULL)) +
+  scale_x_continuous(#limits = c(0.01, 10000),
+                sec.axis = sec_axis(~., labels = NULL)) +
+  xlab("Nickel Volume Fraction") +
+  guides(color = guide_legend(reverse = TRUE, title = "Ni Vol.", 
+                              title.theme = element_text(colour="black",
+                                                         #face = "bold",
+                                                         size = 12))) +
+  guides(shape = guide_legend(reverse = TRUE, title = "Time [hrs]", 
+                              title.theme = element_text(colour="black",
+                                                         #face = "bold",
+                                                         size = 12))) +
+  scale_shape_manual(values=c(16, 17, 0, 2)) + #hrs
+  theme_classic() +
+  theme(axis.text.x = element_text(colour = "black", size = 16),
+        axis.text.y = element_text(colour = "black", size = 16),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 16),
+        axis.title.y = element_text(colour = "black", size = 16),
+        legend.text = element_text(colour="black", size = 12))
+
+print(condavemod)
+ggsave(filename = "./plotexports/plotexportcondavemod.png", plot = condavemod, device = "png", width = 8, height = 6, units = "in")
+rm(condavemod)
+```
+
+```{r}
+condnorm2 <- fractSum %>%
+  #filter(hrs == 5) %>%
+  mutate(ncp = 0.33/(Th.Density/105)) %>%
+  mutate(condgamma = (0.5*Ni.Vol.Corrected) + 0.5) %>%
+  mutate(K1 = condgamma/((1 - ncp)^2)) %>%
+  mutate(sigmaideal = if_else(Ni.Vol.Corrected > ncp, 
+                              K1*condNi*(Ni.Vol.Corrected - ncp)^2,
+                              ((((2*Ni.Vol.Corrected*(1-ab))/((2*ab)+1))+1) / (1-(((1-ab)*Ni.Vol.Corrected)/(ab+1))))*condLTO)) %>%
+  mutate(sigmaideal2 = if_else(condAve > 1 & Ni.Vol.Corrected > 0.3, 
+                              K1*condNi*(Ni.Vol.Corrected - ncp)^2,
+                              ((((2*Ni.Vol.Corrected*(1-ab))/((2*ab)+1))+1) / (1-(((1-ab)*Ni.Vol.Corrected)/(ab+1))))*condLTO)) %>%
+  mutate(condnorm = condAve/sigmaideal) %>%
+  mutate(condnorm2 = condAve/sigmaideal2) %>%
+  #
+  ggplot() +
+  #geom_boxplot(aes(group = Ni.Vol.Corrected, x = Ni.Vol.Corrected, y = condnorm2)) +
+  geom_point(size = 3, aes(x = Ni.Vol.Corrected, y = condnorm2, color = as.factor(Ni.Vol.Corrected))) +
+  scale_y_log10(limits = c(0.0001, 50000), 
+                breaks = scales::trans_breaks("log10", function(x) 10^x),
+                labels = trans_format("log10", math_format(10^.x)),
+                sec.axis = sec_axis(~., labels = NULL)) +
+  scale_x_continuous(#limits = c(0.01, 10000),
+                sec.axis = sec_axis(~., labels = NULL)) +
+  xlab("Nickel Volume Fraction") +
+  guides(color = guide_legend(reverse = TRUE, title = "Ni Vol.", 
+                              title.theme = element_text(colour="black",
+                                                         #face = "bold",
+                                                         size = 12))) +
+  theme_classic() +
+  theme(axis.text.x = element_text(colour = "black", size = 16),
+        axis.text.y = element_text(colour = "black", size = 16),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 16),
+        axis.title.y = element_text(colour = "black", size = 16),
+        legend.text = element_text(colour="black", size = 12))
+
+print(condnorm2)
+ggsave(filename = "./plotexports/plotexportcondnorm2.png", plot = condnorm2, device = "png", width = 8, height = 6, units = "in")
+rm(condnorm2)
+```
+
+```{r}
+#comparison of predicted values from the two different models
+condcal <- fractSum %>%
+  mutate(ncp = 0.33/(Th.Density/105)) %>%
+  mutate(condgamma = (0.5*Ni.Vol.Corrected) + 0.5) %>%
+  mutate(K1 = condgamma/((1 - ncp)^2)) %>%
+  mutate(sigmaideal = if_else(Ni.Vol.Corrected > ncp, 
+                              K1*condNi*(Ni.Vol.Corrected - ncp)^2,
+                              ((((2*Ni.Vol.Corrected*(1-ab))/((2*ab)+1))+1) / (1-(((1-ab)*Ni.Vol.Corrected)/(ab+1))))*condLTO)) %>%
+  mutate(sigmaideal2 = if_else(condAve > 0.5 & Ni.Vol.Corrected > 0.3, 
+                              K1*condNi*(Ni.Vol.Corrected - ncp)^2,
+                              ((((2*Ni.Vol.Corrected*(1-ab))/((2*ab)+1))+1) / (1-(((1-ab)*Ni.Vol.Corrected)/(ab+1))))*condLTO)) %>%
+  mutate(condnorm = condAve/sigmaideal) %>%
+  mutate(condnorm2 = condAve/sigmaideal2) %>%
+  #
+  ggplot() +
+  geom_point(size = 3, aes(x = Ni.Vol.Corrected, y = sigmaideal, color = as.factor(Ni.Vol.Corrected))) +
+  geom_point(size = 1, aes(x = Ni.Vol.Corrected, y = sigmaideal2)) +
+  scale_y_log10(limits = c(0.0001, 50000), 
+                breaks = scales::trans_breaks("log10", function(x) 10^x),
+                labels = trans_format("log10", math_format(10^.x)),
+                sec.axis = sec_axis(~., labels = NULL)) +
+  scale_x_continuous(#limits = c(0.01, 10000),
+                sec.axis = sec_axis(~., labels = NULL)) +
+  xlab("Nickel Volume Fraction") +
+  guides(color = guide_legend(reverse = TRUE, title = "Ni Vol.", 
+                              title.theme = element_text(colour="black",
+                                                         #face = "bold",
+                                                         size = 12))) +
+  theme_classic() +
+  theme(axis.text.x = element_text(colour = "black", size = 16),
+        axis.text.y = element_text(colour = "black", size = 16),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 16),
+        axis.title.y = element_text(colour = "black", size = 16),
+        legend.text = element_text(colour="black", size = 12))
+
+print(condcal)
+ggsave(filename = "./plotexports/plotexportcondcal.png", plot = condcal, device = "png", width = 8, height = 6, units = "in")
+rm(condcal)
+```
+
+
+```{r}
+#need to detect if a value is for a percolated or isolated sample?
+#calculate the ideal conductivity after that is known?
+
+#not quite there as a better conductivity model
+#should try to develop a better piecewise conductivity model
+#high nickel: distance between actual nickel content and effective percolation threshold (effected by density)
+#vs
+#low nickel: distance from actual nickel to the effective nickel content (effected by density), 
+#aka just the effective nickel content is my dependent variable
+#total model should be a piecewise model where 
+#as nickel content goes up, the low nickel portion washes out leaving behind the standard perc model
+#at low nickel content, low nickel model dominates, then exponential falloff/transition region
+
+fractSum %>%
+  mutate(ncp = 0.33/(Th.Density/105)) %>%
+  mutate(condgamma = (0.5*Ni.Vol.Corrected) + 0.5) %>%
+  mutate(K1 = condgamma/((1 - ncp)^2)) %>%
+  mutate(sigmaideal2 = if_else(condAve > 0.5 & Ni.Vol.Corrected > 0.3, 
+                              K1*condNi*(Ni.Vol.Corrected - ncp)^2,
+                              ((((2*Ni.Vol.Corrected*(1-ab))/((2*ab)+1))+1) / (1-(((1-ab)*Ni.Vol.Corrected)/(ab+1))))*condLTO)) %>%
+  mutate(condnorm = condAve/sigmaideal2) %>%
+  #
+  
+  
+  mutate(nip = Ni.Vol.Corrected/(Th.Density/105)) %>%
+  mutate(condgamma2 = (0.05*nip)) %>%
+  mutate(K2 = condgamma2/((1 - nip)^2)) %>%
+  mutate(sigmaideal3 = if_else(condAve > 0.5 & Ni.Vol.Corrected < 0.3, 
+                              K2*condNi*(nip - 0.1)^2,
+                              ((((2*Ni.Vol.Corrected*(1-ab))/((2*ab)+1))+1) / (1-(((1-ab)*Ni.Vol.Corrected)/(ab+1))))*condLTO)) %>%
+  #
+  ggplot() +
+  geom_point(size = 3, aes(x = Ni.Vol.Corrected, y = condAve, shape = as.factor(hrs), color = as.factor(Ni.Vol.Corrected))) +
+  geom_point(size = 3, aes(x = Ni.Vol.Corrected, y = sigmaideal3)) +
+  geom_point(size = 3, aes(x = Ni.Vol.Corrected, y = sigmaideal2)) +
+  scale_y_log10(limits = c(0.0001, 50000), 
+                breaks = scales::trans_breaks("log10", function(x) 10^x),
+                labels = trans_format("log10", math_format(10^.x)),
+                sec.axis = sec_axis(~., labels = NULL)) +
+  scale_x_continuous(#limits = c(0.01, 10000),
+                sec.axis = sec_axis(~., labels = NULL)) +
+  xlab("Nickel Volume Fraction") +
+  guides(color = guide_legend(reverse = TRUE, title = "Ni Vol.", 
+                              title.theme = element_text(colour="black",
+                                                         #face = "bold",
+                                                         size = 12))) +
+  guides(shape = guide_legend(reverse = TRUE, title = "Time [hrs]", 
+                              title.theme = element_text(colour="black",
+                                                         #face = "bold",
+                                                         size = 12))) +
+  scale_shape_manual(values=c(16, 17, 0, 2), na.translate = FALSE) + #remove na from legend
+  theme_classic() +
+  geom_hline(aes(yintercept = 0.5)) +
+  theme(axis.text.x = element_text(colour = "black", size = 16),
+        axis.text.y = element_text(colour = "black", size = 16),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 16),
+        axis.title.y = element_text(colour = "black", size = 16),
+        legend.text = element_text(colour="black", size = 12))
+```
+
+
+
+
+
+```{r}
+conzz <- fractSum %>%
+  ggplot() +
+  geom_point(size = 3, aes(y = condAve, x = zz, 
+                 #size = as.factor(hrs),
+                 shape = as.factor(Temp),
+                 color = as.factor(Ni.Vol.Corrected))) +
+  xlab(expression(ln~(T*R^'3'*'/'~t))) +
+  scale_y_log10(sec.axis = sec_axis(~., labels = NULL)) +
+  scale_x_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  #guides(color = FALSE) +
+  theme_classic() +
+  theme(axis.text.x = element_text(colour = "black", size = 16),
+        axis.text.y = element_text(colour = "black", size = 16),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 16),
+        axis.title.y = element_text(colour = "black", size = 16),
+        legend.text = element_text(colour="black", size = 12))
+
+print(conzz)
+ggsave(filename = "./plotexports/plotexportconzz.png", plot = conzz, device = "png", width = 8, height = 6, units = "in")
+rm(conzz)
+
+fractSum %>%
+  ggplot() +
+  geom_point(size = 3, aes(y = condAve, x = zz/Th.Density, 
+                 #size = as.factor(hrs),
+                 shape = as.factor(Temp),
+                 color = as.factor(Ni.Vol.Corrected))) +
+  xlab(expression(ln~(T*R^'3'*'/'~t)*~'/'~'Density')) +
+  scale_y_log10(sec.axis = sec_axis(~., labels = NULL)) +
+  scale_x_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  #guides(color = FALSE) +
+  theme_classic() +
+  theme(axis.text.x = element_text(colour = "black", size = 16),
+        axis.text.y = element_text(colour = "black", size = 16),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 16),
+        axis.title.y = element_text(colour = "black", size = 16),
+        legend.text = element_text(colour="black", size = 12))
+```
+

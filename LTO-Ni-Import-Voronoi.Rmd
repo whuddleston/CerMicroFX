@@ -1,0 +1,73 @@
+---
+title: "LTO-Ni-Import-Voronoi"
+author: "whh36"
+date: "8/17/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+voronoilist <- list.files("./data-files/voronoi-txt-files-10k/", full.names = TRUE)
+
+voronoidens <- data.frame()
+
+avevoronoi <- data.frame()
+
+for (i in voronoilist){
+  
+  #read in voronoi map data
+  voronoidata <- read.table(i, header = FALSE) %>%
+  rownames_to_column() %>%
+  pivot_longer(., cols = starts_with("v"), names_to = "colx", values_to = "intensz") %>%
+  mutate(colx = substr(colx, 2, 6)) %>%
+  mutate(colx = as.numeric(colx)) %>%
+  mutate(rowname = as.numeric(rowname)) %>%
+  mutate(intensz = if_else(intensz != 0, intensz, as.integer(NA))) %>%
+  filter(is.na(intensz) == FALSE) %>%
+  mutate(intensz = intensz*0.052459) 
+  #raw pixel intensity is half of particle seperation (e.g. multiply * 2)
+  #and convert pixels to micron (e.g multiple * 8um/305)
+  #2*8/305 = 0.052459
+  
+  #create the density curve
+  voronoidist <- voronoidata %>%
+  ggplot() +
+  geom_density(aes(x = intensz))
+  
+  #save the density curve to a dataframe
+  voronoidens <- ggplot_build(voronoidist)$data[[1]] %>%
+  dplyr::select(2,6) %>% #second number is 3 for density or 6 for stat(count)
+  cbind(., i) %>%
+  rbind(voronoidens, .)
+  
+  #calculate mean in the for loop
+  avevoronoi <- voronoidata %>%
+  summarise(avevoronoix = mean(intensz)) %>%
+  cbind(., nrow(voronoidata), i) %>%
+  rbind(avevoronoi, .)
+
+}
+
+rm(voronoidist)
+rm(i)
+rm(voronoilist)
+rm(voronoidata)
+
+colnames(voronoidens)[3] <- "Labelfineshort"
+
+voronoidens <- voronoidens %>%
+  mutate(Labelfineshort = as.character(Labelfineshort)) %>%
+  mutate(LabelLength = nchar(Labelfineshort)) %>%
+  mutate(Labelfineshort = substr(Labelfineshort, 36, LabelLength-4)) %>%
+  select(-LabelLength)
+```
+
+```{r}
+write.table(avevoronoi, file = "./data-files/avevoronoi.csv", row.names = FALSE, sep = ",")
+
+write.table(voronoidens, file = "./data-files/voronoidens.csv", row.names = FALSE, sep = ",")
+```
+

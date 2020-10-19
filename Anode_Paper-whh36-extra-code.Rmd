@@ -1,0 +1,1102 @@
+---
+title:  | 
+  | Ni Coarsening in Li~4~Ti~5~O~12~ Anode Composites
+author: "William Huddleston"
+date:  "`r format(Sys.time(), '%d %B, %Y')`"
+output: 
+  pdf_document:
+    toc: false
+    number_sections: false
+    toc_depth: 6
+    highlight: tango
+  html_document:
+    toc: yes
+urlcolor: blue
+---
+
+```{r setup, include=FALSE}
+#SETUP OF LIBRARIES
+knitr::opts_chunk$set(echo = FALSE) #set echo to FALSE to hide code
+#knitr::opts_chunk$set(fig.pos = 'H')
+library(tidyverse)
+library(ggplot2)
+library(GGally)
+#library(gdata)
+library(leaps)
+library(MASS)
+library(wesanderson)
+library(mclust)
+library(scales)
+library(ggridges)
+library(plotly)
+
+#Alternative titles:
+#Processing and Percolation of Li~4~Ti~5~O~12~-Ni Composite Anodes
+#Densification and Coarsening of Li~4~Ti~5~O~12~-Ni Composite Anodes
+```
+
+# Introduction
+
+$R^{3} - R_{o}^{3} = \frac{8 \gamma C_{\infty}V_{M}^{2}D}{9R_{g}T} t$
+
+$D = D_o*e^{-(Ea/ kT)}$
+
+$\sigma_{eff} = K_{1}\sigma_{o}(n-n_{c})^\mu$
+
+$K_{1}= \frac{\gamma}{(1-n_{c})^\mu}$ 
+
+$n_{c}^{P} = \frac{n_{c}^{100}}{(1-P)}$
+
+# Experimental Methods
+
+![LTO dilatometry and densification rate. Sintering temperatures are denoted with vertical dashed lines.](./SemProj-Images/LTODil){width=75%}
+
+
+![Raw and processed SEM image for a 20vol.% Ni sample sintered at 900C for 5hrs. Scale bar is 5$\mu$m.](./SemProj-Images/imageprocessing){width=75%}
+
+# Results and Discussion
+
+## Percolation
+
+![Electrical conductivity as a function of nickel volume content.](./SemProj-Images/PercolationResults)
+
+$\sigma_{eff} = K_{1}\sigma_{o}(n-n_{c})^\mu$
+
+## Coarsening
+
+By rearranging the Ostwald ripening model:
+
+$\frac{(R^{3} - R_{o}^{3})T}t = \frac{8 \gamma C_{\infty}V_{M}^{2}D}{9R_{g}}$
+
+and introducing the exponential temperature dependence:
+
+$\frac{(R^{3} - R_{o}^{3})T}t = \frac{8 \gamma C_{\infty}V_{M}^{2}D_oe^{-(Ea/ kT)}}{9R_{g}}$
+
+A simplified form may be achieved through combination of constants.
+
+$W_o = \frac{8 \gamma C_{\infty}V_{M}^{2}D_o}{9R_{g}}$
+
+$\frac{(R^{3} - R_{o}^{3})T}t = W_oe^{-(Ea/ kT)}$
+
+A Linear model was reached in the form $y = b + mx$ by taking the natural log :
+
+$ln[\frac{(R^{3} - R_{o}^{3})T}t] = ln[W_oe^{-(Ea/ kT)}]$
+
+$ln[\frac{(R^{3} - R_{o}^{3})T}t] = ln[W_o] + \frac{-Ea}{k} \frac{1}T$
+
+$ln[\frac{(R^{3} - R_{o}^{3})T}t] = ln[W_o] + \frac{-Ea}{k} \frac{1}T + \beta (V_{Ni})$
+
+![A) Composition (Ni vol%) Variable (Left to Right Increasing) B) Temperature Variable (Left to Right Increasing)](./SemProj-Images/psdmatrix)
+
+```{r, fig.cap="Representative particle area distribution. The mean area is denoted by a red vertical line and the data shown is for 900C-5hrs-10Ni."}
+
+#Histogram plotting
+
+sampleID <- "WH09"
+
+mean1 <- df_particles %>%
+  dplyr::select(2,3,8:10,15,17,18) %>%
+  filter(substr(Label,0,4) == sampleID) %>%
+  filter(Area >= 0.005) %>%
+  summarise(mean = mean(Area))
+
+median1 <- df_particles %>%
+  dplyr::select(2,3,8:10,15,17,18) %>%
+  filter(substr(Label,0,4) == sampleID) %>%
+  filter(Area >= 0.005) %>%
+  summarise(median = median(Area))
+
+
+temp0 <- df_particles %>%
+  dplyr::select(2,3,8:10,15,17,18) %>%
+  filter(substr(Label,0,4) == sampleID) %>%
+  filter(Area >= 0.005) %>%
+  ggplot() +
+  geom_histogram(bins = 30, aes(x = Area)) + 
+  scale_x_log10(sec.axis = sec_axis(~., labels = NULL)) +
+  scale_y_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  geom_vline(xintercept = as.numeric(mean1), color = "red",linetype = "dashed", size = 2) +
+  #geom_vline(xintercept = as.numeric(median1), color = "blue",linetype = "dashed", size = 2) +
+  theme_classic() +
+  #ylab("cts") +
+  theme(axis.text.x = element_text(colour = "black", size = 28,face = "bold"),
+        axis.text.y = element_text(colour = "black", size = 28,face = "bold"),
+        axis.ticks = element_line(colour = "black", size = 2),
+        axis.line = element_line(colour = 'black', size = 2),
+        axis.title.x = element_text(colour = "black", size = 28,face = "bold"),
+        axis.title.y = element_text(colour = "black", size = 28,face = "bold"))
+
+rm(mean1)
+rm(median1)
+rm(sampleID)
+
+print(temp0)
+ggsave(filename = "./extradata/plotexport0.png", plot = temp0, device = "png", width = 6, height = 6, units = "in")
+rm(temp0)
+```
+
+```{r}
+temp3 <- one %>%
+  filter(hrs == 10) %>%
+  filter(Ni.Vol.Corrected != 0.24) %>%
+  filter(Ni.Vol.Corrected != 0.28) %>%
+  filter(Ni.Vol.Corrected != 0.35) %>%
+  ggplot() +
+  geom_point(aes(x = Temp, y = R3,
+                 size = 1,
+                 color = as.factor(Ni.Vol.Corrected))) +
+  xlab(expression(Temp~'['*degree*C*']')) +
+  ylab(expression(R^3~'['*mu*m^3*']')) +
+  theme_classic() +
+  scale_y_log10(limits = c(0.002,25), sec.axis = sec_axis(~.^(1/3)*2, name = expression(D~'['*mu*m*']'))) +
+  scale_x_continuous(limits = c(700,1100), sec.axis = sec_axis(~., labels = NULL)) +
+  scale_color_manual(values=c("#CD9600", "#7CAE00", "#C77CFF")) +
+  guides(colour = guide_legend(title = "Ni Vol.", override.aes = list(size=4), title.theme = element_text(colour="black", size = 12))) +
+  annotation_logticks(sides = "l") +
+  guides(size = FALSE) +
+  theme(axis.text.x = element_text(colour = "black", size = 16),
+        axis.text.y = element_text(colour = "black", size = 16),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 16),
+        axis.title.y = element_text(colour = "black", size = 16),
+        legend.text = element_text(colour="black", size = 12))
+
+
+print(temp3)
+ggsave(filename = "./extradata/plotexport3.png", plot = temp3, device = "png", width = 6,height = 4, units = "in")
+rm(temp3)
+```
+
+```{r, results='hide'}
+#10hr models
+
+mod40 <- one %>%
+  filter(Ni.Vol.Corrected == 0.40) %>%
+  filter(Temp >= 800) %>%
+  filter(hrs == 10) %>%
+  lm(zz~z,.) %>%
+  coef()
+  #summary()
+
+mod20 <- one %>%
+  filter(Ni.Vol.Corrected == 0.20) %>%
+  filter(Temp >= 800) %>%
+  filter(hrs == 10) %>%
+  lm(zz~z,.)%>%
+  coef()
+  #summary()
+
+mod10 <- one %>%
+  filter(Ni.Vol.Corrected == 0.10) %>%
+  filter(Temp >= 800) %>%
+  filter(hrs == 10) %>%
+  lm(zz~z,.)%>%
+  coef()
+  #summary()
+```
+
+```{r, fig.cap="10hr linear models", fig.show='asis'}
+#10 hour linear models, fitting without 700 datapoints
+one %>%
+  filter(hrs == 10) %>%
+  filter(Ni.Vol.Corrected != 0.24) %>%
+  filter(Ni.Vol.Corrected != 0.28) %>%
+  filter(Ni.Vol.Corrected != 0.35) %>%
+  ggplot() +
+  geom_point(aes(x = z, y = zz, 
+                 color = as.factor(Ni.Vol.Corrected))) +
+  geom_abline(slope = as.numeric(mod40[2]),intercept = as.numeric(mod40[1])) +
+  geom_abline(slope = as.numeric(mod20[2]),intercept = as.numeric(mod20[1])) +
+  geom_abline(slope = as.numeric(mod10[2]),intercept = as.numeric(mod10[1])) +
+  ylab(expression(ln(T*R^3/t))) +
+  xlab("1/T") +
+  theme_classic() +
+  scale_color_manual(values=c("#CD9600", "#7CAE00", "#C77CFF"))
+```
+
+
+
+```{r, results='hide'}
+#5hr models
+#A linear model may be constructed for both five hour data series (24% and 35% Ni).
+
+mod35 <- one %>%
+  filter(Ni.Vol.Corrected == 0.35) %>%
+  filter(hrs <= 5) %>%
+  filter(Temp >= 800) %>%
+  filter(Temp <= 1000) %>%
+  lm(zz~z,.) %>%
+  coef()
+  #summary()
+
+mod24 <- one %>%
+  filter(Ni.Vol.Corrected == 0.24) %>%
+  filter(hrs <= 5) %>%
+  filter(Temp >= 800) %>%
+  filter(Temp <= 1000) %>%
+  lm(zz~z,.) %>%
+  coef()
+  #summary()
+```
+
+```{r, fig.cap="Particle size data for samples sintered for 5hrs. a) All nickel contents. b) 24% and 35% plotted for clarity of increasing particle size trend due to increased nickel content."}
+
+one %>%
+  filter(hrs <= 5) %>%
+  ggplot() +
+  geom_point(aes(x = z, y = zz, 
+                 color = as.factor(Ni.Vol.Corrected))) +
+  ylab(expression(ln(T*R^3/t))) +
+  xlab("1/T") +
+  theme_classic()
+
+one %>%
+  filter(Ni.Vol.Corrected <= 0.35) %>%
+  filter(Ni.Vol.Corrected >= 0.24) %>%
+  filter(Ni.Vol.Corrected != 0.28) %>%
+  filter(hrs <= 5) %>%
+  ggplot() +
+  geom_point(aes(x = z, y = zz, 
+                 color = as.factor(Ni.Vol.Corrected))) +
+  ylab(expression(ln(T*R^3/t))) +
+  xlab("1/T") +
+  theme_classic() +
+  scale_color_manual(values=c("#00BE67", "#00A9FF")) +
+  geom_abline(slope = as.numeric(mod35[2]),intercept = as.numeric(mod35[1])) +
+  geom_abline(slope = as.numeric(mod24[2]),intercept = as.numeric(mod24[1]))
+
+#5hr linear models
+
+#mod10[2]*-8.617E-5
+#mod20[2]*-8.617E-5
+#mod40[2]*-8.617E-5
+#mod24[2]*-8.617E-5
+#mod35[2]*-8.617E-5
+
+```
+
+```{r}
+#regsubsets model: LSW + (composition variable included) plotting
+
+temp5 <- one %>%
+  filter(Temp >= 800) %>%
+  ggplot() +
+  geom_point(size = 2,aes(x = z*1000, y = zz, 
+                 shape = as.factor(hrs),
+                 
+                 color = Ni.Vol.Corrected)) +
+  ylab(expression(ln~(T*R^'3'*'/'~t))) +
+  xlab(expression('1000'*'/'*T~~'['*degree*C*']'^-'1')) +
+  theme_classic() +
+  scale_y_continuous(limits = c(-2,10), 
+                     sec.axis = sec_axis(~., labels = NULL)) +
+  scale_x_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  scale_shape_manual(values=c(16, 17, 0, 2)) +
+  scale_color_gradientn(colours = hue_pal()(8)) +
+  guides(shape = guide_legend(title = "Time [hrs]", 
+                              title.theme = element_text(colour="black", 
+                                                         size = 12)),
+         size = FALSE,
+         color = guide_colorbar(title = "Ni Vol.", title.theme = element_text(colour="black", size = 12))) +
+  theme(axis.text.x = element_text(colour = "black", size = 16),
+        axis.text.y = element_text(colour = "black", size = 16),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 16),
+        axis.title.y = element_text(colour = "black", size = 16),
+        legend.text = element_text(colour="black", size = 12)) +
+  geom_abline(slope = as.numeric(coef(regmod,2)[2])/1000, 
+              intercept = as.numeric(coef(regmod,2)[1]) + as.numeric(coef(regmod,2)[3])*0.5) +
+  geom_abline(slope = as.numeric(coef(regmod,2)[2])/1000, 
+              intercept = as.numeric(coef(regmod,2)[1])) +
+  annotate("text", x = 0.76, y = 0, fontface = 1,
+           label = paste("Ea =", round(coef(regmod,2)[2]*-8.617E-5,3),"eV")) +
+  annotate("text", x = 0.76, y = 1, fontface = 1,
+           label = paste("Adj. Rsq =", round(cms$adj.r.squared,2)))
+
+print(temp5)
+
+ggsave(filename = "./extradata/plotexport5.png", plot = temp5, 
+       device = "png", width = 6,height = 4, units = "in")
+
+rm(temp5)
+```
+
+```{r, fig.cap="Histograms"}
+#histrograms are worse than density functions in terms of clarity
+
+two %>%
+  arrange(Temp) %>%
+  #mutate(Label = substr(Label,0,4)) %>%
+  group_by(Label) %>%
+  filter(Area >= 0.002) %>%
+  ggplot() +
+  geom_histogram(bins = 30, aes(x = Area, color = as.factor(Temp))) +
+  scale_x_log10(sec.axis = sec_axis(~., labels = NULL)) +
+  #guides(color = FALSE) +
+  scale_y_continuous(sec.axis = sec_axis(~., labels = NULL))
+
+two %>%
+  arrange(Temp) %>%
+  #mutate(Label = substr(Label,0,4)) %>%
+  filter(Area >= 0.002) %>%
+  ggplot() +
+  geom_histogram(bins = 30, aes(x = Area, group = Label, color = as.factor(Temp))) +
+  scale_x_log10(sec.axis = sec_axis(~., labels = NULL)) +
+  #guides(color = FALSE) +
+  scale_y_continuous(sec.axis = sec_axis(~., labels = NULL))
+
+two %>%
+  arrange(Temp) %>%
+  #mutate(Label = substr(Label,0,4)) %>%
+  filter(Area >= 0.002) %>%
+  ggplot() +
+  geom_histogram(bins = 30, aes(x = Area, group = Label, color = Label)) +
+  scale_x_log10(sec.axis = sec_axis(~., labels = NULL)) +
+  #guides(color = FALSE) +
+  scale_y_continuous(sec.axis = sec_axis(~., labels = NULL))
+```
+
+```{r}
+#density plot exploration
+df_particles %>%
+  #mutate(Label = substr(Label,0,4)) %>%
+  filter(Label != "WH15B") %>%
+  filter(Area >= 0.002) %>%
+  ggplot() +
+  geom_density(aes(x = Area, y = ..density.., group = Label, color = Label)) + 
+  scale_x_log10(sec.axis = sec_axis(~., labels = NULL)) +
+  scale_y_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  theme_classic() +
+  guides(color = FALSE)
+
+df_particles %>%
+  #mutate(Label = substr(Label,0,4)) %>%
+  filter(Label != "WH15B") %>%
+  filter(Area >= 0.002) %>%
+  ggplot() +
+  geom_density(aes(x = R3, y = ..density.., group = Label, 
+                   color = as.factor(Temp))) + 
+  scale_x_log10(sec.axis = sec_axis(~., labels = NULL)) +
+  scale_y_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  theme_classic()
+
+df_particles %>%
+  mutate(Label = substr(Label,0,4)) %>%
+  filter(Label != "WH15B") %>%
+  filter(Area >= 0.002) %>%
+  ggplot() +
+  geom_density(aes(x = R3, y = ..density.., group = Label, 
+                   color = as.factor(Temp))) + 
+  scale_x_log10(sec.axis = sec_axis(~., labels = NULL)) +
+  scale_y_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  theme_classic()
+```
+
+```{r}
+df_particles %>%
+  mutate(Label = substr(Label,0,4)) %>%
+  filter(Label != "WH15B") %>%
+  filter(Area >= 0.002) %>%
+  ggplot() +
+  geom_density(aes(x = R3, y = ..density.., group = Label,
+                   fill = Temp, color = Temp), alpha = 0.01) + 
+  scale_x_log10(sec.axis = sec_axis(~., labels = NULL)) +
+  #scale_y_log10(sec.axis = sec_axis(~., labels = NULL))
+  scale_y_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  theme_classic() +
+  scale_fill_gradientn(colours = wes_palette(n = 5,name = "Zissou1")) +
+  scale_color_gradientn(colours = wes_palette(n = 5,name = "Zissou1")) +
+  guides(color = FALSE)
+
+df_particles %>%
+  mutate(Label = substr(Label,0,4)) %>%
+  filter(Label != "WH15B") %>%
+  filter(Area >= 0.002) %>%
+  ggplot() +
+  geom_density(aes(R3, group = Label,
+                   stat(count),
+                   fill = Temp, color = Temp), alpha = 0.01) + 
+  scale_x_log10(sec.axis = sec_axis(~., labels = NULL)) +
+  #scale_y_log10(sec.axis = sec_axis(~., labels = NULL))
+  scale_y_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  theme_classic() +
+  scale_fill_gradientn(colours = wes_palette(n = 5,name = "Zissou1")) +
+  scale_color_gradientn(colours = wes_palette(n = 5,name = "Zissou1")) +
+  guides(color = FALSE)
+
+  #scale_fill_gradientn(colours = wes_palette(n = 5,name = "Zissou1")) +
+  #scale_color_gradientn(colours = wes_palette(n = 5,name = "Zissou1")) +
+  #guides(color = FALSE)
+```
+
+```{r}
+two %>%
+  filter(Temp == 700) %>%
+  #mutate(Label = substr(Label,0,4)) %>%
+  #filter(Area >= 0.002) %>%
+  ggplot() +
+  geom_density(aes(x = Area, y = ..density.., group = Label, color = as.factor(hrs))) + 
+  scale_x_log10(sec.axis = sec_axis(~., labels = NULL)) +
+  scale_y_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  theme_classic() +
+  #guides(color = FALSE) +
+  ggtitle("700C")
+
+two %>%
+  filter(Temp == 800) %>%
+  #mutate(Label = substr(Label,0,4)) %>%
+  #filter(Area >= 0.002) %>%
+  ggplot() +
+  geom_density(aes(x = Area, y = ..density.., group = Label, color = as.factor(hrs))) + 
+  scale_x_log10(sec.axis = sec_axis(~., labels = NULL)) +
+  scale_y_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  theme_classic() +
+  #guides(color = FALSE) +
+  ggtitle("800C")
+
+two %>%
+  filter(Temp == 900) %>%
+  filter(Label != "WH15B") %>%
+  #mutate(Label = substr(Label,0,4)) %>%
+  #filter(Area >= 0.002) %>%
+  ggplot() +
+  geom_density(aes(x = Area, y = ..density.., group = Label, color = as.factor(hrs))) + 
+  scale_x_log10(sec.axis = sec_axis(~., labels = NULL)) +
+  scale_y_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  theme_classic() +
+  #guides(color = FALSE) +
+  ggtitle("900C")
+
+two %>%
+  filter(Temp == 1000) %>%
+  #mutate(Label = substr(Label,0,4)) %>%
+  #filter(Area >= 0.002) %>%
+  ggplot() +
+  geom_density(aes(x = Area, y = ..density.., group = Label, color = as.factor(hrs))) + 
+  scale_x_log10(sec.axis = sec_axis(~., labels = NULL)) +
+  scale_y_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  theme_classic() +
+  #guides(color = FALSE) +
+  ggtitle("1000C")
+
+two %>%
+  filter(Temp == 1100) %>%
+  #mutate(Label = substr(Label,0,4)) %>%
+  #filter(Area >= 0.002) %>%
+  ggplot() +
+  geom_density(aes(x = Area, y = ..density.., group = Label, color = as.factor(hrs))) + 
+  scale_x_log10(sec.axis = sec_axis(~., labels = NULL)) +
+  scale_y_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  theme_classic() +
+  #guides(color = FALSE) +
+  ggtitle("1100C")
+```
+
+```{r}
+#Label List
+df_particles %>%
+  dplyr::select(Label) %>%
+  #mutate(Label = substr(Label,0,4)) %>%
+  unique()
+
+sampleID <- "WH09"
+
+#weibull parameter estimation
+df_particles %>%
+  filter(substr(Label,0,4) == sampleID) %>%
+  #filter(Area >= 0.005) %>%
+  dplyr::select(Area) %>%
+  unlist() %>%
+  unname() %>%
+  fitdistr(.,densfun = "weibull")
+
+#log normal parameter estimation
+df_particles %>%
+  filter(substr(Label,0,4) == sampleID) %>%
+  #filter(Area >= 0.005) %>%
+  dplyr::select(Area) %>%
+  unlist() %>%
+  unname() %>%
+  fitdistr(.,densfun = "log-normal")
+
+#need to merge with density dataframe to attribute the sample info to each label
+#color by temperature and time or composition rather than
+#Label, which is meaningless
+#convert to R3?
+#need to take log of area to fit a log based distribution?
+
+#dweibull()
+#dlnorm()
+
+rm(sampleID)
+```
+
+```{r}
+#comparison between R3 and Area, finding the correct data flow
+
+sampleID <- "WH02A"
+
+r3line <- one %>%
+  filter(Label == sampleID) %>%
+  dplyr::select(R3)
+as.numeric(r3line)
+
+tempMeanArea <- two %>%
+  filter(Label == sampleID) %>%
+  filter(Area >= 0.005) %>%
+  dplyr::pull(Area) %>%
+  mean()
+
+two %>%
+  filter(Label == sampleID) %>%
+  filter(Area >= 0.005) %>%
+  dplyr::pull(Area) %>%
+  mean() %>%
+  sqrt() %>% '^'(3)
+  
+tempr3m <- two %>%
+  filter(Label == sampleID) %>%
+  filter(Area >= 0.005) %>%  
+  dplyr::pull(R3) %>%
+  mean()
+
+two %>%
+  filter(Label == sampleID) %>%
+  filter(Area >= 0.005) %>%
+  ggplot() +
+  geom_density(aes(x = R3, y = ..density.., group = Label, color = as.factor(hrs))) + 
+  geom_density(aes(x = Area, y = ..density.., group = Label, color = "blue")) +
+  #geom_histogram(aes(x = R3, y = ..density.., group = Label, color = as.factor(hrs))) +
+  scale_x_log10(sec.axis = sec_axis(~., labels = NULL)) +
+  scale_y_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  theme_classic() +
+  #guides(color = FALSE) +
+  ggtitle(sampleID) +
+  geom_vline(xintercept = as.numeric(r3line), color = "red") +
+  geom_vline(xintercept = as.numeric(tempr3m), color = "blue") +
+  geom_vline(xintercept = as.numeric(tempMeanArea), color = "black")
+
+two %>%
+  filter(Label == sampleID) %>%
+  filter(Area >= 0.005) %>%
+  pull(R3) %>%
+  density()
+
+two %>%
+  filter(Label == sampleID) %>%
+  filter(Area >= 0.005) %>%
+  dplyr::select(R3) %>%
+  summary()
+```
+
+```{r}
+#peak fitting attempt
+sampleID <- "WH04B"
+
+r3line <- one %>%
+  filter(Label == sampleID) %>%
+  dplyr::select(R3)
+
+BIC <- two %>%
+  filter(Label == sampleID) %>%
+  dplyr::select(R3) %>%
+  mclustBIC(verbose = FALSE)
+
+Model <- two %>%
+  filter(Label == sampleID) %>%
+  dplyr::select(R3) %>%
+  mclustModel(., BIC)
+
+Model$parameters$mean
+
+two %>%
+  filter(Label == sampleID) %>%
+  ggplot() +
+  geom_density(aes(x = R3, y = ..density.., group = Label, color = as.factor(hrs))) + 
+  scale_x_log10(sec.axis = sec_axis(~., labels = NULL)) +
+  scale_y_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  theme_classic() +
+  #guides(color = FALSE) +
+  ggtitle(sampleID) +
+  geom_vline(xintercept = Model$parameters$mean) +
+  geom_vline(xintercept = as.numeric(r3line), color = "red")
+
+rm(sampleID)
+rm(BIC)
+rm(Model)
+rm(r3line)
+```
+
+
+<!--
+```{r}
+#second peak fitting for high temperature 5 hours and long time 900
+#this is a looped output of the above code chunk
+
+idlist1 <- two %>%
+  filter(Temp >= 1000) %>%
+  #filter(Label != "WH06C") %>% #Bad fit
+  dplyr::select(Label) %>%
+  unique()
+
+idlist2 <- two %>%
+  filter(hrs >= 50) %>%
+  dplyr::select(Label) %>%
+  unique()
+
+idlist <- rbind(idlist1,idlist2)
+
+pk2df <- data.frame()
+
+for (i in idlist[,1]){
+  
+  temp1 <- two %>%
+    filter(Label == i) %>%
+    dplyr::select(R3) %>%
+    mclustBIC(verbose = FALSE)
+
+  temp2 <- two %>%
+    filter(Label == i) %>%
+    dplyr::select(R3) %>%
+    mclustModel(., temp1)
+  
+  temp3 <- temp2$parameters$mean
+  
+  r3line <- one %>%
+    filter(Label == i) %>%
+    dplyr::select(R3)
+  
+  tempdata <- data.frame(i, as.numeric(r3line), temp3)
+  
+  pk2df <- rbind(pk2df, tempdata)
+  rm(tempdata)
+  #outputs a df containing the mean R3 and means from mclustModel
+  
+  #plotting of mclustModel means over density function, with total mean R3 in red
+  plot1 <- two %>%
+    filter(Label == i) %>%
+    ggplot() +
+    geom_density(aes(x = R3, y = ..density.., group = Label, color = as.factor(hrs))) +
+    scale_x_log10(sec.axis = sec_axis(~., labels = NULL)) +
+    scale_y_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+    theme_classic() +
+    #guides(color = FALSE) +
+    ggtitle(i) +
+    geom_vline(xintercept = temp2$parameters$mean) +
+    geom_vline(xintercept = as.numeric(r3line), color = "red")
+  
+  print(plot1)
+  
+  
+}
+
+colnames(pk2df) <- c("Label","meanr3","pk2")
+
+rm(r3line)
+rm(plot1)
+rm(temp1)
+rm(temp2)
+rm(temp3)
+rm(i)
+rm(idlist1)
+rm(idlist2)
+rm(idlist)
+```
+-->
+
+
+<!--
+
+## Concentration mapping
+
+```{r}
+#ni_map <- read.csv("./extradata/Ni-map.csv")
+
+ni_line <- read.csv("./extradata/Ni-line.csv")
+
+colnames(ni_line)[1] <- "distx"
+
+colnames(ni_line)[2] <- "cts"
+
+ni_line <- ni_line[,1:2]
+
+
+```
+
+```{r}
+ni_line %>%
+  ggplot(aes(x = distx, y = cts)) +
+  geom_point() +
+  theme_classic()
+```
+-->
+
+<!--
+## LTO-Ni DIL
+
+```{r}
+read.table("../NASA/Characterization/DIL/LTO-Dil/LTONi1.ASC", skip = 27) %>%
+  ggplot() +
+  geom_point(aes(x=V2,y=V3))
+
+read.table("../NASA/Characterization/DIL/LTO-Dil/LTO-02.ASC", skip = 27) %>%
+  ggplot() +
+  geom_point(aes(x=V2,y=V3))
+```
+-->
+
+<!--
+```{r}
+#find means for a given label and replace to missing values
+fractSum %>%
+  filter(substr(Label,1,4) == "WH12") %>%
+  filter(is.na(R3) == FALSE) %>%
+  pull(R3) %>%
+  mean()
+
+fractSum %>%
+  filter(substr(Label,1,4) == "WH12") %>%
+  filter(is.na(Th.Density) == FALSE) %>%
+  pull(Th.Density) %>%
+  mean()
+
+
+#example of replacing the data
+fractSum <- fractSum %>%
+  mutate(R3 = if_else(substr(Label,1,4) == "WH12",
+                      replace(R3,is.na(R3),1.051741),
+                      R3))
+
+fractSum <- fractSum %>%
+  mutate(Th.Density = if_else(substr(Label,1,4) == "WH12",
+                      replace(Th.Density,is.na(Th.Density),92.42108),
+                      Th.Density))
+
+fractSum <- fractSum %>%
+  mutate(Ni.Vol.Corrected = if_else(substr(Label,1,4) == "WH12",
+                                    replace(Ni.Vol.Corrected,is.na(Ni.Vol.Corrected),0.24),
+                                    Ni.Vol.Corrected))
+```
+
+```{r}
+fractSum %>%
+  filter(substr(Label,1,4) == "WH15") %>%
+  filter(is.na(R3) == FALSE) %>%
+  pull(R3) %>%
+  mean()
+
+fractSum %>%
+  filter(substr(Label,1,4) == "WH15") %>%
+  filter(is.na(Th.Density) == FALSE) %>%
+  pull(Th.Density) %>%
+  mean()
+
+fractSum <- fractSum %>%
+  mutate(R3 = if_else(substr(Label,1,4) == "WH15",
+                      replace(R3,is.na(R3),6.240454),
+                      R3))
+
+fractSum <- fractSum %>%
+  mutate(Ni.Vol.Corrected = if_else(substr(Label,1,4) == "WH15",
+                                    replace(Ni.Vol.Corrected,is.na(Ni.Vol.Corrected),0.50),
+                                    Ni.Vol.Corrected))
+
+fractSum <- fractSum %>%
+  mutate(Th.Density = if_else(substr(Label,1,4) == "WH15",
+                      replace(Th.Density,is.na(Th.Density),93.90703),
+                      Th.Density))
+```
+
+```{r}
+fractSum <- fractSum %>%
+  mutate(Ni.Vol.Corrected = if_else(substr(Label,1,4) == "WH07",
+                                    replace(Ni.Vol.Corrected,is.na(Ni.Vol.Corrected),0.0),
+                                    Ni.Vol.Corrected))
+
+fractSum <- fractSum %>%
+  mutate(Ni.Vol.Corrected = if_else(substr(Label,1,4) == "WH20",
+                                    replace(Ni.Vol.Corrected,is.na(Ni.Vol.Corrected),0.35),
+                                    Ni.Vol.Corrected))
+
+fractSum <- fractSum %>%
+  mutate(Th.Density = if_else(Label == "WH07A",
+                      replace(Th.Density,is.na(Th.Density),90.49685),
+                      Th.Density))
+
+fractSum <- fractSum %>%
+  mutate(Th.Density = if_else(Label == "WH07B",
+                      replace(Th.Density,is.na(Th.Density),89.02054),
+                      Th.Density))
+
+fractSum <- fractSum %>%
+  mutate(Th.Density = if_else(Label == "WH20A",
+                      replace(Th.Density,is.na(Th.Density),55.16284),
+                      Th.Density))
+
+
+#filler program
+#create a dataframe with all the average values
+#using the summarise function
+#define a function for mutation such that
+#mutate(desiredvalue = function(Temp,time,Ni))
+
+#example
+fractSum %>%
+  mutate(LabelAve = substr(Label,1,4)) %>%
+  group_by(LabelAve) %>%
+  summarise(aveDen = mean(Th.Density))
+
+```
+-->
+
+
+
+<!--
+```{r}
+#temp R3 density
+
+tempz <- df_particles %>%
+  filter(Label != "WH19A") %>%
+  mutate(Label = substr(Label,0,4)) %>%
+  #
+  group_by(Label) %>%
+  mutate(rstar = R3/mean(R3)) %>%
+  #
+  filter(Label != "WH15B") %>%
+  filter(Area >= 0.005) %>%
+  filter(hrs == 5) %>%
+  filter(Label != "WH19") %>%
+  filter(Ni.Vol.Corrected == 0.35) %>%
+  ggplot() +
+  geom_density(size = 1, aes(x = R3, y = ..density.., group = Temp, 
+                   color = as.factor(Temp))) + 
+  scale_x_log10(sec.axis = sec_axis(~.^(1/3)*2, name = expression(D~'['*mu*m*']')),
+                limits = c(0.0001, 100000),
+                breaks = scales::trans_breaks("log10", function(x) 10^x),
+                labels = trans_format("log10", math_format(10^.x))) +
+  scale_y_continuous(limits = c(0,0.53), expand = c(0, 0), sec.axis = sec_axis(~., labels = NULL)) +
+  geom_hline(yintercept = 0, color = "White", size = 1.5) +
+  theme_classic() +
+  ylab("Normalized PSD") +
+  xlab(expression(R^3~'['*mu*m^3*']')) +
+  #annotation_logticks(sides = "b") +
+  guides(colour = guide_legend(title = expression(bold(Temp~'['*degree*C*']'), 
+                               #override.aes = list(size=4), 
+                               title.theme = element_text(colour = "black",
+                                                          face = "bold",
+                                                          size = 12)))) +
+  theme(axis.text.x = element_text(colour = "black", size = 16),
+        axis.text.y = element_text(colour = "black", size = 16),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 16),
+        axis.title.y = element_text(colour = "black", size = 16),
+        legend.text = element_text(colour="black", size = 12))
+print(tempz)
+ggsave(filename = "./extradata/plotexportz.png", plot = tempz, 
+       device = "png", width = 6,height = 4, units = "in")
+rm(tempz)
+```
+
+```{r}
+#nickel R3 density
+
+tempx <- df_particles %>%
+  mutate(Label = substr(Label,0,4)) %>%
+  #
+  group_by(Label) %>%
+  mutate(rstar = R3/mean(R3)) %>%
+  #
+  filter(Label != "WH15B") %>%
+  filter(Area >= 0.005) %>%
+  filter(Label != "WH19") %>%
+  filter(Temp == 900) %>%
+  filter(hrs == 5) %>%
+  ggplot() +
+  geom_density(size = 1, aes(x = R3, y = ..density.., group = Ni.Vol.Corrected, 
+                   color = as.factor(Ni.Vol.Corrected))) + 
+  scale_x_log10(sec.axis = sec_axis(~.^(1/3)*2, name = expression(D~'['*mu*m*']')),
+                limits = c(0.0001, 100000),
+                breaks = scales::trans_breaks("log10", function(x) 10^x),
+                labels = trans_format("log10", math_format(10^.x))) +
+  scale_y_continuous(limits = c(0,0.53), expand = c(0, 0), sec.axis = sec_axis(~., labels = NULL)) +
+  geom_hline(yintercept = 0, color = "White", size = 1.5) +
+  theme_classic() +
+  ylab("Normalized PSD") +
+  xlab(expression(R^3~'['*mu*m^3*']')) +
+  #annotation_logticks(sides = "tb") +
+  guides(colour = guide_legend(title = "Ni Vol.", 
+                               #override.aes = list(size=4), 
+                               title.theme = element_text(colour = "black",
+                                                          face = "bold",
+                                                          size = 12))) +
+  theme(axis.text.x = element_text(colour = "black", size = 16),
+        axis.text.y = element_text(colour = "black", size = 16),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 16),
+        axis.title.y = element_text(colour = "black", size = 16),
+        legend.text = element_text(colour="black", size = 12))
+print(tempx)
+ggsave(filename = "./extradata/plotexportx.png", plot = tempx, 
+       device = "png", width = 6, height = 4, units = "in")
+rm(tempx)
+```
+
+```{r}
+#time R3 density
+
+tempzz <- df_particles %>%
+  filter(Temp == 900) %>% #Temperature of interest
+  filter(Area >= 0.005) %>% #Noise reduction
+  filter(Label != "WH15B") %>% #weird distro
+  filter(Ni.Vol.Corrected == 0.35) %>%
+  mutate(Label = substr(Label,0,4)) %>%
+  #filter(Ni.Vol.Corrected == 0.28) %>%
+  #filter(Label != "WH31") %>%
+  #filter(Label != "WH37") %>%
+  #
+  group_by(Label) %>%
+  mutate(rstar = R3/mean(R3)) %>%
+  #
+  #filter(Area >= 0.002) %>%
+  ggplot() +
+  geom_density(size = 1, aes(x = R3, y = ..density.., group = hrs, color = as.factor(hrs))) + 
+  scale_x_log10(sec.axis = sec_axis(~.^(1/3)*2, name = expression(D~'['*mu*m*']')),
+                limits = c(0.0001, 100000),
+                breaks = scales::trans_breaks("log10", function(x) 10^x),
+                labels = trans_format("log10", math_format(10^.x))) +
+  scale_y_continuous(limits = c(0,0.53), expand = c(0, 0), sec.axis = sec_axis(~., labels = NULL)) +
+  theme_classic() +
+  guides(colour = guide_legend(title = "Time [hrs]", 
+                               #override.aes = list(size=4), 
+                               title.theme = element_text(colour="black",
+                                                          face = "bold",
+                                                          size = 12))) +
+  ylab("Normalized PSD") +
+  xlab(expression(R^3~'['*mu*m^3*']')) +
+  geom_hline(yintercept = 0, color = "White", size = 1.5) +
+  #annotation_logticks() +
+  scale_color_manual(values=c("#00BF7D", "#BF7D00", "#7C00BF", "#BF0041")) +
+  theme(axis.text.x = element_text(colour = "black", size = 16),
+        axis.text.y = element_text(colour = "black", size = 16),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 16),
+        axis.title.y = element_text(colour = "black", size = 16),
+        legend.text = element_text(colour="black", size = 12))
+
+print(tempzz)
+ggsave(filename = "./extradata/plotexportzz.png", plot = tempzz, 
+       device = "png", width = 6,height = 4, units = "in")
+rm(tempzz)
+```
+-->
+
+
+## Peak Fitting
+
+```{r}
+#peakfits from KGP python code
+
+peakfits <- read.csv("./extradata/SG1-G2_density-fit-params_fine.csv")
+
+peakfits$filename <- as.character(peakfits$filename)
+
+peakfits <- peakfits %>%
+  mutate(Labelfine = substr(filename,1,nchar(filename) - 5)) %>%
+  mutate(Label = substr(Labelfine,1,5))
+
+
+temppeakfits <- merge(peakfits, one, by = "Label", all = TRUE) %>%
+  filter(Label != "WH15B") %>%
+  #mutate(pkfity = if_else(WHpeakNum == 2, 10^(G2_center), 10^(SG1_center))) %>%
+  #filter(is.na(Temp)) %>%
+  ggplot() +
+  geom_point(aes(x = Temp, y = 10^(SG1_center),
+                 size = 1,
+                 color = as.factor(Ni.Vol.Corrected))) +
+  geom_point(aes(x = Temp, y = 10^(G2_center),
+                 size = 1,
+                 color = as.factor(Ni.Vol.Corrected))) +
+  #
+  #
+  xlab(expression(Temp~'['*degree*C*']')) +
+  ylab(expression(R^3~'['*mu*m^3*']')) +
+  theme_classic() +
+  scale_y_log10(limits = c(0.002,25), sec.axis = sec_axis(~.^(1/3)*2, name = expression(D~'['*mu*m*']'))) +
+  scale_x_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  guides(colour = guide_legend(title = "Ni Vol.", 
+                               override.aes = list(size=4), 
+                               title.theme = element_text(colour="black", size = 12))) +
+  annotation_logticks(sides = "l") +
+  guides(size = FALSE) +
+  theme(axis.text.x = element_text(colour = "black", size = 16),
+        axis.text.y = element_text(colour = "black", size = 16),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 16),
+        axis.title.y = element_text(colour = "black", size = 16),
+        legend.text = element_text(colour="black", size = 12))
+
+print(temppeakfits)
+ggsave(filename = "./extradata/plotexportpeakfits.png", plot = temppeakfits, 
+       device = "png", width = 6,height = 4, units = "in")
+rm(temppeakfits)
+
+```
+
+
+```{r}
+read.table(file = "./extradata/Dlc-Pixel-Sum-900-5-35B0006.txt",
+           header = TRUE) %>%
+  ggplot() +
+  geom_point(size = 0.1, aes(x = X, y = -Y,
+                 color = Local.Fractal.Dimension)) +
+  scale_y_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  scale_x_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  scale_color_gradientn(colours = hue_pal()(8)) +
+  theme_classic() +
+  coord_fixed()
+```
+
+
+
+<!--
+```{r}
+#for hardness, check real nickel values
+
+nine %>%
+  select(Temp, hrs, Label, Labelfine, totNifrac, Ni.Vol.Corrected) %>%
+  unique() %>%
+  filter(Temp >= 800) %>%
+  filter(hrs == 5) %>%
+  ggplot() +
+  geom_point(aes(x = Ni.Vol.Corrected, y = totNifrac,
+                 color = as.factor(hrs))) +
+  geom_abline(slope = 1, intercept = 0)
+
+
+nine %>%
+  select(Temp, hrs, Label, Labelfine, totNifrac, Ni.Vol.Corrected) %>%
+  unique() %>%
+  filter(Temp >= 800) %>%
+  filter(hrs == 5) %>%
+  filter(Ni.Vol.Corrected == 0.28) %>%
+  arrange(desc(totNifrac))
+```
+
+<!--
+## Color Palette Help
+
+```{r, echo=FALSE, fig.show='hide', fig.cap="ggplot2 colors help"}
+#ggplot2 colors help
+
+show_col(hue_pal()(8))
+
+#show_col(hue_pal()(8))
+
+hue_pal()(8)
+```

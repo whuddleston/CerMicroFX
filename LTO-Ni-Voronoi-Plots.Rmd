@@ -1,0 +1,890 @@
+---
+title: "LTO-Ni-Voronoi-Plots"
+author: "whh36"
+date: "8/17/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+#SETUP OF LIBRARIES
+knitr::opts_chunk$set(echo = FALSE, warning=TRUE, message=FALSE) #set echo to FALSE to hide code
+```
+
+```{r}
+voronoidens %>%
+  filter(Ni.Vol.Corrected == 0.35) %>%
+  #filter(Temp == 900) %>%
+  filter(hrs == 5) %>%
+  filter(Label != "WH13A") %>%
+  filter(Label != "WH03A") %>%
+  group_by(Labelfine) %>%
+  ggplot() +
+  geom_ridgeline(aes(x = x, y = -Temp, 
+                     fill = as.factor(Temp),
+                     height = count/200, group = Labelfine)) + #height is either density or count
+
+  geom_rect(color = "black", aes(xmin = avevoronoix-0.01,
+                ymin = -Temp,
+                xmax = avevoronoix+0.01,
+                ymax = -Temp+100,
+                fill = as.factor(Temp))) +
+
+  scale_x_log10(sec.axis = sec_axis(~., labels = NULL)) +
+  scale_y_continuous(breaks = c(-700,-800,-900,-1000,-1100),
+                     labels = c(700,800,900,1000,1100),
+                     sec.axis = sec_axis(~., breaks = c(-700,-800,-900,-1000), labels = NULL)) +
+  xlab(expression(Voronoi~Distance~'['*mu*m*']')) +
+  ylab(expression(Sintering~Temperature~'['*degree*C*']')) +
+  #
+  theme_classic() +
+  guides(fill = guide_legend(reverse = FALSE, title = expression(Temp~'['*degree*C*']'), 
+                               #override.aes = list(size=4), 
+                               title.theme = element_text(colour = "black",
+                                                          #face = "bold",
+                                                          size = 12))) +
+  theme(axis.text.x = element_text(colour = "black", size = 16),
+        axis.text.y = element_text(colour = "black", size = 16),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 16),
+        axis.title.y = element_text(colour = "black", size = 16),
+        legend.text = element_text(colour="black", size = 12))
+```
+
+```{r}
+voronoidens %>%
+  select(Label, Ni.Vol.Corrected, Temp, hrs, Th.Density,
+         stressf, condAve,
+         avevoronoix, voronoicount) %>%
+  unique() %>%
+  #
+  filter(Ni.Vol.Corrected == 0.35) %>%
+  filter(hrs == 5) %>%
+  filter(Label != "WH13A") %>%
+  filter(Label != "WH03A") %>%
+  #
+  mutate(stresso = stressf*exp((1.05-Th.Density/100)*coef(fracmodel)[2]*-1)) %>%
+  #
+  ggplot() +
+  geom_boxplot(aes(group = Temp, x = Temp, y = avevoronoix)) +
+  geom_point(size = 2, aes(y = avevoronoix, x = Temp, 
+                 #size = as.factor(hrs),
+                 #shape = as.factor(Temp),
+                 color = as.factor(Temp))) +
+  xlab(expression(Temp~'['*degree*C*']')) +
+  ylab(expression(Average~Voronoi~Distance~'['*mu*m*']')) +
+  scale_y_continuous(limits = c(0,2.5), sec.axis = sec_axis(~., labels = NULL)) +
+  scale_x_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  guides(color = FALSE) +
+  theme_classic() +
+  theme(axis.text.x = element_text(colour = "black", size = 16),
+        axis.text.y = element_text(colour = "black", size = 16),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 16),
+        axis.title.y = element_text(colour = "black", size = 16),
+        legend.text = element_text(colour="black", size = 12))
+```
+
+```{r}
+voronoidens %>%
+  select(Label, Ni.Vol.Corrected, Temp, hrs, Th.Density,
+         stressf, condAve,
+         avevoronoix, voronoicount) %>%
+  unique() %>%
+  #
+  filter(Ni.Vol.Corrected == 0.35) %>%
+  filter(hrs == 5) %>%
+  filter(Label != "WH13A") %>%
+  filter(Label != "WH03A") %>%
+  #
+  mutate(stresso = stressf*exp((1.05-Th.Density/100)*coef(fracmodel)[2]*-1)) %>%
+  #
+  ggplot() +
+  geom_boxplot(aes(group = Temp, x = Temp, y = voronoicount)) +
+  geom_point(size = 2, aes(y = voronoicount, x = Temp, 
+                 #size = as.factor(hrs),
+                 #shape = as.factor(Temp),
+                 color = as.factor(Temp))) +
+  xlab(expression(Temp~'['*degree*C*']')) +
+  ylab("Voronoi Pixel Count") +
+  scale_y_continuous(limits = c(0,100000),
+                     sec.axis = sec_axis(~., labels = NULL)) +
+  scale_x_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  guides(color = FALSE) +
+  theme_classic() +
+  theme(axis.text.x = element_text(colour = "black", size = 16),
+        axis.text.y = element_text(colour = "black", size = 16),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 16),
+        axis.title.y = element_text(colour = "black", size = 16),
+        legend.text = element_text(colour="black", size = 12))
+```
+
+```{r}
+voronoidens %>%
+  mutate(Ni.Vol.Corrected2 = Ni.Vol.Corrected) %>%
+  mutate(Ni.Vol.Corrected2 = if_else(Ni.Vol.Corrected == 0.05,
+                                    replace(Ni.Vol.Corrected, Ni.Vol.Corrected == 0.05, 1), Ni.Vol.Corrected2)) %>%
+  mutate(Ni.Vol.Corrected2 = if_else(Ni.Vol.Corrected == 0.10,
+                                    replace(Ni.Vol.Corrected, Ni.Vol.Corrected == 0.10, 2), Ni.Vol.Corrected2)) %>%
+  mutate(Ni.Vol.Corrected2 = if_else(Ni.Vol.Corrected == 0.20,
+                                    replace(Ni.Vol.Corrected, Ni.Vol.Corrected == 0.20, 3), Ni.Vol.Corrected2)) %>%
+  mutate(Ni.Vol.Corrected2 = if_else(Ni.Vol.Corrected == 0.24,
+                                    replace(Ni.Vol.Corrected, Ni.Vol.Corrected == 0.24, 4), Ni.Vol.Corrected2)) %>%
+  mutate(Ni.Vol.Corrected2 = if_else(Ni.Vol.Corrected == 0.28,
+                                    replace(Ni.Vol.Corrected, Ni.Vol.Corrected == 0.28, 5), Ni.Vol.Corrected2)) %>%
+  mutate(Ni.Vol.Corrected2 = if_else(Ni.Vol.Corrected == 0.35,
+                                    replace(Ni.Vol.Corrected, Ni.Vol.Corrected == 0.35, 6), Ni.Vol.Corrected2)) %>%
+  mutate(Ni.Vol.Corrected2 = if_else(Ni.Vol.Corrected == 0.40,
+                                    replace(Ni.Vol.Corrected, Ni.Vol.Corrected == 0.40, 7), Ni.Vol.Corrected2)) %>%
+  mutate(Ni.Vol.Corrected2 = if_else(Ni.Vol.Corrected == 0.50,
+                                    replace(Ni.Vol.Corrected, Ni.Vol.Corrected == 0.50, 8), Ni.Vol.Corrected2)) %>%
+  
+  filter(Temp == 900) %>%
+  #filter(Ni.Vol.Corrected == 0.35) %>%
+  filter(hrs == 5) %>%
+  filter(Label != "WH13A") %>%
+  filter(Labelfine != "WH15B/900-5-50B0008.tiff") %>%
+  group_by(Labelfine) %>%
+  
+  ggplot() +
+  geom_ridgeline(aes(x = x, y = Ni.Vol.Corrected2, 
+                     fill = as.factor(Ni.Vol.Corrected),
+                     height = count/20000, group = Labelfine)) + #height is either density or count
+  #
+  geom_rect(color = "black", aes(xmin = avevoronoix-0.01, 
+                ymin = Ni.Vol.Corrected2, 
+                xmax = avevoronoix+0.01, 
+                ymax = Ni.Vol.Corrected2+1,
+                fill = as.factor(Ni.Vol.Corrected))) +
+  #
+  scale_x_log10(sec.axis = sec_axis(~., labels = NULL)) +
+  scale_y_continuous(breaks = c(1:8),
+                     labels = c("0.05", "0.10", "0.20", "0.24", "0.28", "0.35", "0.40", "0.50"),
+                     sec.axis = sec_axis(~., breaks = c(1:8), labels = NULL)) +
+  xlab(expression(Voronoi~Distance~'['*mu*m*']')) +
+  ylab("Nickel Volume Fraction") +
+  #
+  theme_classic() +
+  guides(colour = FALSE, fill = guide_legend(reverse = TRUE, title = "Ni Vol.", 
+                               #override.aes = list(size=4), 
+                               title.theme = element_text(colour = "black",
+                                                          #face = "bold",
+                                                          size = 12))) +
+  theme(axis.text.x = element_text(colour = "black", size = 16),
+        axis.text.y = element_text(colour = "black", size = 16),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 16),
+        axis.title.y = element_text(colour = "black", size = 16),
+        legend.text = element_text(colour="black", size = 12))
+```
+
+```{r}
+voronoidens %>%
+  select(Label, Labelfine, Ni.Vol.Corrected, Temp, hrs, Th.Density,
+         stressf, condAve,
+         avevoronoix, voronoicount) %>%
+  unique() %>%
+  #
+  filter(Temp == 900) %>%
+  #filter(Ni.Vol.Corrected == 0.35) %>%
+  filter(hrs == 5) %>%
+  filter(Label != "WH13A") %>%
+  filter(Labelfine != "WH15B/900-5-50B0008.tiff") %>%
+  #
+  mutate(stresso = stressf*exp((1.05-Th.Density/100)*coef(fracmodel)[2]*-1)) %>%
+  #
+  ggplot() +
+  geom_boxplot(aes(group = Ni.Vol.Corrected, x = Ni.Vol.Corrected, y = avevoronoix)) +
+  geom_point(size = 2, aes(y = avevoronoix, x = Ni.Vol.Corrected, 
+                 #size = as.factor(hrs),
+                 shape = as.factor(Temp),
+                 color = as.factor(Ni.Vol.Corrected))) +
+  xlab("Nickel Volume Fraction") +
+  ylab(expression(Average~Voronoi~Distance~'['*mu*m*']')) +
+  scale_y_continuous(limits = c(0,2.5), sec.axis = sec_axis(~., labels = NULL)) +
+  scale_x_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  guides(color = FALSE) +
+  guides(shape = FALSE) +
+  theme_classic() +
+  theme(axis.text.x = element_text(colour = "black", size = 16),
+        axis.text.y = element_text(colour = "black", size = 16),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 16),
+        axis.title.y = element_text(colour = "black", size = 16),
+        legend.text = element_text(colour="black", size = 12))
+```
+
+```{r}
+voronoidens %>%
+  select(Label, Labelfine, Ni.Vol.Corrected, Temp, hrs, Th.Density,
+         stressf, condAve,
+         avevoronoix, voronoicount) %>%
+  unique() %>%
+  #
+  filter(Temp == 900) %>%
+  #filter(Ni.Vol.Corrected == 0.35) %>%
+  filter(hrs == 5) %>%
+  filter(Label != "WH13A") %>%
+  filter(Labelfine != "WH15B/900-5-50B0008.tiff") %>%
+  #
+  mutate(stresso = stressf*exp((1.05-Th.Density/100)*coef(fracmodel)[2]*-1)) %>%
+  #
+  ggplot() +
+  geom_boxplot(aes(group = Ni.Vol.Corrected, x = Ni.Vol.Corrected, y = voronoicount)) +
+  geom_point(size = 2, aes(y = voronoicount, x = Ni.Vol.Corrected, 
+                 #size = as.factor(hrs),
+                 shape = as.factor(Temp),
+                 color = as.factor(Ni.Vol.Corrected))) +
+  xlab("Nickel Volume Fraction") +
+  ylab("Voronoi Pixel Count") +
+  scale_y_continuous(limits = c(0,80000), 
+                     sec.axis = sec_axis(~., labels = NULL)) +
+  scale_x_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  guides(color = FALSE) +
+  guides(shape = FALSE) +
+  theme_classic() +
+  theme(axis.text.x = element_text(colour = "black", size = 16),
+        axis.text.y = element_text(colour = "black", size = 16),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 16),
+        axis.title.y = element_text(colour = "black", size = 16),
+        legend.text = element_text(colour="black", size = 12))
+```
+
+```{r}
+voronoidens %>%
+  select(Label, Labelfine, Ni.Vol.Corrected, Temp, hrs, Th.Density,
+         stressf, condAve,
+         totNifrace,
+         avevoronoix, voronoicount) %>%
+  unique() %>%
+  #
+  #filter(Temp == 900) %>%
+  #filter(Ni.Vol.Corrected == 0.35) %>%
+  filter(hrs == 5) %>%
+  filter(Label != "WH13A") %>%
+  filter(Labelfine != "WH15B/900-5-50B0008.tiff") %>%
+  #
+  mutate(stresso = stressf*exp((1.05-Th.Density/100)*coef(fracmodel)[2]*-1)) %>%
+  #
+  ggplot() +
+  geom_point(size = 2, aes(y = avevoronoix, x = totNifrace, 
+                 #size = as.factor(hrs),
+                 #shape = as.factor(Temp),
+                 color = as.factor(Temp))) +
+  xlab("Nickel Volume Fraction") +
+  ylab(expression(Average~Voronoi~Distance~'['*mu*m*']')) +
+  scale_y_continuous(limits = c(0,2.5), sec.axis = sec_axis(~., labels = NULL)) +
+  scale_x_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  guides(color = FALSE) +
+  guides(shape = FALSE) +
+  theme_classic() +
+  theme(axis.text.x = element_text(colour = "black", size = 16),
+        axis.text.y = element_text(colour = "black", size = 16),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 16),
+        axis.title.y = element_text(colour = "black", size = 16),
+        legend.text = element_text(colour="black", size = 12))
+
+voronoidens %>%
+  select(Label, Labelfine, Ni.Vol.Corrected, Temp, hrs, Th.Density,
+         stressf, condAve,
+         avevoronoix, voronoicount) %>%
+  unique() %>%
+  #
+  #filter(Temp == 900) %>%
+  #filter(Ni.Vol.Corrected == 0.35) %>%
+  filter(hrs == 5) %>%
+  filter(Label != "WH13A") %>%
+  filter(Labelfine != "WH15B/900-5-50B0008.tiff") %>%
+  #
+  mutate(stresso = stressf*exp((1.05-Th.Density/100)*coef(fracmodel)[2]*-1)) %>%
+  #
+  ggplot() +
+  geom_boxplot(position = position_identity(), aes(group = interaction(Ni.Vol.Corrected, Temp), 
+                   x = Ni.Vol.Corrected, 
+                   y = avevoronoix,
+                   color = as.factor(Temp))) +
+  geom_point(size = 2, aes(y = avevoronoix, x = Ni.Vol.Corrected, 
+                 #size = as.factor(hrs),
+                 #shape = as.factor(Temp),
+                 color = as.factor(Temp))) +
+  xlab("Nickel Volume Fraction") +
+  ylab(expression(Average~Voronoi~Distance~'['*mu*m*']')) +
+  scale_y_continuous(limits = c(0,2.5), sec.axis = sec_axis(~., labels = NULL)) +
+  scale_x_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  guides(color = FALSE) +
+  guides(shape = FALSE) +
+  theme_classic() +
+  theme(axis.text.x = element_text(colour = "black", size = 16),
+        axis.text.y = element_text(colour = "black", size = 16),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 16),
+        axis.title.y = element_text(colour = "black", size = 16),
+        legend.text = element_text(colour="black", size = 12))
+
+voronoidens %>%
+  select(Label, Labelfine, Ni.Vol.Corrected, Temp, hrs, Th.Density,
+         stressf, condAve,
+         totNifrace,
+         avevoronoix, voronoicount) %>%
+  unique() %>%
+  #
+  #filter(Temp >= 800) %>%
+  #filter(Ni.Vol.Corrected >= 0.2) %>%
+  filter(hrs == 5) %>%
+  filter(Label != "WH13A") %>%
+  filter(Labelfine != "WH15B/900-5-50B0008.tiff") %>%
+  #
+  mutate(stresso = stressf*exp((1.05-Th.Density/100)*coef(fracmodel)[2]*-1)) %>%
+  #
+  ggplot() +
+  geom_point(size = 2, aes(y = voronoicount, x = totNifrace, 
+                 #size = as.factor(hrs),
+                 #shape = as.factor(hrs),
+                 color = as.factor(Temp))) +
+  xlab("Nickel Volume Fraction") +
+  ylab("Voronoi Pixel Count") +
+  scale_y_continuous(limits = c(0,80000), 
+                     sec.axis = sec_axis(~., labels = NULL)) +
+  scale_x_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  guides(color = FALSE) +
+  #guides(shape = FALSE) +
+  theme_classic() +
+  theme(axis.text.x = element_text(colour = "black", size = 16),
+        axis.text.y = element_text(colour = "black", size = 16),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 16),
+        axis.title.y = element_text(colour = "black", size = 16),
+        legend.text = element_text(colour="black", size = 12))
+
+voronoidens %>%
+  select(Label, Labelfine, Ni.Vol.Corrected, Temp, hrs, Th.Density,
+         stressf, condAve,
+         avevoronoix, voronoicount) %>%
+  unique() %>%
+  #
+  #filter(Temp >= 800) %>%
+  #filter(Ni.Vol.Corrected >= 0.2) %>%
+  filter(hrs == 5) %>%
+  filter(Label != "WH13A") %>%
+  filter(Labelfine != "WH15B/900-5-50B0008.tiff") %>%
+  #
+  mutate(stresso = stressf*exp((1.05-Th.Density/100)*coef(fracmodel)[2]*-1)) %>%
+  #
+  ggplot() +
+  geom_boxplot(position = position_identity(), aes(group = interaction(Ni.Vol.Corrected, Temp), 
+                   x = Ni.Vol.Corrected, 
+                   y = voronoicount,
+                   color = as.factor(Temp))) +
+  geom_point(size = 2, aes(y = voronoicount, x = Ni.Vol.Corrected, 
+                 #size = as.factor(hrs),
+                 #shape = as.factor(hrs),
+                 color = as.factor(Temp))) +
+  xlab("Nickel Volume Fraction") +
+  ylab("Voronoi Pixel Count") +
+  scale_y_continuous(limits = c(0,80000), 
+                     sec.axis = sec_axis(~., labels = NULL)) +
+  scale_x_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  guides(color = FALSE) +
+  #guides(shape = FALSE) +
+  theme_classic() +
+  theme(axis.text.x = element_text(colour = "black", size = 16),
+        axis.text.y = element_text(colour = "black", size = 16),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 16),
+        axis.title.y = element_text(colour = "black", size = 16),
+        legend.text = element_text(colour="black", size = 12))
+```
+
+
+```{r}
+voronoidens %>%
+  mutate(hrs = as.double(hrs)) %>%
+  mutate(hrs2 = hrs) %>%
+  mutate(hrs2 = if_else(hrs == 5, replace(hrs, hrs == 5, 1), hrs2)) %>%
+  mutate(hrs2 = if_else(hrs == 10, replace(hrs, hrs == 10, 2), hrs2)) %>%
+  mutate(hrs2 = if_else(hrs == 50, replace(hrs, hrs == 50, 3), hrs2)) %>%
+  mutate(hrs2 = if_else(hrs == 150, replace(hrs, hrs == 150, 4), hrs2)) %>%
+  
+  filter(Temp == 900) %>%
+  filter(Ni.Vol.Corrected == 0.35) %>%
+  #filter(hrs == 5) %>%
+  filter(Label != "WH13A") %>%
+  filter(Labelfine != "WH35A/WH35A0010.tiff") %>%
+  group_by(Labelfine) %>%
+  ggplot() +
+  geom_ridgeline(aes(x = x, y = hrs2, 
+                     fill = as.factor(hrs),
+                     height = count/20000, group = Labelfine)) + #height is either density or count
+  #
+  geom_rect(color = "black", aes(xmin = avevoronoix-0.01,
+                ymin = hrs2,
+                xmax = avevoronoix+0.01,
+                ymax = hrs2+1,
+                fill = as.factor(hrs))) +
+
+  #geom_segment(aes(x = avevoronoix, y = hrs2, xend = avevoronoix, yend = hrs2+1, color = as.factor(hrs))) +
+  #
+  scale_x_log10(sec.axis = sec_axis(~., labels = NULL)) +
+  scale_y_continuous(breaks = c(1:4),
+                     labels = c("5","10","50","150"),
+                     sec.axis = sec_axis(~., breaks = c(1:4), labels = NULL)) +
+  xlab(expression(Voronoi~Distance~'['*mu*m*']')) +
+  ylab("Time [hrs]") +
+  scale_fill_manual(values=c("#00BF7D", "#BF7D00", "#7C00BF", "#BF0041")) +
+  #
+  theme_classic() +
+  guides(color = FALSE, fill = guide_legend(reverse = TRUE, title = "Time [hrs]", 
+                               #override.aes = list(size=4), 
+                               title.theme = element_text(colour = "black",
+                                                          #face = "bold",
+                                                          size = 12))) +
+  theme(axis.text.x = element_text(colour = "black", size = 16),
+        axis.text.y = element_text(colour = "black", size = 16),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 16),
+        axis.title.y = element_text(colour = "black", size = 16),
+        legend.text = element_text(colour="black", size = 12))
+```
+
+```{r}
+voronoidens %>%
+  select(Label, Labelfine, Ni.Vol.Corrected, Temp, hrs, Th.Density,
+         stressf, condAve,
+         avevoronoix, voronoicount) %>%
+  unique() %>%
+  #
+  filter(Ni.Vol.Corrected == 0.35) %>%
+  filter(Temp == 900) %>%
+  filter(Label != "WH13A") %>%
+  filter(Labelfine != "WH35A/WH35A0010.tiff") %>%
+  #
+  mutate(stresso = stressf*exp((1.05-Th.Density/100)*coef(fracmodel)[2]*-1)) %>%
+  #
+  ggplot() +
+  geom_boxplot(aes(group = hrs, x = hrs, y = avevoronoix)) +
+  geom_point(size = 2, aes(y = avevoronoix, x = hrs, 
+                 #size = as.factor(hrs),
+                 shape = as.factor(Temp),
+                 color = as.factor(hrs))) +
+  xlab("Time [hrs]") +
+  ylab(expression(Average~Voronoi~Distance~'['*mu*m*']')) +
+  scale_y_continuous(limits = c(0,2), sec.axis = sec_axis(~., labels = NULL)) +
+  scale_x_log10(breaks = c(5,10,50,150),sec.axis = sec_axis(~., labels = NULL)) +
+  guides(colour = guide_legend(reverse = TRUE, title = "Time [hrs]", 
+                               title.theme = element_text(colour="black", 
+                                                          #face = "bold", 
+                                                          size = 12))) +
+  scale_color_manual(values=c("#00BF7D", "#BF7D00", "#7C00BF", "#BF0041")) +
+  guides(shape = FALSE) +
+  guides(color = FALSE) +
+  theme_classic() +
+  theme(axis.text.x = element_text(colour = "black", size = 16),
+        axis.text.y = element_text(colour = "black", size = 16),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 16),
+        axis.title.y = element_text(colour = "black", size = 16),
+        legend.text = element_text(colour="black", size = 12))
+```
+
+```{r}
+voronoidens %>%
+  select(Label, Labelfine, Ni.Vol.Corrected, Temp, hrs, Th.Density,
+         stressf, condAve,
+         avevoronoix, voronoicount) %>%
+  unique() %>%
+  #
+  filter(Ni.Vol.Corrected == 0.35) %>%
+  filter(Temp == 900) %>%
+  filter(Label != "WH13A") %>%
+  filter(Labelfine != "WH35A/WH35A0010.tiff") %>%
+  #
+  mutate(stresso = stressf*exp((1.05-Th.Density/100)*coef(fracmodel)[2]*-1)) %>%
+  #
+  ggplot() +
+  geom_boxplot(aes(group = hrs, x = hrs, y = voronoicount)) +
+  geom_point(size = 2, aes(y = voronoicount, x = hrs, 
+                 #size = as.factor(hrs),
+                 shape = as.factor(Temp),
+                 color = as.factor(hrs))) +
+  xlab("Time [hrs]") +
+  ylab("Voronoi Pixel Count") +
+  scale_y_continuous(limits = c(0,50000), 
+                     sec.axis = sec_axis(~., labels = NULL)) +
+  scale_x_log10(breaks = c(5,10,50,150),sec.axis = sec_axis(~., labels = NULL)) +
+  guides(colour = guide_legend(reverse = TRUE, title = "Time [hrs]", 
+                               title.theme = element_text(colour="black", 
+                                                          #face = "bold", 
+                                                          size = 12))) +
+  scale_color_manual(values=c("#00BF7D", "#BF7D00", "#7C00BF", "#BF0041")) +
+  guides(shape = FALSE) +
+  guides(color = FALSE) +
+  theme_classic() +
+  theme(axis.text.x = element_text(colour = "black", size = 16),
+        axis.text.y = element_text(colour = "black", size = 16),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 16),
+        axis.title.y = element_text(colour = "black", size = 16),
+        legend.text = element_text(colour="black", size = 12))
+```
+
+```{r}
+voronoidens %>%
+  select(-x, -count, -Labelfineshort) %>%
+  unique() %>%
+  #
+  #filter(Ni.Vol.Corrected == 0.35) %>%
+  #filter(Temp == 900) %>%
+  #filter(hrs == 5) %>%
+  filter(Label != "WH13A") %>%
+  filter(Labelfine != "WH35A/WH35A0010.tiff") %>%
+  #
+  mutate(stresso = stressf*exp((1.05-Th.Density/100)*coef(fracmodel)[2]*-1)) %>%
+  #
+  ggplot() +
+  geom_point(size = 2, aes(y = stressf, x = avevoronoix,
+                           shape = as.factor(hrs),
+                           color = as.factor(Temp))) +
+  geom_point(data = filter(voronoidens,aveR3 > 10), 
+             size = 3,
+             stroke = 1,
+             shape = 1,
+             aes(x = avevoronoix,
+                 y = stressf)) +
+  scale_y_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  scale_x_continuous(limits = c(0, 3), sec.axis = sec_axis(~., labels = NULL)) +
+  #guides(shape = FALSE) +
+  #guides(color = FALSE) +
+  theme_classic() +
+  theme(axis.text.x = element_text(colour = "black", size = 16),
+        axis.text.y = element_text(colour = "black", size = 16),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 16),
+        axis.title.y = element_text(colour = "black", size = 16),
+        legend.text = element_text(colour="black", size = 12))
+```
+
+```{r}
+voronoidens %>%
+  select(-x, -count, -Labelfineshort) %>%
+  unique() %>%
+  #
+  #filter(Ni.Vol.Corrected == 0.35) %>%
+  #filter(Temp == 900) %>%
+  #filter(hrs == 5) %>% #remove for more datapoints
+  filter(Label != "WH13A") %>%
+  filter(Labelfine != "WH35A/WH35A0010.tiff") %>%
+  filter(is.na(condAve) == FALSE) %>%
+  #
+  mutate(stresso = stressf*exp((1.05-Th.Density/100)*coef(fracmodel)[2]*-1)) %>%
+  mutate(Labelcoarse = substr(Label,1,4)) %>%
+  #
+  ggplot() + #avevcoarse
+  #geom_boxplot(aes(group = substr(Label,1,4), x = avevoronoix, y = condAve)) +
+  geom_mark_hull(aes(x = avevoronoix, y = condAve, fill = Labelcoarse), expand = 0.02) +
+  geom_point(size = 2, aes(y = condAve, x = avevoronoix,
+                           shape = as.factor(Temp),
+                           color = as.factor(Ni.Vol.Corrected))) +
+  scale_y_log10(sec.axis = sec_axis(~., labels = NULL)) +
+  scale_x_continuous(limits = c(0, 2.5), sec.axis = sec_axis(~., labels = NULL)) +
+  xlab(expression(Average~Voronoi~Distance~'['*mu*m*']')) +
+  ylab("Electrical Conductivity [S/cm]") +
+  #guides(shape = FALSE) +
+  guides(color = FALSE) +
+  guides(fill = FALSE) +
+  scale_fill_manual(values=c("#00BFC4","#00BE67","#00A9FF","#00BFC4","#00BE67","#00A9FF",
+                             "#F8766D","#CD9600","#00BFC4","#7CAE00",
+                             "#00BE67","#00A9FF","#C77CFF","#FF61CC","#CD9600","#7CAE00",
+                             "#C77CFF","#C77CFF","#00BE67","#00A9FF",
+                             "#00BFC4","#00BE67","#00A9FF", "#00BFC4","#00BE67","#00A9FF")) +
+  scale_shape_manual(values=c(16, 17, 0, 2)) + #hrs
+  theme_classic() +
+  theme(axis.text.x = element_text(colour = "black", size = 16),
+        axis.text.y = element_text(colour = "black", size = 16),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 16),
+        axis.title.y = element_text(colour = "black", size = 16),
+        legend.text = element_text(colour="black", size = 12))
+```
+
+```{r}
+voronoidens %>%
+  select(-x, -count, -Labelfineshort) %>%
+  unique() %>%
+  #
+  #filter(Ni.Vol.Corrected == 0.1) %>%
+  #filter(Temp == 900) %>%
+  #filter(hrs == 5) %>%
+  filter(Label != "WH13A") %>%
+  filter(Labelfine != "WH35A/WH35A0010.tiff") %>%
+  #
+  mutate(stresso = stressf*exp((1.05-Th.Density/100)*coef(fracmodel)[2]*-1)) %>%
+  #
+  mutate(errdist = cos(pi*45/180)*(avevoronoix-fineavennd)) %>%
+  mutate(errx = fineavennd + (cos(pi*45/180)*errdist)) %>%
+  mutate(erry = avevoronoix - (cos(pi*45/180)*errdist)) %>%
+  #
+  ggplot() +
+  #geom_boxplot(aes(group = substr(Label,1,4), x = avevoronoix, y = condAve)) +
+  geom_point(size = 2, aes(x = fineavennd, y = avevoronoix,
+                           shape = as.factor(Temp),
+                           color = as.factor(Ni.Vol.Corrected))) +
+  geom_segment(aes(x = fineavennd, y = avevoronoix, 
+                   xend = errx, yend = erry, 
+                   color = as.factor(Ni.Vol.Corrected)), size = 1.0) +
+  geom_abline(slope = 1, intercept = 0) +
+  scale_y_continuous(limits = c(0.2, 2.1), sec.axis = sec_axis(~., labels = NULL)) +
+  scale_x_continuous(limits = c(0.2, 2.1), sec.axis = sec_axis(~., labels = NULL)) +
+  #guides(shape = FALSE) +
+  #guides(color = FALSE) +
+  coord_fixed() +
+  theme_classic() +
+  theme(axis.text.x = element_text(colour = "black", size = 16),
+        axis.text.y = element_text(colour = "black", size = 16),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 16),
+        axis.title.y = element_text(colour = "black", size = 16),
+        legend.text = element_text(colour="black", size = 12))
+```
+
+```{r}
+voronoidens %>%
+  select(-x, -count, -Labelfineshort) %>%
+  unique() %>%
+  #
+  #filter(Ni.Vol.Corrected == 0.1) %>%
+  filter(Temp == 900) %>%
+  #filter(hrs == 5) %>%
+  filter(Label != "WH13A") %>%
+  filter(Label != "WH15B") %>%
+  filter(Labelfine != "WH35A/WH35A0010.tiff") %>%
+  #
+  mutate(stresso = stressf*exp((1.05-Th.Density/100)*coef(fracmodel)[2]*-1)) %>%
+  #
+  mutate(errdist = cos(pi*45/180)*(avevoronoix-fineavennd)) %>%
+  mutate(errx = fineavennd + (cos(pi*45/180)*errdist)) %>%
+  mutate(erry = avevoronoix - (cos(pi*45/180)*errdist)) %>%
+  #
+  ggplot() +
+  #geom_boxplot(aes(group = substr(Label,1,4), x = avevoronoix, y = condAve)) +
+  geom_point(stroke = 1.5, size = 2, aes(x = fineavennd, y = avevoronoix,
+                           shape = as.factor(hrs),
+                           color = as.factor(Ni.Vol.Corrected))) +
+  #geom_segment(aes(x = fineavennd, y = avevoronoix, xend = errx, yend = erry, color = as.factor(Ni.Vol.Corrected)), size = 1.0) +
+  #geom_abline(slope = 1, intercept = 0) +
+  scale_y_continuous(limits = c(0.5, 2.0), sec.axis = sec_axis(~., labels = NULL)) +
+  scale_x_continuous(limits = c(0.5, 2.0), sec.axis = sec_axis(~., labels = NULL)) +
+  ylab(expression(Average~Voronoi~Distance~'['*mu*m*']')) +
+  xlab(expression(NND[Ave]~'['*mu*m*']')) +
+  guides(colour = guide_legend(reverse = TRUE, title = "Ni Vol.", 
+                               #override.aes = list(size=4), 
+                               title.theme = element_text(colour = "black",
+                                                          #face = "bold",
+                                                          size = 12))) +
+  guides(shape = guide_legend(reverse = TRUE, title = "Time [hrs]",
+                              override.aes = list(size=3),
+                              title.theme = element_text(colour="black", size = 12))) +
+  scale_shape_manual(values=c(16, 17, 0, 2)) + #hrs
+  coord_fixed() +
+  theme_classic() +
+  theme(axis.text.x = element_text(colour = "black", size = 16),
+        axis.text.y = element_text(colour = "black", size = 16),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 16),
+        axis.title.y = element_text(colour = "black", size = 16),
+        legend.text = element_text(colour="black", size = 12))
+```
+
+```{r}
+voronoidens %>%
+  select(-x, -count, -Labelfineshort) %>%
+  unique() %>%
+  #
+  #filter(Ni.Vol.Corrected == 0.1) %>%
+  #filter(Temp == 900) %>%
+  #filter(hrs == 5) %>%
+  filter(Label != "WH13A") %>%
+  filter(Labelfine != "WH35A/WH35A0010.tiff") %>%
+  filter(aveR3 < 60) %>%
+  #
+  mutate(stresso = stressf*exp((1.05-Th.Density/100)*coef(fracmodel)[2]*-1)) %>%
+  #
+  mutate(errdist = cos(pi*45/180)*(avevoronoix-fineavennd)) %>%
+  mutate(errx = fineavennd + (cos(pi*45/180)*errdist)) %>%
+  mutate(erry = avevoronoix - (cos(pi*45/180)*errdist)) %>%
+  
+  #
+  ggplot() +
+  geom_point(size = 2, aes(x = aveR3, y = errdist,
+                           shape = as.factor(Temp),
+                           color = as.factor(Ni.Vol.Corrected))) +
+  geom_segment(aes(x = aveR3, y = errdist, 
+                   xend = aveR3, yend = 0, 
+                   color = as.factor(Ni.Vol.Corrected)), size = 1.0) +
+  geom_hline(yintercept = 0) +
+  scale_y_continuous(#limits = c(0.2, 2.1), 
+                     sec.axis = sec_axis(~., labels = NULL)) +
+  scale_x_continuous(#limits = c(0.2, 2.1), 
+                     sec.axis = sec_axis(~., labels = NULL)) +
+  theme_classic() +
+  theme(axis.text.x = element_text(colour = "black", size = 16),
+        axis.text.y = element_text(colour = "black", size = 16),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 16),
+        axis.title.y = element_text(colour = "black", size = 16),
+        legend.text = element_text(colour="black", size = 12))
+```
+
+```{r}
+voronoidens %>%
+  select(-x, -count, -Labelfineshort) %>%
+  unique() %>%
+  #
+  #filter(Ni.Vol.Corrected == 0.35) %>%
+  filter(Temp >= 800) %>%
+  #filter(hrs == 5) %>%
+  filter(Labelfine != "WH35A/WH35A0010.tiff") %>%
+  filter(Label != "WH13A") %>% #weird outlier
+  filter(Label != "WH15B") %>%
+  filter(Label != "WH10D") %>%
+  #filter(Labelfine != "WH06A/1000-5-35A0006.tiff") %>%
+  #filter(Labelfine != "WH06C/1000-5-35C0004.tiff") %>%
+  #
+  #
+  mutate(stresso = stressf*exp((1.05-Th.Density/100)*coef(fracmodel)[2]*-1)) %>%
+  #
+  ggplot() +
+  #geom_boxplot(aes(group = substr(Label,1,4), x = avevoronoix, y = condAve)) +
+  geom_point(stroke = 1.5, size = 2, aes(x = countperarea, y = avevoronoix,
+                           shape = as.factor(hrs),
+                           color = as.factor(Ni.Vol.Corrected))) +
+  #geom_label_repel(aes(x = countperarea, y = avevoronoix, label = Label)) +
+  scale_y_continuous(limits = c(0, 2.5),
+                     sec.axis = sec_axis(~., labels = NULL)) +
+  scale_x_continuous(limits = c(0, 1.4),
+                     breaks = c(0,0.25,0.5,0.75,1,1.25),
+                     sec.axis = sec_axis(~., labels = NULL)) +
+  scale_shape_manual(values=c(16, 17, 0, 2)) + #hrs
+  ylab(expression(Average~Voronoi~Distance~'['*mu*m*']')) +
+  xlab(expression(Counts~Per~Area~'['*cts*'/'*mu*m^2*']')) +
+  theme_classic() +
+  guides(shape = guide_legend(reverse = TRUE, title = "Time [hrs]", 
+                              title.theme = element_text(colour="black", 
+                                                         size = 12))) +
+  guides(colour = guide_legend(reverse = TRUE, title = "Ni Vol.", 
+                               title.theme = element_text(colour="black", 
+                                                          size = 12))) +
+  
+  theme(axis.text.x = element_text(colour = "black", size = 16),
+        axis.text.y = element_text(colour = "black", size = 16),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 16),
+        axis.title.y = element_text(colour = "black", size = 16),
+        legend.text = element_text(colour="black", size = 12))
+```
+
+```{r}
+con.voronoi.dist.eda <- voronoidens %>%
+  mutate(stresso = stressf*exp((1.05-Th.Density/100)*coef(fracmodel)[2]*-1)) %>%
+  filter(Label != "WH03A") %>%
+  filter(Label != "WH13A") %>%
+  filter(Label != "WH15B") %>%
+  filter(is.na(condAve) == FALSE) %>%
+  #filter(is.na(stressf) == FALSE) %>%
+  #mutate(Label = substr(Label,0,4)) %>%
+  group_by(Labelfine) %>%
+  #
+  #filter(hrs == 5) %>%
+  #filter(Ni.Vol.Corrected == 0.35) %>%
+  #
+  ggplot() +
+  geom_ridgeline(aes(x = x, y = condAve, 
+                     fill = as.factor(Ni.Vol.Corrected),
+                     height = count/100000, group = Labelfine)) + #height is either density or count)
+  geom_rect(color = "black", aes(xmin = avevoronoix-0.01,
+                ymin = condAve,
+                xmax = avevoronoix+0.01,
+                ymax = condAve*2,
+                fill = as.factor(Ni.Vol.Corrected))) +
+  scale_x_log10(limits = c(0.05, 10), sec.axis = sec_axis(~., labels = NULL)) +
+  scale_y_log10(sec.axis = sec_axis(~., labels = NULL)) +
+  theme_classic()
+
+print(con.voronoi.dist.eda)
+ggsave(filename = "./plotexports/plotexport_con-voronoi-dist-eda.png", plot = con.voronoi.dist.eda, 
+       device = "png", width = 10,height = 8, units = "in")
+rm(con.voronoi.dist.eda)
+```
+
+```{r}
+selection <- "WH38A/900-10-35A0012.tiff"
+
+data1 <- voronoidens %>%
+  filter(Labelfine == selection)
+
+data2 <- nnddensities %>%
+  filter(Labelfine == selection)
+
+
+ggplot() +
+  geom_ridgeline(data = data1, size = 1, aes(x = x, y = 2,  
+                     fill = "red",
+                     height = count/25000, group = Labelfine)) +
+  geom_ridgeline(data = data2, size = 1, aes(x = nndx, y = 1, 
+                     fill = "blue",
+                     height = nnddens, group = Labelfine)) +
+  scale_x_log10(sec.axis = sec_axis(~., labels = NULL)) +
+  scale_y_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  scale_fill_discrete(labels = c("Voronoi", "NND")) +
+  guides(fill = guide_legend(title = "Quantifier", reverse = TRUE,
+                               #override.aes = list(size=4), 
+                               title.theme = element_text(colour="black",
+                                                          face = "bold",
+                                                          size = 12))) +
+  theme_classic() +
+  xlab(expression(Distance~'['*mu*m*']')) +
+  ylab("Distribution") +
+  theme(axis.text.x = element_text(colour = "black", size = 16),
+        axis.text.y = element_text(colour = "black", size = 16),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 16),
+        axis.title.y = element_text(colour = "black", size = 16),
+        legend.text = element_text(colour="black", size = 12))
+
+
+
+
+df_particles_fine %>%
+  select(Label, hrs, Temp, Ni.Vol.Corrected, Labelfine, magx) %>%
+  filter(magx == 10) %>%
+  filter(hrs == 10) %>%
+  filter(Ni.Vol.Corrected == 0.35) %>%
+  filter(Temp == 900) %>%
+  unique()
+
+rm(data1)
+rm(data2)
+rm(selection)
+```
+
