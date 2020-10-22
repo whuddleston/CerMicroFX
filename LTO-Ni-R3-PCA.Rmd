@@ -514,6 +514,7 @@ prcomp.R3 <- r3densities %>%
   #filter(hrs == 5) %>%
   filter(Label != "WH13A") %>% #weird outlier
   filter(Label != "WH15B") %>%
+  filter(Label != "WH21B") %>%
   filter(Labelfine != "WH06A/1000-5-35A0006.tiff") %>%
   filter(Labelfine != "WH06C/1000-5-35C0004.tiff") %>%
   #
@@ -540,6 +541,7 @@ prcomp.R3.fractSum <- df_particles_fine %>%
   #filter(hrs == 5) %>%
   filter(Label != "WH13A") %>% #weird outlier
   filter(Label != "WH15B") %>%
+  filter(Label != "WH21B") %>%
   filter(Labelfine != "WH06A/1000-5-35A0006.tiff") %>%
   filter(Labelfine != "WH06C/1000-5-35C0004.tiff") %>%
   #
@@ -559,23 +561,27 @@ prcomp.R3.fractSum$Ni.Vol.Corrected <- as.factor(prcomp.R3.fractSum$Ni.Vol.Corre
 
 autoplot(prcomp.R3, data = prcomp.R3.fractSum,
          colour = "Temp",
-         label = TRUE, frame = TRUE) +
+         shape = "hrs",
+         label = FALSE, frame = TRUE) +
   scale_x_continuous(sec.axis = sec_axis(~., labels = NULL)) +
   scale_y_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  scale_shape_manual(values=c(16, 17, 0, 2)) + #hrs
   theme_classic()
 
 autoplot(prcomp.R3, data = prcomp.R3.fractSum,
          colour = "hrs",
-         label = TRUE, frame = TRUE) +
+         label = FALSE, frame = TRUE) +
   scale_x_continuous(sec.axis = sec_axis(~., labels = NULL)) +
   scale_y_continuous(sec.axis = sec_axis(~., labels = NULL)) +
   theme_classic()
 
 autoplot(prcomp.R3, data = prcomp.R3.fractSum,
          colour = "Ni.Vol.Corrected",
-         label = TRUE, frame = TRUE) +
+         shape = "hrs",
+         label = FALSE, frame = TRUE) +
   scale_x_continuous(sec.axis = sec_axis(~., labels = NULL)) +
   scale_y_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  scale_shape_manual(values=c(16, 17, 0, 2)) + #hrs
   theme_classic()
 
 autoplot(prcomp.R3, 
@@ -583,7 +589,7 @@ autoplot(prcomp.R3,
          y = 3,
          data = prcomp.R3.fractSum,
          colour = "hrs",
-         label = TRUE, frame = TRUE) +
+         label = FALSE, frame = TRUE) +
   scale_x_continuous(sec.axis = sec_axis(~., labels = NULL)) +
   scale_y_continuous(sec.axis = sec_axis(~., labels = NULL)) +
   theme_classic()
@@ -593,9 +599,11 @@ autoplot(prcomp.R3,
          y = 4,
          data = prcomp.R3.fractSum,
          colour = "Temp",
-         label = TRUE, frame = TRUE) +
+         shape = "hrs",
+         label = FALSE, frame = TRUE) +
   scale_x_continuous(sec.axis = sec_axis(~., labels = NULL)) +
   scale_y_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  scale_shape_manual(values=c(16, 17, 0, 2)) + #hrs
   theme_classic()
 ```
 
