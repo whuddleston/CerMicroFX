@@ -130,9 +130,6 @@ rfresults <- predict(rfmodel, testset) %>%
 colnames(rfresults)[1] <- "prediction"
 colnames(rfresults)[2] <- "actual"
 
-rflm <- lm(rfresults$prediction ~ rfresults$actual)
-round(summary(rflm)$r.squared,3)
-
 
 cbind(rfresults, testset) %>%
   ggplot() +
@@ -147,8 +144,11 @@ cbind(rfresults, testset) %>%
   ylab("Conductivity Predicted [S/cm]")
   #annotate("text", label = round(last(rfmodel$rsq)*100,2), x = mean(rfresults$actual), y = mean(rfresults$prediction)*2)
 
+rflm <- lm(rfresults$prediction ~ rfresults$actual)
 
+paste(round(summary(rflm)$r.squared,3), "R^2")
 
+paste(round(summary(rflm)$adj.r.squared,3), "Adj. R^2")
 
 ```
 
@@ -172,8 +172,7 @@ svmresults <- predict(consvm, testset) %>%
 
 colnames(svmresults)[1] <- "prediction"
 
-svmlm <- lm(svmresults$prediction ~ testset$condAve)
-round(summary(svmlm)$r.squared,3)*100
+
 
 cbind(svmresults, testset) %>%
   ggplot() +
@@ -210,6 +209,13 @@ varImp(consvm)[1] %>%
   rownames_to_column() %>%
   arrange(desc(Overall))
 
+
+svmlm <- lm(svmresults$prediction ~ testset$condAve)
+
+
+paste(round(summary(svmlm)$r.squared,3)*100, "R^2")
+
+paste(round(summary(svmlm)$adj.r.squared,3)*100, "Adj. R^2")
 
 #to try: ensemble SVM / cross validate across different test/train splits
 ```
@@ -577,6 +583,14 @@ cbind(rfresultss, testset2) %>%
   xlab(expression(sigma[fr]~'['*MPa*']')) +
   ylab(expression(sigma[fr]~'-'~predicted~'['*MPa*']')) 
   #annotate("text", label = round(last(rfmodels$rsq)*100,2), x = mean(rfresultss$actual), y = mean(rfresultss$prediction)*2)
+  #
+
+
+stress.rf.lm <- lm(rfresultss$prediction ~ rfresultss$actual)
+
+paste(round(summary(stress.rf.lm)$r.squared,3)*100, "R^2")
+
+paste(round(summary(stress.rf.lm)$adj.r.squared,3)*100, "Adj. R^2")
 ```
 
 #stress LDA
@@ -770,5 +784,126 @@ paste("y","~", paste(names(trainset2)[-length(names(trainset2))], collapse = " +
 
 ```
 
+```{r}
+#this is an attempt to use LDA to determine if a sample is percolated
+#note LDA is ideal for multi-class problems, so this is a bad application
+#k means clustering would prob be better 
+tempscaled3 <- mutate(tempscaled, perc = if_else(condAve > 0.5,1,0))
 
+perc.lda <- paste("perc","~",#"condAve +", 
+                  paste(names(tempscaled)[1:6], collapse = " + "), 
+                "+ Ni.Vol.Corrected",
+                "+ hrs",
+                "+ Temp") %>%
+  as.formula() %>%
+  lda(., data = tempscaled3)
+
+
+perc.lda.prediction <- predict(perc.lda, newdata = tempscaled3)
+
+perc.lda.prediction$x %>%
+  cbind(., tempscaled3) %>%
+  ggplot(aes(LD1, condAve)) +
+  geom_point(aes(shape = as.factor(Temp),color = as.factor(Ni.Vol.Corrected))) +
+  #
+  geom_mark_hull(aes(fill = as.factor(perc)), expand = 0.02) +
+  #
+  scale_x_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  scale_y_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  theme_classic() +
+  theme(axis.text.x = element_text(colour = "black", size = 16),
+        axis.text.y = element_text(colour = "black", size = 16),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 16),
+        axis.title.y = element_text(colour = "black", size = 16),
+        legend.text = element_text(colour="black", size = 12))
+
+#perc.lda.prediction$x gives only 1 LD, k-1 is LD's given per dimenion
+```
+
+```{r}
+names(tempscaled)
+
+tempscaled %>%
+  select(-condAve) %>%
+  fviz_nbclust(FUNcluster = kmeans)
+
+tempscaled %>%
+  select(-condAve) %>%
+  fviz_nbclust(FUNcluster = kmeans, method = "wss")
+
+cond.kmean <- tempscaled %>%
+  select(-condAve) %>%
+  kmeans(., centers = 2)
+
+
+data.frame("clustid" = cond.kmean$cluster) %>%
+  cbind(tempscaled, .) %>%
+  ggplot(aes(y = condAve, x = Ni.Vol.Corrected)) +
+  geom_point(aes(shape = as.factor(hrs),color = as.factor(Temp))) +
+  #
+  geom_mark_hull(aes(fill = as.factor(clustid)), expand = 0.02) +
+  #
+  scale_x_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  scale_y_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  theme_classic() +
+  theme(axis.text.x = element_text(colour = "black", size = 16),
+        axis.text.y = element_text(colour = "black", size = 16),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 16),
+        axis.title.y = element_text(colour = "black", size = 16),
+        legend.text = element_text(colour="black", size = 12))
+
+data.frame("clustid" = cond.kmean$cluster) %>%
+  cbind(tempscaled3, .) %>%
+  ggplot(aes(y = condAve, x = perc)) +
+  geom_point(aes(shape = as.factor(Temp),color = as.factor(Ni.Vol.Corrected))) +
+  #
+  geom_mark_hull(aes(fill = as.factor(clustid)), expand = 0.02) +
+  #
+  scale_x_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  scale_y_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  theme_classic() +
+  theme(axis.text.x = element_text(colour = "black", size = 16),
+        axis.text.y = element_text(colour = "black", size = 16),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 16),
+        axis.title.y = element_text(colour = "black", size = 16),
+        legend.text = element_text(colour="black", size = 12))
+
+#8 clusters for 8 nickel contents
+```
+
+```{r}
+prcomp.R3.Coord %>%
+filter(is.na(condAve) == FALSE) %>%
+plot_ly(data = ., x = ~Dim.1, y = ~Dim.2, z = ~Dim.4, 
+        color = ~perc,
+        colors = hue_pal()(2),
+        type = 'scatter3d') %>%
+  layout(title = 'PCs 1,2,4',
+         scene = list(
+           xaxis = list(title = "PC1"),
+           yaxis = list(title = "PC2"),
+           zaxis = list(title = "PC4")
+           ))
+
+#note: PCA values are scaled in tempscaled
+data.frame("clustid" = cond.kmean$cluster) %>%
+  cbind(tempscaled3, .) %>%
+plot_ly(x = ~Dim.1, y = ~Dim.2, z = ~Dim.4, 
+        color = ~clustid,
+        colors = hue_pal()(2),
+        type = 'scatter3d') %>%
+  layout(title = 'PCs 1,2,4',
+         scene = list(
+           xaxis = list(title = "PC1"),
+           yaxis = list(title = "PC2"),
+           zaxis = list(title = "PC4")
+           ))
+
+```
 

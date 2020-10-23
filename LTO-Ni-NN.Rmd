@@ -61,14 +61,17 @@ print(nnform)
 ```
 
 ```{r}
-condnn <- neuralnet(nnform, data = trainset, hidden = c(9,5,4), #16 variables
+condnn <- neuralnet(nnform, data = trainset, hidden = c(9,5,4), #16 variables   4,5,9   5,9,4
+                    #rep = 2,
                     linear.output = TRUE) #linear.output=TRUE determines regression, false=classification
 
 plot(condnn)
 
-predict(condnn, newdata = testset) %>%
+condnn.results <- predict(condnn, newdata = testset) %>%
   as.data.frame() %>%
-  cbind(., testset) %>%
+  cbind(., testset)
+
+condnn.results %>%
   ggplot() +
   geom_point(aes(y = V1, x = condAve, color = as.factor(Ni.Vol.Corrected))) +
   geom_abline(slope = 1, intercept = 0) +
@@ -77,6 +80,17 @@ predict(condnn, newdata = testset) %>%
   scale_x_continuous(sec.axis = sec_axis(~., labels = NULL)) +
   scale_y_continuous(sec.axis = sec_axis(~., labels = NULL)) +
   coord_fixed()
+
+
+condnn.lm <- lm(condnn.results$V1 ~ condnn.results$condAve)
+
+
+paste(round(summary(condnn.lm)$r.squared,3)*100, "R^2")
+
+paste(round(summary(condnn.lm)$adj.r.squared,3)*100, "Adj. R^2")
+
+
+#class(condnn)
 ```
 
 
