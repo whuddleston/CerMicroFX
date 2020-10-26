@@ -1,0 +1,426 @@
+---
+title: "LTO-Ni-LDA"
+author: "whh36"
+date: "10/26/2020"
+output: html_document
+---
+
+# Conductivity LDA
+
+```{r}
+
+paste("condAve","~",paste(names(trainset)[1:6], collapse = " + ")) #LDA on just pc's
+
+paste("condAve","~",paste(names(trainset)[1:6], collapse = " + "), #LDA for con on PC's and processing
+      "+ hrs",
+      "+ Temp",
+      "+ Ni.Vol.Corrected")
+
+
+
+#conductivity classification from PCA data only
+cond.lda <- paste("condAve","~", paste(names(trainset)[1:6], collapse = " + ")) %>%
+  as.formula() %>%
+  lda(., data = trainset)
+
+cond.lda.prediction <- predict(cond.lda, newdata = testset)
+
+
+
+cond.lda.prediction$x %>%
+  cbind(., testset) %>%
+  ggplot(aes(LD1, LD2)) +
+  geom_point(aes(color = as.factor(Ni.Vol.Corrected))) +
+  #
+  geom_mark_hull(aes(fill = as.factor(Ni.Vol.Corrected)), expand = 0.02) +
+  #
+  scale_x_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  scale_y_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  theme_classic() +
+  theme(axis.text.x = element_text(colour = "black", size = 16),
+        axis.text.y = element_text(colour = "black", size = 16),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 16),
+        axis.title.y = element_text(colour = "black", size = 16),
+        legend.text = element_text(colour="black", size = 12))
+
+cond.lda.prediction$x %>%
+  cbind(., testset) %>%
+  ggplot(aes(LD1, LD2)) +
+  geom_point(aes(color = as.factor(Temp))) +
+  #
+  geom_mark_hull(aes(fill = as.factor(Temp)), expand = 0.02) +
+  #
+  scale_x_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  scale_y_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  theme_classic() +
+  theme(axis.text.x = element_text(colour = "black", size = 16),
+        axis.text.y = element_text(colour = "black", size = 16),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 16),
+        axis.title.y = element_text(colour = "black", size = 16),
+        legend.text = element_text(colour="black", size = 12))
+
+cond.lda.prediction$x %>%
+  cbind(., testset) %>%
+  ggplot(aes(LD1, LD2)) +
+  geom_point(aes(color = as.factor(hrs))) +
+  #
+  geom_mark_hull(aes(fill = as.factor(hrs)), expand = 0.02) +
+  #
+  scale_x_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  scale_y_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  theme_classic() +
+  theme(axis.text.x = element_text(colour = "black", size = 16),
+        axis.text.y = element_text(colour = "black", size = 16),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 16),
+        axis.title.y = element_text(colour = "black", size = 16),
+        legend.text = element_text(colour="black", size = 12))
+
+```
+
+```{r}
+#ni.lda
+
+#LDA to classify for Nickel using conductivity, PC's, and processing
+ni.lda <- paste("Ni.Vol.Corrected","~","condAve +", paste(names(trainset)[1:6], collapse = " + "), 
+                "+ hrs",
+                "+ Temp") %>%
+  as.formula() %>%
+  lda(., data = trainset)
+
+
+ni.lda.prediction <- predict(ni.lda, newdata = testset)
+
+ni.lda.prediction$x %>%
+  cbind(., testset) %>%
+  ggplot(aes(LD1, LD2)) +
+  geom_point(aes(color = as.factor(Ni.Vol.Corrected))) +
+  #
+  geom_mark_hull(aes(fill = as.factor(Ni.Vol.Corrected)), expand = 0.02) +
+  #
+  scale_x_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  scale_y_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  theme_classic() +
+  theme(axis.text.x = element_text(colour = "black", size = 16),
+        axis.text.y = element_text(colour = "black", size = 16),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 16),
+        axis.title.y = element_text(colour = "black", size = 16),
+        legend.text = element_text(colour="black", size = 12))
+
+
+```
+
+#stress LDA
+
+```{r}
+#LDA on just pc's
+
+paste(last(names(trainset2)),"~", paste(names(trainset2)[1:6], collapse = " + "))
+
+#stress classification from PCA data only
+stress.lda <- paste(last(names(trainset2)),"~", paste(names(trainset2)[1:6], collapse = " + ")) %>%
+  as.formula() %>%
+  lda(., data = trainset2)
+
+stress.lda.prediction <- predict(stress.lda, newdata = testset2)
+
+
+stress.lda.prediction$x %>%
+  cbind(., testset2) %>%
+  ggplot(aes(LD1, LD2)) +
+  geom_point(aes(color = as.factor(Ni.Vol.Corrected))) +
+  #
+  geom_mark_hull(aes(fill = as.factor(Ni.Vol.Corrected)), expand = 0.02) +
+  #
+  scale_x_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  scale_y_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  theme_classic() +
+  theme(axis.text.x = element_text(colour = "black", size = 16),
+        axis.text.y = element_text(colour = "black", size = 16),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 16),
+        axis.title.y = element_text(colour = "black", size = 16),
+        legend.text = element_text(colour="black", size = 12))
+
+stress.lda.prediction$x %>%
+  cbind(., testset2) %>%
+  ggplot(aes(LD1, LD2)) +
+  geom_point(aes(color = as.factor(Temp))) +
+  #
+  geom_mark_hull(aes(fill = as.factor(Temp)), expand = 0.02) +
+  #
+  scale_x_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  scale_y_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  theme_classic() +
+  theme(axis.text.x = element_text(colour = "black", size = 16),
+        axis.text.y = element_text(colour = "black", size = 16),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 16),
+        axis.title.y = element_text(colour = "black", size = 16),
+        legend.text = element_text(colour="black", size = 12))
+
+stress.lda.prediction$x %>%
+  cbind(., testset2) %>%
+  ggplot(aes(LD1, LD2)) +
+  geom_point(aes(color = as.factor(hrs))) +
+  #
+  geom_mark_hull(aes(fill = as.factor(hrs)), expand = 0.02) +
+  #
+  scale_x_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  scale_y_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  theme_classic() +
+  theme(axis.text.x = element_text(colour = "black", size = 16),
+        axis.text.y = element_text(colour = "black", size = 16),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 16),
+        axis.title.y = element_text(colour = "black", size = 16),
+        legend.text = element_text(colour="black", size = 12))
+
+stress.lda.prediction$x %>%
+  cbind(., testset2) %>%
+  ggplot(aes(LD1, LD3)) +
+  geom_point(aes(color = as.factor(hrs))) +
+  #
+  geom_mark_hull(aes(fill = as.factor(hrs)), expand = 0.02) +
+  #
+  scale_x_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  scale_y_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  theme_classic() +
+  theme(axis.text.x = element_text(colour = "black", size = 16),
+        axis.text.y = element_text(colour = "black", size = 16),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 16),
+        axis.title.y = element_text(colour = "black", size = 16),
+        legend.text = element_text(colour="black", size = 12))
+
+#stress.lda.prediction$posterior %>% as.data.frame()
+
+#plot(stress.lda)
+
+```
+
+```{r}
+#temperature classification from stress, PCA data, and processing
+
+temp.lda <- paste("Temp","~","stressf2 +", paste(names(trainset2)[1:6], collapse = " + "), 
+                "+ hrs",
+                "+ Ni.Vol.Corrected") %>%
+  as.formula() %>%
+  lda(., data = trainset2)
+
+temp.lda.prediction <- predict(temp.lda, newdata = testset2)
+
+temp.lda.prediction$x %>%
+  cbind(., testset2) %>%
+  ggplot(aes(LD1, LD2)) +
+  geom_point(aes(color = as.factor(Temp))) +
+  #
+  geom_mark_hull(aes(fill = as.factor(Temp)), expand = 0.02) +
+  #
+  scale_x_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  scale_y_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  theme_classic() +
+  theme(axis.text.x = element_text(colour = "black", size = 16),
+        axis.text.y = element_text(colour = "black", size = 16),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 16),
+        axis.title.y = element_text(colour = "black", size = 16),
+        legend.text = element_text(colour="black", size = 12))
+```
+
+```{r}
+#LDA with selected variables using **all data**
+#also want to eventually do LDA on all variables for split data/all data
+
+temp.lda <- paste("Temp","~","stressf2 +", paste(names(tempscaled2)[1:6], collapse = " + "), 
+                "+ hrs",
+                "+ Ni.Vol.Corrected") %>%
+  as.formula() %>%
+  lda(., data = tempscaled2)
+
+temp.lda.prediction <- predict(temp.lda, newdata = tempscaled2)
+
+temp.lda.prediction$x %>%
+  cbind(., tempscaled2) %>%
+  ggplot(aes(LD1, LD2)) +
+  geom_point(aes(color = as.factor(Temp))) +
+  #
+  geom_mark_hull(aes(fill = as.factor(Temp)), expand = 0.02) +
+  #
+  scale_x_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  scale_y_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  theme_classic() +
+  theme(axis.text.x = element_text(colour = "black", size = 16),
+        axis.text.y = element_text(colour = "black", size = 16),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 16),
+        axis.title.y = element_text(colour = "black", size = 16),
+        legend.text = element_text(colour="black", size = 12))
+
+
+
+ni.lda <- paste("Ni.Vol.Corrected","~","condAve +", paste(names(tempscaled)[1:6], collapse = " + "), 
+                "+ hrs",
+                "+ Temp") %>%
+  as.formula() %>%
+  lda(., data = tempscaled)
+
+
+ni.lda.prediction <- predict(ni.lda, newdata = tempscaled)
+
+ni.lda.prediction$x %>%
+  cbind(., tempscaled) %>%
+  ggplot(aes(LD1, LD2)) +
+  geom_point(aes(color = as.factor(Ni.Vol.Corrected))) +
+  #
+  geom_mark_hull(aes(fill = as.factor(Ni.Vol.Corrected)), expand = 0.02) +
+  #
+  scale_x_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  scale_y_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  theme_classic() +
+  theme(axis.text.x = element_text(colour = "black", size = 16),
+        axis.text.y = element_text(colour = "black", size = 16),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 16),
+        axis.title.y = element_text(colour = "black", size = 16),
+        legend.text = element_text(colour="black", size = 12))
+
+```
+
+```{r}
+#this is an attempt to use LDA to determine if a sample is percolated
+#note LDA is ideal for multi-class problems, so this is a bad application
+#k means clustering would prob be better 
+tempscaled3 <- mutate(tempscaled, perc = if_else(condAve > 0.5,1,0))
+
+#perc class from PCA and processing (no performance)
+perc.lda <- paste("perc","~",#"condAve +", 
+                  paste(names(tempscaled)[1:6], collapse = " + "), 
+                "+ Ni.Vol.Corrected",
+                "+ hrs",
+                "+ Temp") %>%
+  as.formula() %>%
+  lda(., data = tempscaled3)
+
+
+perc.lda.prediction <- predict(perc.lda, newdata = tempscaled3)
+
+perc.lda.prediction$x %>%
+  cbind(., tempscaled3) %>%
+  ggplot(aes(LD1, condAve)) +
+  geom_point(aes(shape = as.factor(Temp),color = as.factor(Ni.Vol.Corrected))) +
+  #
+  geom_mark_hull(aes(fill = as.factor(perc)), expand = 0.02) +
+  #
+  scale_x_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  scale_y_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  theme_classic() +
+  theme(axis.text.x = element_text(colour = "black", size = 16),
+        axis.text.y = element_text(colour = "black", size = 16),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 16),
+        axis.title.y = element_text(colour = "black", size = 16),
+        legend.text = element_text(colour="black", size = 12))
+
+#perc.lda.prediction$x gives only 1 LD, k-1 is LD's given per dimenion
+```
+
+```{r}
+names(tempscaled)
+
+tempscaled %>%
+  select(-condAve) %>%
+  fviz_nbclust(FUNcluster = kmeans)
+
+tempscaled %>%
+  select(-condAve) %>%
+  fviz_nbclust(FUNcluster = kmeans, method = "wss")
+
+cond.kmean <- tempscaled %>%
+  select(-condAve) %>%
+  kmeans(., centers = 2)
+
+
+data.frame("clustid" = cond.kmean$cluster) %>%
+  cbind(tempscaled, .) %>%
+  ggplot(aes(y = condAve, x = Ni.Vol.Corrected)) +
+  geom_point(aes(shape = as.factor(hrs),color = as.factor(Temp))) +
+  #
+  geom_mark_hull(aes(fill = as.factor(clustid)), expand = 0.02) +
+  #
+  scale_x_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  scale_y_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  theme_classic() +
+  theme(axis.text.x = element_text(colour = "black", size = 16),
+        axis.text.y = element_text(colour = "black", size = 16),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 16),
+        axis.title.y = element_text(colour = "black", size = 16),
+        legend.text = element_text(colour="black", size = 12))
+
+data.frame("clustid" = cond.kmean$cluster) %>%
+  cbind(tempscaled3, .) %>%
+  ggplot(aes(y = condAve, x = perc)) +
+  geom_point(aes(shape = as.factor(Temp),color = as.factor(Ni.Vol.Corrected))) +
+  #
+  geom_mark_hull(aes(fill = as.factor(clustid)), expand = 0.02) +
+  #
+  scale_x_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  scale_y_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  theme_classic() +
+  theme(axis.text.x = element_text(colour = "black", size = 16),
+        axis.text.y = element_text(colour = "black", size = 16),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 16),
+        axis.title.y = element_text(colour = "black", size = 16),
+        legend.text = element_text(colour="black", size = 12))
+
+#8 clusters for 8 nickel contents
+```
+
+```{r}
+prcomp.R3.Coord %>%
+filter(is.na(condAve) == FALSE) %>%
+plot_ly(data = ., x = ~Dim.1, y = ~Dim.2, z = ~Dim.4, 
+        color = ~perc,
+        colors = hue_pal()(2),
+        type = 'scatter3d') %>%
+  layout(title = 'PCs 1,2,4',
+         scene = list(
+           xaxis = list(title = "PC1"),
+           yaxis = list(title = "PC2"),
+           zaxis = list(title = "PC4")
+           ))
+
+#note: PCA values are scaled in tempscaled
+data.frame("clustid" = cond.kmean$cluster) %>%
+  cbind(tempscaled3, .) %>%
+plot_ly(x = ~Dim.1, y = ~Dim.2, z = ~Dim.4, 
+        color = ~clustid,
+        colors = hue_pal()(2),
+        type = 'scatter3d') %>%
+  layout(title = 'PCs 1,2,4',
+         scene = list(
+           xaxis = list(title = "PC1"),
+           yaxis = list(title = "PC2"),
+           zaxis = list(title = "PC4")
+           ))
+
+```
