@@ -11,6 +11,37 @@ knitr::opts_chunk$set(echo = FALSE, warning=FALSE, message=FALSE) #set echo to F
 ```
 
 ```{r}
+fractSum %>%
+  filter(Label != "WH17B") %>%
+  filter(is.na(load) == FALSE) %>% #removes non mech data
+  #filter(hrs == 5) %>%
+  #filter(Ni.Vol.Corrected == 0.35) %>%
+  group_by(Temp) %>%
+  ggplot() +
+  geom_boxplot(aes(group = Temp, x = Temp, y = stressf)) +
+  geom_point(aes(x = Temp, y = stressf, shape = as.factor(hrs),
+                 color = as.factor(Temp))) +
+  guides(color = FALSE) +
+  scale_x_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  scale_y_continuous(limits = c(0,250), expand = c(0,0), 
+                     sec.axis = sec_axis(~., labels = NULL)) +
+  scale_shape_manual(values=c(16, 17, 0, 2)) + #hrs
+  theme_classic() +
+  xlab(expression(Temp~'['*degree*C*']')) +
+  ylab(expression(sigma[fr]~'['*MPa*']')) +
+  guides(shape = guide_legend(title = "Time [hrs]", reverse = TRUE,
+                               #override.aes = list(size=4), 
+                               title.theme = element_text(colour="black",
+                                                          #face = "bold",
+                                                          size = 12))) +
+  theme(axis.text.x = element_text(colour = "black", size = 16),
+        axis.text.y = element_text(colour = "black", size = 16),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 16),
+        axis.title.y = element_text(colour = "black", size = 16),
+        legend.text = element_text(colour="black", size = 12))
+
 mechtempploteb <- fractSum %>%
   filter(Label != "WH17B") %>%
   filter(is.na(load) == FALSE) %>% #removes non mech data
@@ -42,6 +73,39 @@ rm(mechtempploteb)
 ```
 
 ```{r}
+fractSum %>%
+  filter(Label != "WH09D") %>%
+  filter(is.na(load) == FALSE) %>% #removes non mech data
+  #filter(Temp == 900) %>%
+  #filter(hrs == 5) %>%
+  ggplot() +
+  scale_y_continuous(limits = c(0,250), expand = c(0,0), 
+                     sec.axis = sec_axis(~., labels = NULL)) +
+  geom_boxplot(aes(group = Ni.Vol.Corrected, x = Ni.Vol.Corrected, y = stressf)) +
+  geom_point(aes(x = Ni.Vol.Corrected, y = stressf, 
+                 shape = as.factor(hrs), 
+                 color = as.factor(Ni.Vol.Corrected))) +
+  #geom_point(data = filter(mechdata2, Temp == 900), aes(x = Ni.Vol.Corrected, y = stressf, color = as.factor(Temp))) +
+  guides(color = FALSE) +
+  scale_x_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  theme_classic() +
+  xlab("Nickel Volume Fraction") +
+  ylab(expression(sigma[fr]~'['*MPa*']')) +
+  scale_color_manual(values=c("#000000", "#F8766D", "#CD9600", "#7CAE00", "#00BE67", "#00BFC4", "#00A9FF", "#C77CFF", "#FF61CC")) +
+  scale_shape_manual(values=c(16, 17, 0, 2)) + #hrs
+  guides(shape = guide_legend(title = "Time [hrs]", reverse = TRUE,
+                               #override.aes = list(size=4), 
+                               title.theme = element_text(colour="black",
+                                                          #face = "bold",
+                                                          size = 12))) +
+  theme(axis.text.x = element_text(colour = "black", size = 16),
+        axis.text.y = element_text(colour = "black", size = 16),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 16),
+        axis.title.y = element_text(colour = "black", size = 16),
+        legend.text = element_text(colour="black", size = 12))
+
 mechniploteb <- fractSum %>%
   filter(Label != "WH09D") %>%
   filter(is.na(load) == FALSE) %>% #removes non mech data
@@ -78,6 +142,34 @@ rm(mechniploteb)
 ```
 
 ```{r}
+fractSum %>%
+  filter(is.na(load) == FALSE) %>% #removes non mech data
+  #filter(Ni.Vol.Corrected == 0.35) %>%
+  #filter(Temp == 900) %>%
+  ggplot() +
+  geom_boxplot(aes(group = hrs, x = hrs, y = stressf)) +
+  geom_point(aes(x = hrs, y = stressf, shape = as.factor(Temp),
+                 color = as.factor(hrs))) +
+  scale_x_log10(breaks = c(5,10,50,150),sec.axis = sec_axis(~., labels = NULL)) +
+  scale_y_continuous(limits = c(0,250), sec.axis = sec_axis(~., labels = NULL)) +
+  scale_color_manual(values=c("#00BF7D", "#BF7D00", "#7C00BF", "#BF0041")) +
+  ylab(expression(sigma[fr]~'['*MPa*']')) +
+  xlab("Time [Hrs]") +
+  guides(color = FALSE) +
+  guides(shape = guide_legend(title = expression(Temp~'['*degree*C*']'), reverse = TRUE,
+                               #override.aes = list(size=4), 
+                               title.theme = element_text(colour="black",
+                                                          #face = "bold",
+                                                          size = 12))) +
+  theme_classic() +
+  theme(axis.text.x = element_text(colour = "black", size = 16),
+        axis.text.y = element_text(colour = "black", size = 16),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 16),
+        axis.title.y = element_text(colour = "black", size = 16),
+        legend.text = element_text(colour="black", size = 12))
+
 mechtimeeb <- fractSum %>%
   filter(is.na(load) == FALSE) %>% #removes non mech data
   filter(Ni.Vol.Corrected == 0.35) %>%
@@ -171,28 +263,52 @@ fractSum %>%
         axis.title.x = element_text(colour = "black", size = 16),
         axis.title.y = element_text(colour = "black", size = 16),
         legend.text = element_text(colour="black", size = 12))
+```
 
-fractSum %>%
+```{r}
+fracsize <- fractSum %>%
   filter(is.na(load) == FALSE) %>% #removes non mech data
+  #filter(Ni.Vol.Corrected == 0.35) %>%
   mutate(stresso = stressf*exp((1.05-Th.Density/100)*coef(fracmodel)[2]*-1)) %>%
   ggplot() +
-  geom_point(aes(x = log(R3), y = stresso, 
+  geom_point(size = 2.5, aes(x = R3, y = log(stresso), 
                  shape = as.factor(hrs),
                  color = as.factor(Temp))) +
   guides(color = FALSE) +
-  scale_x_continuous(sec.axis = sec_axis(~., labels = NULL)) +
-  scale_y_log10(limits = c(10,600), 
+  #scale_x_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  scale_x_log10(sec.axis = sec_axis(~.^(1/3)*2, name = expression(D~'['*mu*m*']')),
+                limits = c(0.006, 150),
+                #breaks = scales::trans_breaks("log10", function(x) 10^x),
+                labels = trans_format("log10", math_format(10^.x))) +
+  scale_y_continuous(limits = c(3,7), 
                 expand = c(0,0), 
                 sec.axis = sec_axis(~., labels = NULL)) +
+  scale_shape_manual(values=c(16, 17, 0, 2)) + #hrs
+  ylab(expression('ln'*'('*sigma[o]*')'~'['*MPa*']')) +
+  xlab(expression(R^3~'['*mu*m^3*']')) +
   theme_classic() +
-  #ylab(expression(sigma[fr]~'['*MPa*']')) +
+  guides(shape = guide_legend(title = "Time [hrs]", reverse = TRUE,
+                               #override.aes = list(size=4), 
+                               title.theme = element_text(colour="black",
+                                                          #face = "bold",
+                                                          size = 12))) +
+  guides(colour = guide_legend(title = expression(Temp~'['*degree*C*']'), reverse = TRUE,
+                               #override.aes = list(size=4), 
+                               title.theme = element_text(colour="black",
+                                                          #face = "bold",
+                                                          size = 12))) +
   theme(axis.text.x = element_text(colour = "black", size = 16),
         axis.text.y = element_text(colour = "black", size = 16),
         axis.ticks = element_line(colour = "black", size = 1),
         axis.line = element_line(colour = 'black', size = 1),
         axis.title.x = element_text(colour = "black", size = 16),
         axis.title.y = element_text(colour = "black", size = 16),
-        legend.text = element_text(colour="black", size = 12))
+        legend.text = element_text(colour = "black", size = 12))
+
+print(fracsize)
+ggsave(filename = "./plotexports/plotexportfracsize.png", plot = fracsize, 
+       device = "png", width = 6,height = 4, units = "in")
+rm(fracsize)
 ```
 
 ```{r}
@@ -209,7 +325,7 @@ fracmod <- fractSum %>%
   geom_abline(slope = coef(fracmodel)[2]/100,
               intercept = 5.181) +
   theme_classic() +
-  ylab(expression('ln'*'('*sigma[o]*')'~'['*MPa*']')) +
+  ylab(expression('ln'*'('*sigma[fr]*')'~'['*MPa*']')) +
   scale_y_continuous(sec.axis = sec_axis(~exp(.), name = expression(sigma[o]~'['*MPa*']'))) +
   scale_x_continuous(sec.axis = sec_axis(~., labels = NULL)) +
   theme(axis.text.x = element_text(colour = "black", size = 16),
@@ -314,7 +430,7 @@ df_particles %>%
 toughsize <- fractSum %>%
   filter(Label != "WH03A") %>%
   ggplot() +
-  geom_point(size = 4, stroke = 2,
+  geom_point(size = 3, stroke = 2,
              aes(x = Temp, y = R3,
                  shape = as.factor(hrs),
                  color = as.factor(Ni.Vol.Corrected))) +
@@ -499,16 +615,17 @@ stressnormni <- fractSum %>%
   filter(hrs == 5) %>%
   mutate(stresso = stressf*exp((1.05-Th.Density/100)*coef(fracmodel)[2]*-1)) %>%
   ggplot() +
-  geom_boxplot(aes(group = Ni.Vol.Corrected, x = Ni.Vol.Corrected, y = stresso)) +
-  geom_point(size = 2, aes(y = stresso, x = Ni.Vol.Corrected, 
+  geom_boxplot(aes(group = Ni.Vol.Corrected, x = Ni.Vol.Corrected, y = log(stresso))) +
+  geom_point(size = 2, aes(y = log(stresso), x = Ni.Vol.Corrected, 
                  #size = as.factor(hrs),
                  shape = as.factor(Temp),
                  color = as.factor(Ni.Vol.Corrected))) +
   xlab("Nickel Volume Fraction") +
   ylab(expression(sigma[o]~'['*MPa*']')) +
-  scale_y_log10(limits = c(10,750),
+  scale_y_continuous(limits = c(3,7),
                 sec.axis = sec_axis(~., labels = NULL)) +
   scale_x_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  ylab(expression('ln'*'('*sigma[o]*')'~'['*MPa*']')) +
   scale_color_manual(values=c("#000000", "#F8766D", "#CD9600", "#7CAE00", "#00BE67", "#00BFC4", "#00A9FF", "#C77CFF", "#FF61CC")) +
   guides(color = FALSE) +
   guides(shape = FALSE) +
@@ -524,7 +641,9 @@ stressnormni <- fractSum %>%
 print(stressnormni)
 ggsave(filename = "./plotexports/plotexportstressnormni.png", plot = stressnormni, device = "png", width = 6, height = 4, units = "in")
 rm(stressnormni)
+```
 
+```{r}
 #all samples
 fractSum %>%
   filter(is.na(stressf) == FALSE) %>%
@@ -589,14 +708,14 @@ stressnormtemp <- fractSum %>%
   filter(hrs == 5) %>%
   mutate(stresso = stressf*exp((1.05-Th.Density/100)*coef(fracmodel)[2]*-1)) %>%
   ggplot() +
-  geom_boxplot(aes(group = Temp, x = Temp, y = stresso)) +
-  geom_point(size = 2, aes(y = stresso, x = Temp, 
+  geom_boxplot(aes(group = Temp, x = Temp, y = log(stresso))) +
+  geom_point(size = 2, aes(y = log(stresso), x = Temp, 
                  #size = as.factor(hrs),
                  #shape = as.factor(Temp),
                  color = as.factor(Temp))) +
   xlab(expression(Temp~'['*degree*C*']')) +
-  ylab(expression(sigma[o]~'['*MPa*']')) +
-  scale_y_log10(limits = c(10,750),
+  ylab(expression('ln'*'('*sigma[o]*')'~'['*MPa*']')) +
+  scale_y_continuous(limits = c(3,7),
                 sec.axis = sec_axis(~., labels = NULL)) +
   scale_x_continuous(sec.axis = sec_axis(~., labels = NULL)) +
   guides(color = FALSE) +
@@ -645,14 +764,14 @@ stressnormhrs <- fractSum %>%
   filter(Temp == 900) %>%
   mutate(stresso = stressf*exp((1.05-Th.Density/100)*coef(fracmodel)[2]*-1)) %>%
   ggplot() +
-  geom_boxplot(aes(group = hrs, x = hrs, y = stresso)) +
-  geom_point(size = 2, aes(y = stresso, x = hrs, 
+  geom_boxplot(aes(group = hrs, x = hrs, y = log(stresso))) +
+  geom_point(size = 2, aes(y = log(stresso), x = hrs, 
                  #size = as.factor(hrs),
                  shape = as.factor(Temp),
                  color = as.factor(hrs))) +
   xlab("Time [hrs]") +
-  ylab(expression(sigma[o]~'['*MPa*']')) +
-  scale_y_log10(limits = c(10,750), 
+  ylab(expression('ln'*'('*sigma[o]*')'~'['*MPa*']')) +
+  scale_y_continuous(limits = c(3,7), 
                 sec.axis = sec_axis(~., labels = NULL)) +
   scale_x_log10(breaks = c(5,10,50,150),sec.axis = sec_axis(~., labels = NULL)) +
   guides(colour = guide_legend(reverse = TRUE, title = "Time [hrs]", 

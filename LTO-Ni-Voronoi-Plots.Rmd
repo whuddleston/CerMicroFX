@@ -556,20 +556,31 @@ voronoidens %>%
   mutate(stresso = stressf*exp((1.05-Th.Density/100)*coef(fracmodel)[2]*-1)) %>%
   #
   ggplot() +
-  geom_point(size = 2, aes(y = stressf, x = avevoronoix,
+  geom_point(size = 2, aes(y = log(stresso), x = avevcoarse,
                            shape = as.factor(hrs),
                            color = as.factor(Temp))) +
-  geom_point(data = filter(voronoidens,aveR3 > 10), 
-             size = 3,
-             stroke = 1,
-             shape = 1,
-             aes(x = avevoronoix,
-                 y = stressf)) +
-  scale_y_continuous(sec.axis = sec_axis(~., labels = NULL)) +
-  scale_x_continuous(limits = c(0, 3), sec.axis = sec_axis(~., labels = NULL)) +
+  # geom_point(data = filter(voronoidens,aveR3 > 10), 
+  #            size = 3,
+  #            stroke = 1,
+  #            shape = 1,
+  #            aes(x = avevoronoix,
+  #                y = stressf)) +
+  scale_y_continuous(limits = c(3, 7), sec.axis = sec_axis(~., labels = NULL)) +
+  scale_x_continuous(limits = c(0.25, 2), sec.axis = sec_axis(~., labels = NULL)) +
   #guides(shape = FALSE) +
   #guides(color = FALSE) +
   theme_classic() +
+  scale_shape_manual(values=c(16, 17, 0, 2)) + #hrs
+  guides(shape = guide_legend(title = "Time [hrs]", reverse = TRUE,
+                               #override.aes = list(size=4), 
+                               title.theme = element_text(colour="black",
+                                                          #face = "bold",
+                                                          size = 12))) +
+  guides(fill = FALSE, colour = guide_legend(title = expression(Temp~'['*degree*C*']'), reverse = TRUE,
+                               #override.aes = list(size=4), 
+                               title.theme = element_text(colour="black",
+                                                          #face = "bold",
+                                                          size = 12))) +
   theme(axis.text.x = element_text(colour = "black", size = 16),
         axis.text.y = element_text(colour = "black", size = 16),
         axis.ticks = element_line(colour = "black", size = 1),
