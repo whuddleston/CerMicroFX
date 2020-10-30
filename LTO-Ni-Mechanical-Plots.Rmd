@@ -154,7 +154,7 @@ fractSum %>%
   scale_y_continuous(limits = c(0,250), sec.axis = sec_axis(~., labels = NULL)) +
   scale_color_manual(values=c("#00BF7D", "#BF7D00", "#7C00BF", "#BF0041")) +
   ylab(expression(sigma[fr]~'['*MPa*']')) +
-  xlab("Time [Hrs]") +
+  xlab("Time [hrs]") +
   guides(color = FALSE) +
   guides(shape = guide_legend(title = expression(Temp~'['*degree*C*']'), reverse = TRUE,
                                #override.aes = list(size=4), 
@@ -181,7 +181,7 @@ mechtimeeb <- fractSum %>%
   scale_y_continuous(limits = c(0,250), sec.axis = sec_axis(~., labels = NULL)) +
   scale_color_manual(values=c("#00BF7D", "#BF7D00", "#7C00BF", "#BF0041")) +
   ylab(expression(sigma[fr]~'['*MPa*']')) +
-  xlab("Time [Hrs]") +
+  xlab("Time [hrs]") +
   guides(color = FALSE) +
   theme_classic() +
   theme(axis.text.x = element_text(colour = "black", size = 16),
@@ -271,7 +271,7 @@ fracsize <- fractSum %>%
   #filter(Ni.Vol.Corrected == 0.35) %>%
   mutate(stresso = stressf*exp((1.05-Th.Density/100)*coef(fracmodel)[2]*-1)) %>%
   ggplot() +
-  geom_point(size = 2.5, aes(x = R3, y = log(stresso), 
+  geom_point(size = 2.5, stroke = 2,aes(x = R3, y = log(stresso), 
                  shape = as.factor(hrs),
                  color = as.factor(Temp))) +
   guides(color = FALSE) +
@@ -386,10 +386,10 @@ toughen <- mechdata %>%
   ylab("Load [N]") +
   xlab("Extension [mm]") +
   #guides(color = FALSE) +
-  guides(colour = guide_legend(reverse = TRUE, title = expression(Ni~Vol~'['*'%'*']'), 
+  guides(colour = guide_legend(reverse = TRUE, title = "Time [hrs]", 
                                title.theme = element_text(colour="black", 
                                                           size = 12))) +
-  scale_color_manual(values=c("#000000", "#00A9FF"), labels = c("5 hrs", "150 hrs")) +
+  scale_color_manual(values=c("#000000", "#00A9FF"), labels = c("5", "150")) +
   theme_classic() +
   theme(axis.text.x = element_text(colour = "black", size = 16),
         axis.text.y = element_text(colour = "black", size = 16),
@@ -958,9 +958,10 @@ rm(normstresscond)
 
 ```{r}
 read.csv("./data-files/cracklengthdata.csv") %>%
+  mutate(Ni.Vol.Corrected = Ni.Vol.Corrected/100) %>%
   ggplot() +
   geom_boxplot(aes(group = Ni.Vol.Corrected, x = Ni.Vol.Corrected, y = Kccurved)) +
-  geom_point(aes(x = Ni.Vol.Corrected, y = Kccurved, 
+  geom_point(size = 3, aes(x = Ni.Vol.Corrected, y = Kccurved, 
                  color = as.factor(Ni.Vol.Corrected))) +
   scale_x_continuous(sec.axis = sec_axis(~., labels = NULL)) +
   scale_y_log10(limits = c(0.005,2),sec.axis = sec_axis(~., labels = NULL)) +
