@@ -888,8 +888,9 @@ nifix <- function(z){
 }
 
 
-
-r3densities %>%
+for (i in c("PC1","PC2","PC3","PC4","PC5")) {
+  
+PCANi <- r3densities %>%
   mutate(Label = substr(Labelfine, 1, 5)) %>%
   left_join(., fractSum, by = "Label") %>%
   #filter(Ni.Vol.Corrected == 0.35) %>%
@@ -914,7 +915,7 @@ r3densities %>%
   #
   mutate(r3x = 10^r3x) %>%
   #
-  ggplot(aes(fill = PC1)) +
+  ggplot(aes_string(fill = i)) +
   geom_ridgeline_gradient(size = 1, aes(x = r3x, y = ni2-1, 
                               group = Labelfine, 
                               height = density*5)) +
@@ -929,7 +930,7 @@ r3densities %>%
                      labels = c("0.05", "0.10", "0.20", "0.24", "0.28", "0.35", "0.40", "0.50", "PC"),
                      sec.axis = sec_axis(~., breaks = c(0,1,2,3,4,5,6,7,9), labels = NULL)) +
   theme_classic() +
-  ylab("Nickel VOlume Fraction") +
+  ylab("Nickel Volume Fraction") +
   xlab(expression(R^3~'['*mu*m^3*']')) +
   theme(axis.text.x = element_text(colour = "black", size = 16),
         axis.text.y = element_text(colour = "black", size = 16),
@@ -938,58 +939,18 @@ r3densities %>%
         axis.title.x = element_text(colour = "black", size = 16),
         axis.title.y = element_text(colour = "black", size = 16),
         legend.text = element_text(colour="black", size = 12))
+
+print(PCANi)
+ggsave(filename = paste("./PCAexports/plotexport",i,"Ni",".png", sep = ""), plot = PCANi, 
+         device = "png", width = 6,height = 4, units = "in")
+rm(PCANi)
+}
+
 
 #rm(nifix)
 ```
 
-```{r}
-r3densities %>%
-  mutate(Label = substr(Labelfine, 1, 5)) %>%
-  left_join(., fractSum, by = "Label") %>%
-  #filter(Ni.Vol.Corrected == 0.35) %>%
-  #filter(hrs == 5) %>%
-  filter(Label != "WH13A") %>% #weird outlier
-  filter(Label != "WH15B") %>%
-  filter(Label != "WH21B") %>%
-  filter(Labelfine != "WH06A/1000-5-35A0006.tiff") %>%
-  filter(Labelfine != "WH06C/1000-5-35C0004.tiff") %>%
-  #
-  filter(hrs == 5) %>%
-  filter(Ni.Vol.Corrected == 0.35) %>%
-  #
-  mutate(x = round(x, digits = 3)) %>%
-  mutate(r3x = x) %>%
-  select(-x) %>%
-  filter(r3x >= -4) %>%
-  filter(r3x <= 4) %>%
-  left_join(., prcomp.R3.rot, by = "r3x") %>%
-  #
-  mutate(r3x = 10^r3x) %>%
-  #
-  ggplot(aes(fill = PC1)) +
-  geom_ridgeline_gradient(size = 1, aes(x = r3x, y = Temp, 
-                              group = Labelfine, 
-                              height = density*500)) +
-  geom_tile(aes(x = r3x, y = 1500, height = 10)) +
-  scale_fill_scico(palette = "roma", limits = c(-0.15,0.15), direction = -1) +
-  #scale_fill_gradientn(colors = brewer_pal(palette = "RdBu")(5), limits = c(-0.15,0.15)) +
-  scale_x_log10(sec.axis = sec_axis(~.^(1/3)*2, name = expression(D~'['*mu*m*']')),
-                limits = c(0.0001, 10000),
-                breaks = scales::trans_breaks("log10", function(x) 10^x),
-                labels = trans_format("log10", math_format(10^.x))) +
-  scale_y_continuous(breaks = c(700,800,900,1000,1100),
-                     sec.axis = sec_axis(~., breaks = c(700,800,900,1000,1100), labels = NULL)) +
-  theme_classic() +
-  ylab(expression(Temp~'['*degree*C*']')) +
-  xlab(expression(R^3~'['*mu*m^3*']')) +
-  theme(axis.text.x = element_text(colour = "black", size = 16),
-        axis.text.y = element_text(colour = "black", size = 16),
-        axis.ticks = element_line(colour = "black", size = 1),
-        axis.line = element_line(colour = 'black', size = 1),
-        axis.title.x = element_text(colour = "black", size = 16),
-        axis.title.y = element_text(colour = "black", size = 16),
-        legend.text = element_text(colour="black", size = 12))
-```
+
 
 ```{r}
 timefix <- function(y){
@@ -1000,7 +961,10 @@ timefix <- function(y){
 }
 
 
-r3densities %>%
+
+for (i in c("PC1","PC2","PC3","PC4","PC5")) {
+  
+PCAhrs <- r3densities %>%
   mutate(Label = substr(Labelfine, 1, 5)) %>%
   left_join(., fractSum, by = "Label") %>%
   #filter(Ni.Vol.Corrected == 0.35) %>%
@@ -1024,7 +988,7 @@ r3densities %>%
   #
   mutate(r3x = 10^r3x) %>%
   #
-  ggplot(aes(fill = PC1)) +
+  ggplot(aes_string(fill = i)) +
   geom_ridgeline_gradient(size = 1, aes(x = r3x, y = hrs2, 
                               group = Labelfine, 
                               height = density*200)) +
@@ -1049,6 +1013,72 @@ r3densities %>%
         axis.title.x = element_text(colour = "black", size = 16),
         axis.title.y = element_text(colour = "black", size = 16),
         legend.text = element_text(colour="black", size = 12))
+
+print(PCAhrs)
+ggsave(filename = paste("./PCAexports/plotexport",i,"hrs",".png", sep = ""), plot = PCAhrs, 
+         device = "png", width = 6,height = 4, units = "in")
+rm(PCAhrs)
+}
+```
+
+
+
+
+```{r}
+for (i in c("PC1","PC2","PC3","PC4","PC5")) {
+  
+  PCATemp <- r3densities %>%
+  mutate(Label = substr(Labelfine, 1, 5)) %>%
+  left_join(., fractSum, by = "Label") %>%
+  #filter(Ni.Vol.Corrected == 0.35) %>%
+  #filter(hrs == 5) %>%
+  filter(Label != "WH13A") %>% #weird outlier
+  filter(Label != "WH15B") %>%
+  filter(Label != "WH21B") %>%
+  filter(Labelfine != "WH06A/1000-5-35A0006.tiff") %>%
+  filter(Labelfine != "WH06C/1000-5-35C0004.tiff") %>%
+  #
+  filter(hrs == 5) %>%
+  filter(Ni.Vol.Corrected == 0.35) %>%
+  #
+  mutate(x = round(x, digits = 3)) %>%
+  mutate(r3x = x) %>%
+  select(-x) %>%
+  filter(r3x >= -4) %>%
+  filter(r3x <= 4) %>%
+  left_join(., prcomp.R3.rot, by = "r3x") %>%
+  #
+  mutate(r3x = 10^r3x) %>%
+  #
+  ggplot(aes_string(fill = i)) +
+  geom_ridgeline_gradient(size = 1, aes(x = r3x, y = Temp, 
+                              group = Labelfine, 
+                              height = density*500)) +
+  geom_tile(aes(x = r3x, y = 1500, height = 10)) +
+  scale_fill_scico(palette = "roma", limits = c(-0.15,0.15), direction = -1) +
+  #scale_fill_gradientn(colors = brewer_pal(palette = "RdBu")(5), limits = c(-0.15,0.15)) +
+  scale_x_log10(sec.axis = sec_axis(~.^(1/3)*2, name = expression(D~'['*mu*m*']')),
+                limits = c(0.0001, 10000),
+                breaks = scales::trans_breaks("log10", function(x) 10^x),
+                labels = trans_format("log10", math_format(10^.x))) +
+  scale_y_continuous(breaks = c(700,800,900,1000,1100),
+                     sec.axis = sec_axis(~., breaks = c(700,800,900,1000,1100), labels = NULL)) +
+  theme_classic() +
+  ylab(expression(Temp~'['*degree*C*']')) +
+  xlab(expression(R^3~'['*mu*m^3*']')) +
+  theme(axis.text.x = element_text(colour = "black", size = 16),
+        axis.text.y = element_text(colour = "black", size = 16),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 16),
+        axis.title.y = element_text(colour = "black", size = 16),
+        legend.text = element_text(colour="black", size = 12))
+  
+  print(PCATemp)
+  ggsave(filename = paste("./PCAexports/plotexport",i,"Temp",".png", sep = ""), plot = PCATemp, 
+         device = "png", width = 6,height = 4, units = "in")
+  rm(PCATemp)
+}
 ```
 
 ```{r}
@@ -1068,3 +1098,4 @@ paletteer_c(palette = "scico::roma", n = 5)
 
 scico(5, palette = "roma")
 ```
+
