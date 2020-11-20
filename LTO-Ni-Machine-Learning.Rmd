@@ -24,7 +24,7 @@ library(concaveman)
 #properly filtered to match PCA dataset
 #
 bind1 <- voronoidens %>%
-  select(-x, -count, -Labelfineshort) %>%
+  select(-x, -count, -density, -Labelfineshort) %>%
   select(-magx, -imagearea, -avennd) %>%
   select(-avecountarea,-avevcoarse, -countperarea) %>%
   #select(-Ni.Vol.Corrected) %>%
@@ -483,7 +483,7 @@ svmsack
 
 ```{r}
 bind1 <- voronoidens %>%
-  select(-x, -count, -Labelfineshort) %>%
+  select(-x, -count, -density, -Labelfineshort) %>%
   select(-magx, -imagearea, -avennd) %>%
   select(-avecountarea,-avevcoarse, -countperarea) %>%
   #select(-Ni.Vol.Corrected) %>%
