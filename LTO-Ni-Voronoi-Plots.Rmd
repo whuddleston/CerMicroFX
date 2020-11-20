@@ -21,7 +21,9 @@ voronoidens %>%
   ggplot() +
   geom_ridgeline(aes(x = x, y = -Temp, 
                      fill = as.factor(Temp),
-                     height = count/200, group = Labelfine)) + #height is either density or count
+                     #height = count/200, 
+                     height = density*100, #height is either density or count
+                     group = Labelfine)) + 
 
   geom_rect(color = "black", aes(xmin = avevoronoix-0.01,
                 ymin = -Temp,
@@ -152,7 +154,9 @@ voronoidens %>%
   ggplot() +
   geom_ridgeline(aes(x = x, y = Ni.Vol.Corrected2, 
                      fill = as.factor(Ni.Vol.Corrected),
-                     height = count/20000, group = Labelfine)) + #height is either density or count
+                     #height = count/20000, 
+                     height = density, #height is either density or count
+                     group = Labelfine)) + 
   #
   geom_rect(color = "black", aes(xmin = avevoronoix-0.01, 
                 ymin = Ni.Vol.Corrected2, 
@@ -426,7 +430,9 @@ voronoidens %>%
   ggplot() +
   geom_ridgeline(aes(x = x, y = hrs2, 
                      fill = as.factor(hrs),
-                     height = count/20000, group = Labelfine)) + #height is either density or count
+                     #height = count/20000, 
+                     height = density, #height is either density or count
+                     group = Labelfine)) + 
   #
   geom_rect(color = "black", aes(xmin = avevoronoix-0.01,
                 ymin = hrs2,
@@ -544,7 +550,7 @@ voronoidens %>%
 
 ```{r}
 voronoidens %>%
-  select(-x, -count, -Labelfineshort) %>%
+  select(-x, -count, -density, -Labelfineshort) %>%
   unique() %>%
   #
   #filter(Ni.Vol.Corrected == 0.35) %>%
@@ -623,7 +629,7 @@ voronoidens %>%
                              "#00BE67","#00A9FF","#C77CFF","#FF61CC","#CD9600","#7CAE00",
                              "#C77CFF","#C77CFF","#00BE67","#00A9FF",
                              "#00BFC4","#00BE67","#00A9FF", "#00BFC4","#00BE67","#00A9FF")) +
-  scale_shape_manual(values=c(16, 17, 0, 2)) + #hrs
+  #scale_shape_manual(values=c(16, 17, 0, 2)) + #hrs
   theme_classic() +
   theme(axis.text.x = element_text(colour = "black", size = 16),
         axis.text.y = element_text(colour = "black", size = 16),
@@ -636,7 +642,7 @@ voronoidens %>%
 
 ```{r}
 voronoidens %>%
-  select(-x, -count, -Labelfineshort) %>%
+  select(-x, -count, -density, -Labelfineshort) %>%
   unique() %>%
   #
   #filter(Ni.Vol.Corrected == 0.1) %>%
@@ -677,7 +683,7 @@ voronoidens %>%
 
 ```{r}
 voronoidens %>%
-  select(-x, -count, -Labelfineshort) %>%
+  select(-x, -count, -density, -Labelfineshort) %>%
   unique() %>%
   #
   #filter(Ni.Vol.Corrected == 0.1) %>%
@@ -726,7 +732,7 @@ voronoidens %>%
 
 ```{r}
 voronoidens %>%
-  select(-x, -count, -Labelfineshort) %>%
+  select(-x, -count, -density, -Labelfineshort) %>%
   unique() %>%
   #
   #filter(Ni.Vol.Corrected == 0.1) %>%
@@ -767,7 +773,7 @@ voronoidens %>%
 
 ```{r}
 voronoidens %>%
-  select(-x, -count, -Labelfineshort) %>%
+  select(-x, -count, -density, -Labelfineshort) %>%
   unique() %>%
   #
   #filter(Ni.Vol.Corrected == 0.35) %>%
@@ -812,6 +818,52 @@ voronoidens %>%
         axis.title.x = element_text(colour = "black", size = 16),
         axis.title.y = element_text(colour = "black", size = 16),
         legend.text = element_text(colour="black", size = 12))
+
+voronoidens %>%
+  select(-x, -count, -density, -Labelfineshort) %>%
+  unique() %>%
+  #
+  #filter(Ni.Vol.Corrected == 0.35) %>%
+  filter(Temp >= 800) %>%
+  #filter(hrs == 5) %>%
+  filter(Labelfine != "WH35A/WH35A0010.tiff") %>%
+  filter(Label != "WH13A") %>% #weird outlier
+  filter(Label != "WH15B") %>%
+  filter(Label != "WH10D") %>%
+  #filter(Labelfine != "WH06A/1000-5-35A0006.tiff") %>%
+  #filter(Labelfine != "WH06C/1000-5-35C0004.tiff") %>%
+  #
+  #
+  mutate(stresso = stressf*exp((1.05-Th.Density/100)*coef(fracmodel)[2]*-1)) %>%
+  #
+  ggplot() +
+  #geom_boxplot(aes(group = substr(Label,1,4), x = avevoronoix, y = condAve)) +
+  geom_point(stroke = 1.5, size = 2, aes(x = aveAreafine, y = avevoronoix,
+                           shape = as.factor(hrs),
+                           color = as.factor(Ni.Vol.Corrected))) +
+  #geom_label_repel(aes(x = countperarea, y = avevoronoix, label = Label)) +
+  scale_y_continuous(limits = c(0, 2.5),
+                     sec.axis = sec_axis(~., labels = NULL)) +
+  scale_x_continuous(limits = c(0, 3),
+                     sec.axis = sec_axis(~., labels = NULL)) +
+  scale_shape_manual(values=c(16, 17, 0, 2)) + #hrs
+  ylab(expression(Average~Voronoi~Distance~'['*mu*m*']')) +
+  xlab(expression(Average~Particle~Area~'['*mu*m^2*']')) +
+  theme_classic() +
+  guides(shape = guide_legend(reverse = TRUE, title = "Time [hrs]", 
+                              title.theme = element_text(colour="black", 
+                                                         size = 12))) +
+  guides(colour = guide_legend(reverse = TRUE, title = "Ni Vol.", 
+                               title.theme = element_text(colour="black", 
+                                                          size = 12))) +
+  
+  theme(axis.text.x = element_text(colour = "black", size = 16),
+        axis.text.y = element_text(colour = "black", size = 16),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 16),
+        axis.title.y = element_text(colour = "black", size = 16),
+        legend.text = element_text(colour="black", size = 12))
 ```
 
 ```{r}
@@ -820,6 +872,7 @@ con.voronoi.dist.eda <- voronoidens %>%
   filter(Label != "WH03A") %>%
   filter(Label != "WH13A") %>%
   filter(Label != "WH15B") %>%
+  filter(Labelfine != "WH35A/WH35A0010.tiff") %>%
   filter(is.na(condAve) == FALSE) %>%
   #filter(is.na(stressf) == FALSE) %>%
   #mutate(Label = substr(Label,0,4)) %>%
@@ -831,7 +884,9 @@ con.voronoi.dist.eda <- voronoidens %>%
   ggplot() +
   geom_ridgeline(aes(x = x, y = condAve, 
                      fill = as.factor(Ni.Vol.Corrected),
-                     height = count/100000, group = Labelfine)) + #height is either density or count)
+                     #height = count/100000, 
+                     height = density, #height is either density or count
+                     group = Labelfine)) + 
   geom_rect(color = "black", aes(xmin = avevoronoix-0.01,
                 ymin = condAve,
                 xmax = avevoronoix+0.01,
@@ -839,6 +894,8 @@ con.voronoi.dist.eda <- voronoidens %>%
                 fill = as.factor(Ni.Vol.Corrected))) +
   scale_x_log10(limits = c(0.05, 10), sec.axis = sec_axis(~., labels = NULL)) +
   scale_y_log10(sec.axis = sec_axis(~., labels = NULL)) +
+  ylab("Electrical Conductivity [S/cm]") +
+  xlab(expression(Voronoi~Distance~'['*mu*m*']')) +
   theme_classic()
 
 print(con.voronoi.dist.eda)
