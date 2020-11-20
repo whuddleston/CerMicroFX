@@ -16,6 +16,8 @@ voronoidens <- data.frame()
 
 avevoronoi <- data.frame()
 
+nR3 <- 512 #number of points in each estimate, defaule is 512
+
 for (i in voronoilist){
   
   #read in voronoi map data
@@ -35,7 +37,8 @@ for (i in voronoilist){
   #create the density curve
   voronoidist <- voronoidata %>%
   ggplot() +
-  geom_density(aes(x = intensz))
+  geom_density(n = nR3, aes(x = intensz)) +
+    scale_x_continuous(limits = c(0.05,7.25))
   
   #save the density curve to a dataframe
   voronoidens <- ggplot_build(voronoidist)$data[[1]] %>%
