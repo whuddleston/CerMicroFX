@@ -39,7 +39,7 @@ for (i in voronoilist){
   
   #save the density curve to a dataframe
   voronoidens <- ggplot_build(voronoidist)$data[[1]] %>%
-  dplyr::select(2,6) %>% #second number is 3 for density or 6 for stat(count)
+  dplyr::select(2,3,6) %>% #second number is 3 for density or 6 for stat(count)
   cbind(., i) %>%
   rbind(voronoidens, .)
   
@@ -56,7 +56,7 @@ rm(i)
 rm(voronoilist)
 rm(voronoidata)
 
-colnames(voronoidens)[3] <- "Labelfineshort"
+colnames(voronoidens)[4] <- "Labelfineshort"
 
 voronoidens <- voronoidens %>%
   mutate(Labelfineshort = as.character(Labelfineshort)) %>%
