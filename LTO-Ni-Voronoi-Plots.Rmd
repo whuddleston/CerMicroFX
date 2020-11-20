@@ -592,7 +592,7 @@ voronoidens %>%
 
 ```{r}
 voronoidens %>%
-  select(-x, -count, -Labelfineshort) %>%
+  select(-x, -count, -density, -Labelfineshort) %>%
   unique() %>%
   #
   #filter(Ni.Vol.Corrected == 0.35) %>%
