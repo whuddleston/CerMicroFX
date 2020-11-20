@@ -22,7 +22,7 @@ cb <- 1
 
 # PCA on slices of sample matrix
 
-<!--
+
 ```{r}
 prcomp.R3 <- r3densities %>%
   mutate(Label = substr(Labelfine, 1, 5)) %>%
@@ -501,7 +501,137 @@ rm(prcomp.R3.pcsx.Ni)
 rm(prcomp.R3.Ni)
 ```
 
--->
+
+
+# PCA on all samples for 5 and 10 hours
+
+```{r}
+#PCA on all samples together
+
+prcomp.R3 <- r3densities %>%
+  mutate(Label = substr(Labelfine, 1, 5)) %>%
+  left_join(., fractSum, by = "Label") %>%
+  filter(hrs != 50) %>%
+  filter(hrs != 150) %>%
+  filter(Label != "WH13A") %>% #weird outlier
+  filter(Label != "WH15B") %>%
+  filter(Label != "WH21B") %>%
+  filter(Labelfine != "WH06A/1000-5-35A0006.tiff") %>%
+  filter(Labelfine != "WH06C/1000-5-35C0004.tiff") %>%
+  #
+  #filter(Labelfine != "WH32A/LTO-35Ni-900-50-A0002.tiff") %>%
+  #filter(Labelfine != "WH31C/LTO28Ni900-50-C0004.tiff") %>%
+  #filter(Labelfine != "WH31C/LTO28Ni900-50-C0006.tiff") %>%
+  #
+  select(x, density, Labelfine) %>%
+  mutate(x = round(x, digits = 3)) %>%
+  spread(., key = x, value = density) %>%
+  select(-Labelfine) %>%
+  prcomp(scale = TRUE)
+
+fviz_eig(prcomp.R3, addlabels = TRUE)
+
+#fviz_pca_ind(prcomp.R3, col.ind = "contrib", gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"), repel = TRUE)
+
+loadingplot(prcomp.R3, comps = 1:5, legendpos = "right", labels = 'numbers', pretty.xlabels = TRUE, #xlab = 'Time (s)',
+            ylab = 'Loading Value')
+
+prcomp.R3.fractSum <- df_particles_fine %>%
+  #same filters as used for PCA BIG BIG BIG THIS IS WHERE I WILL GO WRONG
+  filter(hrs != 50) %>%
+  filter(hrs != 150) %>%
+  filter(Label != "WH13A") %>% #weird outlier
+  filter(Label != "WH15B") %>%
+  filter(Label != "WH21B") %>%
+  filter(Labelfine != "WH06A/1000-5-35A0006.tiff") %>%
+  filter(Labelfine != "WH06C/1000-5-35C0004.tiff") %>%
+  #
+  #filter(Labelfine != "WH32A/LTO-35Ni-900-50-A0002.tiff") %>%
+  #filter(Labelfine != "WH31C/LTO28Ni900-50-C0004.tiff") %>%
+  #filter(Labelfine != "WH31C/LTO28Ni900-50-C0006.tiff") %>%
+  #
+  select(Labelfine) %>%
+  unique() %>%
+  mutate(Label = substr(Labelfine, 1, 5)) %>%
+  left_join(., fractSum, by = "Label")
+
+prcomp.R3.fractSum$Temp <- as.factor(prcomp.R3.fractSum$Temp)
+prcomp.R3.fractSum$hrs <- as.factor(prcomp.R3.fractSum$hrs)
+prcomp.R3.fractSum$Ni.Vol.Corrected <- as.factor(prcomp.R3.fractSum$Ni.Vol.Corrected)
+
+
+
+
+autoplot(prcomp.R3, data = prcomp.R3.fractSum,
+         x = 1,
+         y = 2,
+         colour = "Temp",
+         #shape = "hrs",
+         label = FALSE, frame = TRUE) +
+  scale_x_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  scale_y_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  geom_hline(yintercept = 0, color = "black", size = 0.5, linetype = "dashed") +
+  geom_vline(xintercept = 0, color = "black", size = 0.5, linetype = "dashed") +
+  scale_shape_manual(values=c(16, 17, 0, 2)) + #hrs
+  {if(cb == 1)scale_fill_scico_d(palette = "batlow", direction = 1, begin = 0, end = 0.7)} +
+  {if(cb == 1)scale_color_scico_d(palette = "batlow", direction = 1, begin = 0, end = 0.7)} +
+  theme_classic()
+
+autoplot(prcomp.R3, data = prcomp.R3.fractSum,
+         x = 1,
+         y = 2,
+         colour = "hrs",
+         label = FALSE, frame = TRUE) +
+  scale_x_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  scale_y_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  geom_hline(yintercept = 0, color = "black", size = 0.5, linetype = "dashed") +
+  geom_vline(xintercept = 0, color = "black", size = 0.5, linetype = "dashed") +
+  {if(cb == 1)scale_fill_scico_d(palette = "lajolla", direction = 1, begin = 0.4, end = 1)} +
+  {if(cb == 1)scale_color_scico_d(palette = "lajolla", direction = 1, begin = 0.4, end = 1)} +
+  theme_classic()
+
+autoplot(prcomp.R3, data = prcomp.R3.fractSum,
+         x = 1,
+         y = 2,
+         colour = "Ni.Vol.Corrected",
+         #shape = "hrs",
+         label = FALSE, frame = TRUE) +
+  scale_x_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  scale_y_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  geom_hline(yintercept = 0, color = "black", size = 0.5, linetype = "dashed") +
+  geom_vline(xintercept = 0, color = "black", size = 0.5, linetype = "dashed") +
+  {if(cb == 1)scale_fill_scico_d(palette = "roma", direction = 1)} +
+  {if(cb == 1)scale_color_scico_d(palette = "roma", direction = 1)} +
+  labs(colour = "Ni [%]") +
+  labs(fill = "Ni [%]") +
+  scale_shape_manual(values=c(16, 17, 0, 2)) + #hrs
+  theme_classic()
+
+
+
+autoplot(prcomp.R3, 
+         x = 1,
+         y = 2,
+         data = prcomp.R3.fractSum,
+         colour = "Temp",
+         shape = "hrs",
+         label = FALSE, frame = TRUE) +
+  scale_x_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  scale_y_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  scale_shape_manual(values=c(16, 17, 0, 2)) + #hrs
+  {if(cb == 1)scale_fill_scico_d(palette = "batlow", direction = 1, begin = 0, end = 0.7)} +
+  {if(cb == 1)scale_color_scico_d(palette = "batlow", direction = 1, begin = 0, end = 0.7)} +
+  theme_classic()
+```
+
+
+
+
+
+
+
+
+
 
 
 # PCA on all samples together
