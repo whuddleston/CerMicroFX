@@ -8,6 +8,7 @@ output: html_document
 ```{r setup, include=FALSE}
 #SETUP OF LIBRARIES
 knitr::opts_chunk$set(echo = FALSE, warning=FALSE, message=FALSE) #set echo to FALSE to hide code
+library(spatstat)
 ```
 
 ```{r}
@@ -300,6 +301,8 @@ labellist <- df_particles_fine %>%
 
 minsize <- 0
 
+nR3 <- 512 #number of points in each estimate, defaule is 512
+
 df_particles_fine_loop_compile <- data.frame()
 
 nnddensities <- data.frame()
@@ -393,12 +396,12 @@ df_particles_fine_loop_compile <- rbind(df_particles_fine_loop_compile,
 nnddist <- partnnd %>%
   ggplot() +
   #geom_histogram(aes(x = nnd)) +
-  geom_density(aes(x = nnd)) +
+  geom_density(n = nR3, aes(x = nnd)) +
   xlab(expression(NND~'['*mu*m*']')) +
   #ggtitle(label = i) +
   theme_classic() +
   scale_y_continuous(sec.axis = sec_axis(~., labels = NULL)) +
-  scale_x_continuous(expand = c(0, 0), limits = c(0.05,7.25), sec.axis = sec_axis(~., labels = NULL)) +
+  scale_x_log10(limits = c(0.05,12.75), sec.axis = sec_axis(~., labels = NULL)) +
   theme(axis.text.x = element_text(colour = "black", size = 16),
         axis.text.y = element_text(colour = "black", size = 16),
         axis.ticks = element_line(colour = "black", size = 1),
