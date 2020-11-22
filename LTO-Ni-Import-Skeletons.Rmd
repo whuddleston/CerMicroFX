@@ -66,12 +66,48 @@ rm(nR3)
 
 ```
 
-
-
-
 ```{r}
 #write.table(skeleton.dens, file = "./data-files/skeleton.dens.csv", row.names = FALSE, sep = ",")
 
 write.table(skeleton.data, file = "./data-files/skeleton.data.csv", row.names = FALSE, sep = ",")
 ```
+
+
+
+
+
+
+
+```{r}
+skeleton.branches.list <- list.files("./data-files/skeletons.branches/", full.names = TRUE)
+
+skeleton.branches.data <- data.frame()
+
+#nR3 <- 512 #number of points in each estimate, defaule is 512
+
+for (i in skeleton.branches.list){
+  
+  #read in skeleton branches data
+  branches.temp <- read.csv(i, header = TRUE) %>%
+    cbind(., i) %>%
+    rename(Labelfine = i) %>%
+    mutate(Labelfine = substr(Labelfine,33,nchar(i)-4))
+  
+  skeleton.branches.data <- rbind(skeleton.branches.data, branches.temp)
+  
+  rm(branches.temp)
+}
+
+rm(skeleton.branches.list)
+rm(i)
+#rm(nR3)
+
+
+```
+
+```{r}
+write.table(skeleton.branches.data, file = "./data-files/skeleton.branches.data.csv", row.names = FALSE, sep = ",")
+```
+
+
 
