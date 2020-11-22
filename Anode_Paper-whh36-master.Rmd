@@ -496,6 +496,13 @@ rm(temp2)
 ```
 
 
+```{r}
+#Import Skeleton Data
+skeleton.data <- read.csv("./data-files/skeleton.data.csv", header = TRUE)
+```
+
+
+
 
 ```{r}
 #code examples from kevin
