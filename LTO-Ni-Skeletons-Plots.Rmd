@@ -1,0 +1,66 @@
+---
+title: "LTO-Ni-Skeletons"
+author: "whh36"
+date: "11/21/2020"
+output: html_document
+---
+
+```{r}
+library(spatstat)
+```
+
+```{r}
+temp1 <- df_particles_fine %>%
+  filter(magx == 10) %>%
+  filter(Labelfine == "WH01A/1100-5-20Ni-A0008.tiff") #%>%
+  #filter(Area > 0.00215)
+  #filtered for Area > 0.00215, which gives an R3 of 1x10^-4 from R3 plots
+```
+
+```{r}
+temp2 <- skeleton.branches.data %>%
+  filter(Labelfine == "1100-5-20Ni-A0008.tiff") %>%
+  select(Skeleton.ID) %>%
+  unique()
+  group_by(Skeleton.ID) %>%
+  summarise(partX.s = mean(V1.y), partY.s = mean(V1.x), partX.s2 = mean(V2.y), partY.s2 = mean(V2.x)) %>%
+  mutate(partX.s.ave = (partX.s + partX.s2)/2) %>%
+  mutate(partY.s.ave = (partY.s + partY.s2)/2)
+
+
+skeleton.data %>%
+  filter(Labelfine == "1100-5-20Ni-A0008.tiff") %>%
+  filter(Branches > 0)
+
+#temp1 and temp2 are different lengths because 0 branch data is left out of branch details info
+#will need to run an ImageJ macro with a larger filter to get matching data
+#PSD analysis and skeleton analysis need same filters
+```
+
+```{r}
+ggplot() +
+  geom_point(data = temp2, aes(x = partX.s, y = partY.s, color = "red")) +
+  geom_point(data = temp1, aes(x = partX, y = partY)) +
+  coord_fixed()
+
+ggplot() +
+  geom_point(data = temp2, aes(x = partX.s2, y = partY.s2, color = "red")) +
+  geom_point(data = temp1, aes(x = partX, y = partY)) +
+  coord_fixed()
+
+ggplot() +
+  geom_point(data = temp2, aes(x = partX.s.ave, y = partY.s.ave, color = "red")) +
+  geom_point(data = temp1, aes(x = partX, y = partY)) +
+  coord_fixed()
+```
+
+```{r}
+#temp1ppp <- ppp(x = temp1$partX, y = temp1$partY, c(0,(8*1024/305)), c(0,(8*1024/305)))
+#(8*1024/305) is the scale conversion for one dimension of each image at 10k
+#the second two values define the window that contains the points
+
+#temp2ppp <- ppp(x = temp2$partX.s.ave, y = temp2$partY.s.ave, c(0,(8*1024/305)), c(0,(8*1024/305)))
+
+#nncross(temp1ppp, temp2ppp)
+```
+
