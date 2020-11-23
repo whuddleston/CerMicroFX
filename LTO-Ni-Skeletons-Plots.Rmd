@@ -7,13 +7,20 @@ output: html_document
 
 ```{r}
 library(spatstat)
+```
 
+```{r}
+skeleton.data <- voronoidens %>%
+  select(-x, -count, -density) %>%
+  unique() %>%
+  left_join(skeleton.data, ., by = "Labelfineshort")
 
 df_particles_fine %>%
   filter(magx == 10) %>%
-  arrange(Area)
+  nrow()
 ```
 
+<!--
 ```{r}
 temp1 <- df_particles_fine %>%
   filter(magx == 10) %>%
@@ -24,7 +31,7 @@ temp1 <- df_particles_fine %>%
 
 ```{r}
 temp2 <- skeleton.branches.data %>%
-  filter(Labelfine == "1100-5-20Ni-A0008.tiff") %>%
+  filter(Labelfineshort == "1100-5-20Ni-A0008.tiff") %>%
   group_by(Skeleton.ID) %>%
   summarise(partX.s = mean(V1.y), partY.s = mean(V1.x), partX.s2 = mean(V2.y), partY.s2 = mean(V2.x)) %>%
   mutate(partX.s.ave = (partX.s + partX.s2)/2) %>%
@@ -32,7 +39,7 @@ temp2 <- skeleton.branches.data %>%
 
 
 skeleton.data %>%
-  filter(Labelfine == "1100-5-20Ni-A0008.tiff") %>%
+  filter(Labelfineshort == "1100-5-20Ni-A0008.tiff") %>%
   filter(Branches == 0)
 
 #temp1 and temp2 are different lengths because 0 branch data is left out of branch details info
@@ -65,5 +72,135 @@ ggplot() +
 #temp2ppp <- ppp(x = temp2$partX.s.ave, y = temp2$partY.s.ave, c(0,(8*1024/305)), c(0,(8*1024/305)))
 
 #nncross(temp1ppp, temp2ppp)
+```
+-->
+
+```{r}
+skeleton.data %>%
+  filter(Label != "WH13A") %>% #weird outlier
+  filter(Label != "WH15B") %>%
+  filter(Labelfine != "WH06A/1000-5-35A0006.tiff") %>%
+  filter(Labelfine != "WH06C/1000-5-35C0004.tiff") %>%
+  filter(Label != "WH19A") %>%
+  #filter(Average.Branch.Length > 0) %>%
+  filter(Branches > 0) %>%
+  #
+  filter(Ni.Vol.Corrected == 0.35) %>%
+  filter(hrs == 5) %>%
+  #
+  ggplot() +
+  geom_density_ridges(size = 1, aes(x = Average.Branch.Length, y = Temp, group = Labelfine, 
+                                    #color = black,
+                                    fill = as.factor(Temp))) +
+  scale_x_log10(sec.axis = sec_axis(~., labels = NULL)) +
+  scale_y_continuous(breaks = c(700,800,900,1000,1100),
+                     sec.axis = sec_axis(~., labels = NULL)) +
+  guides(color = FALSE, fill = guide_legend(reverse = TRUE, title = expression(Temp~'['*degree*C*']'), 
+                               #override.aes = list(size=4), 
+                               title.theme = element_text(colour = "black",
+                                                          #face = "bold",
+                                                          size = 12))) +
+  theme_classic() +
+  theme(axis.text.x = element_text(colour = "black", size = 16),
+        axis.text.y = element_text(colour = "black", size = 16),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 16),
+        axis.title.y = element_text(colour = "black", size = 16),
+        legend.text = element_text(colour="black", size = 12))
+```
+
+```{r}
+skeleton.data %>%
+  mutate(Ni.Vol.Corrected2 = Ni.Vol.Corrected) %>%
+  mutate(Ni.Vol.Corrected2 = if_else(Ni.Vol.Corrected == 0.05,
+                                    replace(Ni.Vol.Corrected, Ni.Vol.Corrected == 0.05, 1), Ni.Vol.Corrected2)) %>%
+  mutate(Ni.Vol.Corrected2 = if_else(Ni.Vol.Corrected == 0.10,
+                                    replace(Ni.Vol.Corrected, Ni.Vol.Corrected == 0.10, 2), Ni.Vol.Corrected2)) %>%
+  mutate(Ni.Vol.Corrected2 = if_else(Ni.Vol.Corrected == 0.20,
+                                    replace(Ni.Vol.Corrected, Ni.Vol.Corrected == 0.20, 3), Ni.Vol.Corrected2)) %>%
+  mutate(Ni.Vol.Corrected2 = if_else(Ni.Vol.Corrected == 0.24,
+                                    replace(Ni.Vol.Corrected, Ni.Vol.Corrected == 0.24, 4), Ni.Vol.Corrected2)) %>%
+  mutate(Ni.Vol.Corrected2 = if_else(Ni.Vol.Corrected == 0.28,
+                                    replace(Ni.Vol.Corrected, Ni.Vol.Corrected == 0.28, 5), Ni.Vol.Corrected2)) %>%
+  mutate(Ni.Vol.Corrected2 = if_else(Ni.Vol.Corrected == 0.35,
+                                    replace(Ni.Vol.Corrected, Ni.Vol.Corrected == 0.35, 6), Ni.Vol.Corrected2)) %>%
+  mutate(Ni.Vol.Corrected2 = if_else(Ni.Vol.Corrected == 0.40,
+                                    replace(Ni.Vol.Corrected, Ni.Vol.Corrected == 0.40, 7), Ni.Vol.Corrected2)) %>%
+  mutate(Ni.Vol.Corrected2 = if_else(Ni.Vol.Corrected == 0.50,
+                                    replace(Ni.Vol.Corrected, Ni.Vol.Corrected == 0.50, 8), Ni.Vol.Corrected2)) %>%
+  filter(Label != "WH13A") %>% #weird outlier
+  filter(Label != "WH15B") %>%
+  filter(Labelfine != "WH06A/1000-5-35A0006.tiff") %>%
+  filter(Labelfine != "WH06C/1000-5-35C0004.tiff") %>%
+  filter(Label != "WH19A") %>%
+  #filter(Average.Branch.Length > 0) %>%
+  filter(Branches > 0) %>%
+  #
+  filter(Temp == 900) %>%
+  filter(hrs == 5) %>%
+  #
+  ggplot() +
+  geom_density_ridges(size = 1, aes(x = Average.Branch.Length, y = Ni.Vol.Corrected2, group = Labelfine, 
+                                    #color = black,
+                                    fill = as.factor(Ni.Vol.Corrected))) +
+  scale_x_log10(sec.axis = sec_axis(~., labels = NULL)) +
+  scale_y_continuous(breaks = c(1,2,3,4,5,6,7,8),
+                     labels = c("0.05", "0.10", "0.20", "0.24", "0.28", "0.35", "0.40", "0.50"),
+                     sec.axis = sec_axis(~., labels = NULL)) +
+  guides(colour = FALSE, fill = guide_legend(reverse = TRUE, title = "Ni Vol.", 
+                               #override.aes = list(size=4), 
+                               title.theme = element_text(colour = "black",
+                                                          #face = "bold",
+                                                          size = 12))) +
+  theme_classic() +
+  theme(axis.text.x = element_text(colour = "black", size = 16),
+        axis.text.y = element_text(colour = "black", size = 16),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 16),
+        axis.title.y = element_text(colour = "black", size = 16),
+        legend.text = element_text(colour="black", size = 12))
+  
+```
+
+```{r}
+skeleton.data %>%
+  mutate(hrs = as.double(hrs)) %>%
+  mutate(hrs2 = hrs) %>%
+  mutate(hrs2 = if_else(hrs == 5, replace(hrs, hrs == 5, 1), hrs2)) %>%
+  mutate(hrs2 = if_else(hrs == 10, replace(hrs, hrs == 10, 2), hrs2)) %>%
+  mutate(hrs2 = if_else(hrs == 50, replace(hrs, hrs == 50, 3), hrs2)) %>%
+  mutate(hrs2 = if_else(hrs == 150, replace(hrs, hrs == 150, 4), hrs2)) %>%
+  filter(Label != "WH13A") %>% #weird outlier
+  filter(Label != "WH15B") %>%
+  filter(Labelfine != "WH06A/1000-5-35A0006.tiff") %>%
+  filter(Labelfine != "WH06C/1000-5-35C0004.tiff") %>%
+  filter(Label != "WH19A") %>%
+  #filter(Average.Branch.Length > 0) %>%
+  filter(Branches > 0) %>%
+  ggplot() +
+  geom_density_ridges(size = 1, aes(x = Average.Branch.Length, y = hrs2, group = Labelfine, 
+                                    #color = black,
+                                    fill = as.factor(hrs))) +
+  scale_x_log10(sec.axis = sec_axis(~., labels = NULL)) +
+  scale_y_continuous(breaks = c(1:4),
+                     labels = c("5","10","50","150"),
+                     sec.axis = sec_axis(~., breaks = c(1:4), labels = NULL)) +
+  guides(color = FALSE, fill = guide_legend(reverse = TRUE, title = "Time [hrs]", 
+                               #override.aes = list(size=4), 
+                               title.theme = element_text(colour = "black",
+                                                          #face = "bold",
+                                                          size = 12))) +
+  ylab("Time [hrs]") +
+  scale_fill_manual(values=c("#00BF7D", "#BF7D00", "#7C00BF", "#BF0041")) +
+  theme_classic() +
+  theme(axis.text.x = element_text(colour = "black", size = 16),
+        axis.text.y = element_text(colour = "black", size = 16),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 16),
+        axis.title.y = element_text(colour = "black", size = 16),
+        legend.text = element_text(colour="black", size = 12))
 ```
 

@@ -500,7 +500,15 @@ rm(temp2)
 #Import Skeleton Data
 skeleton.data <- read.csv("./data-files/skeleton.data.csv", header = TRUE)
 
+skeleton.data <- skeleton.data %>%
+  mutate(Labelfineshort = Labelfine) %>%
+  select(-Labelfine)
+
 skeleton.branches.data <- read.csv("./data-files/skeleton.branches.data.csv", header = TRUE)
+
+skeleton.branches.data <- skeleton.branches.data %>%
+  mutate(Labelfineshort = Labelfine) %>%
+  select(-Labelfine)
 ```
 
 
