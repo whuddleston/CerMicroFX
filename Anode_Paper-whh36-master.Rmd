@@ -500,15 +500,42 @@ rm(temp2)
 #Import Skeleton Data
 skeleton.data <- read.csv("./data-files/skeleton.data.csv", header = TRUE)
 
+#correct Labelfine naming system to be consistent with other df's
 skeleton.data <- skeleton.data %>%
   mutate(Labelfineshort = Labelfine) %>%
   select(-Labelfine)
 
+#Import Skeleton Detailed Branch Data
 skeleton.branches.data <- read.csv("./data-files/skeleton.branches.data.csv", header = TRUE)
 
+#correct Labelfine naming system to be consistent with other df's
 skeleton.branches.data <- skeleton.branches.data %>%
   mutate(Labelfineshort = Labelfine) %>%
   select(-Labelfine)
+
+#combine skeleton and sample information
+skeleton.data <- voronoidens %>%
+  select(-x, -count, -density) %>%
+  unique() %>%
+  left_join(skeleton.data, ., by = "Labelfineshort")
+
+#calculate average values per image
+skeleton.data <- skeleton.data %>%
+  group_by(Labelfine) %>%
+  summarise(ave.max.branches = mean(Maximum.Branch.Length)) %>%
+  left_join(skeleton.data, ., by = "Labelfine")
+
+#calculate average values per image
+skeleton.data <- skeleton.data %>%
+  group_by(Labelfine) %>%
+  summarise(ave.ave.branches = mean(Average.Branch.Length)) %>%
+  left_join(skeleton.data, ., by = "Labelfine")
+
+#calculate average values per image
+skeleton.data <- skeleton.data %>%
+  group_by(Labelfine) %>%
+  summarise(ave.branches = mean(Branches)) %>%
+  left_join(skeleton.data, ., by = "Labelfine")
 ```
 
 

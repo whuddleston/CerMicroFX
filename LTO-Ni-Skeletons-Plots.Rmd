@@ -10,11 +10,6 @@ library(spatstat)
 ```
 
 ```{r}
-skeleton.data <- voronoidens %>%
-  select(-x, -count, -density) %>%
-  unique() %>%
-  left_join(skeleton.data, ., by = "Labelfineshort")
-
 df_particles_fine %>%
   filter(magx == 10) %>%
   nrow()
@@ -92,6 +87,88 @@ skeleton.data %>%
   geom_density_ridges(size = 1, aes(x = Average.Branch.Length, y = Temp, group = Labelfine, 
                                     #color = black,
                                     fill = as.factor(Temp))) +
+  geom_rect(color = "black", aes(xmin = ave.ave.branches-0.01, 
+                ymin = Temp, 
+                xmax = ave.ave.branches+0.01, 
+                ymax = Temp + 100,
+                fill = as.factor(Temp))) +
+  scale_x_log10(sec.axis = sec_axis(~., labels = NULL)) +
+  scale_y_continuous(breaks = c(700,800,900,1000,1100),
+                     sec.axis = sec_axis(~., labels = NULL)) +
+  guides(color = FALSE, fill = guide_legend(reverse = TRUE, title = expression(Temp~'['*degree*C*']'), 
+                               #override.aes = list(size=4), 
+                               title.theme = element_text(colour = "black",
+                                                          #face = "bold",
+                                                          size = 12))) +
+  theme_classic() +
+  theme(axis.text.x = element_text(colour = "black", size = 16),
+        axis.text.y = element_text(colour = "black", size = 16),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 16),
+        axis.title.y = element_text(colour = "black", size = 16),
+        legend.text = element_text(colour="black", size = 12))
+
+skeleton.data %>%
+  filter(Label != "WH13A") %>% #weird outlier
+  filter(Label != "WH15B") %>%
+  filter(Labelfine != "WH06A/1000-5-35A0006.tiff") %>%
+  filter(Labelfine != "WH06C/1000-5-35C0004.tiff") %>%
+  filter(Label != "WH19A") %>%
+  #filter(Average.Branch.Length > 0) %>%
+  filter(Branches > 0) %>%
+  #
+  filter(Ni.Vol.Corrected == 0.35) %>%
+  filter(hrs == 5) %>%
+  #
+  ggplot() +
+  geom_density_ridges(size = 1, aes(x = Branches, y = Temp, group = Labelfine, 
+                                    #color = black,
+                                    fill = as.factor(Temp))) +
+  geom_rect(color = "black", aes(xmin = ave.branches-0.01, 
+                ymin = Temp, 
+                xmax = ave.branches+0.01, 
+                ymax = Temp + 100,
+                fill = as.factor(Temp))) +
+  scale_x_log10(sec.axis = sec_axis(~., labels = NULL)) +
+  scale_y_continuous(breaks = c(700,800,900,1000,1100),
+                     sec.axis = sec_axis(~., labels = NULL)) +
+  annotation_logticks(sides = "b") +
+  guides(color = FALSE, fill = guide_legend(reverse = TRUE, title = expression(Temp~'['*degree*C*']'), 
+                               #override.aes = list(size=4), 
+                               title.theme = element_text(colour = "black",
+                                                          #face = "bold",
+                                                          size = 12))) +
+  theme_classic() +
+  theme(axis.text.x = element_text(colour = "black", size = 16),
+        axis.text.y = element_text(colour = "black", size = 16),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 16),
+        axis.title.y = element_text(colour = "black", size = 16),
+        legend.text = element_text(colour="black", size = 12))
+
+skeleton.data %>%
+  filter(Label != "WH13A") %>% #weird outlier
+  filter(Label != "WH15B") %>%
+  filter(Labelfine != "WH06A/1000-5-35A0006.tiff") %>%
+  filter(Labelfine != "WH06C/1000-5-35C0004.tiff") %>%
+  filter(Label != "WH19A") %>%
+  #filter(Average.Branch.Length > 0) %>%
+  filter(Branches > 0) %>%
+  #
+  filter(Ni.Vol.Corrected == 0.35) %>%
+  filter(hrs == 5) %>%
+  #
+  ggplot() +
+  geom_density_ridges(size = 1, aes(x = Maximum.Branch.Length, y = Temp, group = Labelfine, 
+                                    #color = black,
+                                    fill = as.factor(Temp))) +
+  geom_rect(color = "black", aes(xmin = ave.max.branches-0.01, 
+                ymin = Temp, 
+                xmax = ave.max.branches+0.01, 
+                ymax = Temp + 100,
+                fill = as.factor(Temp))) +
   scale_x_log10(sec.axis = sec_axis(~., labels = NULL)) +
   scale_y_continuous(breaks = c(700,800,900,1000,1100),
                      sec.axis = sec_axis(~., labels = NULL)) +
@@ -144,6 +221,124 @@ skeleton.data %>%
   geom_density_ridges(size = 1, aes(x = Average.Branch.Length, y = Ni.Vol.Corrected2, group = Labelfine, 
                                     #color = black,
                                     fill = as.factor(Ni.Vol.Corrected))) +
+  geom_rect(color = "black", aes(xmin = ave.ave.branches-0.01, 
+                ymin = Ni.Vol.Corrected2, 
+                xmax = ave.ave.branches+0.01, 
+                ymax = Ni.Vol.Corrected2 + 1,
+                fill = as.factor(Ni.Vol.Corrected))) +
+  scale_x_log10(sec.axis = sec_axis(~., labels = NULL)) +
+  scale_y_continuous(breaks = c(1,2,3,4,5,6,7,8),
+                     labels = c("0.05", "0.10", "0.20", "0.24", "0.28", "0.35", "0.40", "0.50"),
+                     sec.axis = sec_axis(~., labels = NULL)) +
+  guides(colour = FALSE, fill = guide_legend(reverse = TRUE, title = "Ni Vol.", 
+                               #override.aes = list(size=4), 
+                               title.theme = element_text(colour = "black",
+                                                          #face = "bold",
+                                                          size = 12))) +
+  theme_classic() +
+  theme(axis.text.x = element_text(colour = "black", size = 16),
+        axis.text.y = element_text(colour = "black", size = 16),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 16),
+        axis.title.y = element_text(colour = "black", size = 16),
+        legend.text = element_text(colour="black", size = 12))
+
+skeleton.data %>%
+  mutate(Ni.Vol.Corrected2 = Ni.Vol.Corrected) %>%
+  mutate(Ni.Vol.Corrected2 = if_else(Ni.Vol.Corrected == 0.05,
+                                    replace(Ni.Vol.Corrected, Ni.Vol.Corrected == 0.05, 1), Ni.Vol.Corrected2)) %>%
+  mutate(Ni.Vol.Corrected2 = if_else(Ni.Vol.Corrected == 0.10,
+                                    replace(Ni.Vol.Corrected, Ni.Vol.Corrected == 0.10, 2), Ni.Vol.Corrected2)) %>%
+  mutate(Ni.Vol.Corrected2 = if_else(Ni.Vol.Corrected == 0.20,
+                                    replace(Ni.Vol.Corrected, Ni.Vol.Corrected == 0.20, 3), Ni.Vol.Corrected2)) %>%
+  mutate(Ni.Vol.Corrected2 = if_else(Ni.Vol.Corrected == 0.24,
+                                    replace(Ni.Vol.Corrected, Ni.Vol.Corrected == 0.24, 4), Ni.Vol.Corrected2)) %>%
+  mutate(Ni.Vol.Corrected2 = if_else(Ni.Vol.Corrected == 0.28,
+                                    replace(Ni.Vol.Corrected, Ni.Vol.Corrected == 0.28, 5), Ni.Vol.Corrected2)) %>%
+  mutate(Ni.Vol.Corrected2 = if_else(Ni.Vol.Corrected == 0.35,
+                                    replace(Ni.Vol.Corrected, Ni.Vol.Corrected == 0.35, 6), Ni.Vol.Corrected2)) %>%
+  mutate(Ni.Vol.Corrected2 = if_else(Ni.Vol.Corrected == 0.40,
+                                    replace(Ni.Vol.Corrected, Ni.Vol.Corrected == 0.40, 7), Ni.Vol.Corrected2)) %>%
+  mutate(Ni.Vol.Corrected2 = if_else(Ni.Vol.Corrected == 0.50,
+                                    replace(Ni.Vol.Corrected, Ni.Vol.Corrected == 0.50, 8), Ni.Vol.Corrected2)) %>%
+  filter(Label != "WH13A") %>% #weird outlier
+  filter(Label != "WH15B") %>%
+  filter(Labelfine != "WH06A/1000-5-35A0006.tiff") %>%
+  filter(Labelfine != "WH06C/1000-5-35C0004.tiff") %>%
+  filter(Label != "WH19A") %>%
+  #filter(Average.Branch.Length > 0) %>%
+  filter(Branches > 0) %>%
+  #
+  filter(Temp == 900) %>%
+  filter(hrs == 5) %>%
+  #
+  ggplot() +
+  geom_density_ridges(size = 1, aes(x = Branches, y = Ni.Vol.Corrected2, group = Labelfine, 
+                                    #color = black,
+                                    fill = as.factor(Ni.Vol.Corrected))) +
+  geom_rect(color = "black", aes(xmin = ave.branches-0.01, 
+                ymin = Ni.Vol.Corrected2, 
+                xmax = ave.branches+0.01, 
+                ymax = Ni.Vol.Corrected2 + 1,
+                fill = as.factor(Ni.Vol.Corrected))) +
+  scale_x_log10(sec.axis = sec_axis(~., labels = NULL)) +
+  scale_y_continuous(breaks = c(1,2,3,4,5,6,7,8),
+                     labels = c("0.05", "0.10", "0.20", "0.24", "0.28", "0.35", "0.40", "0.50"),
+                     sec.axis = sec_axis(~., labels = NULL)) +
+  annotation_logticks(sides = "b") +
+  guides(colour = FALSE, fill = guide_legend(reverse = TRUE, title = "Ni Vol.", 
+                               #override.aes = list(size=4), 
+                               title.theme = element_text(colour = "black",
+                                                          #face = "bold",
+                                                          size = 12))) +
+  theme_classic() +
+  theme(axis.text.x = element_text(colour = "black", size = 16),
+        axis.text.y = element_text(colour = "black", size = 16),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 16),
+        axis.title.y = element_text(colour = "black", size = 16),
+        legend.text = element_text(colour="black", size = 12))
+
+skeleton.data %>%
+  mutate(Ni.Vol.Corrected2 = Ni.Vol.Corrected) %>%
+  mutate(Ni.Vol.Corrected2 = if_else(Ni.Vol.Corrected == 0.05,
+                                    replace(Ni.Vol.Corrected, Ni.Vol.Corrected == 0.05, 1), Ni.Vol.Corrected2)) %>%
+  mutate(Ni.Vol.Corrected2 = if_else(Ni.Vol.Corrected == 0.10,
+                                    replace(Ni.Vol.Corrected, Ni.Vol.Corrected == 0.10, 2), Ni.Vol.Corrected2)) %>%
+  mutate(Ni.Vol.Corrected2 = if_else(Ni.Vol.Corrected == 0.20,
+                                    replace(Ni.Vol.Corrected, Ni.Vol.Corrected == 0.20, 3), Ni.Vol.Corrected2)) %>%
+  mutate(Ni.Vol.Corrected2 = if_else(Ni.Vol.Corrected == 0.24,
+                                    replace(Ni.Vol.Corrected, Ni.Vol.Corrected == 0.24, 4), Ni.Vol.Corrected2)) %>%
+  mutate(Ni.Vol.Corrected2 = if_else(Ni.Vol.Corrected == 0.28,
+                                    replace(Ni.Vol.Corrected, Ni.Vol.Corrected == 0.28, 5), Ni.Vol.Corrected2)) %>%
+  mutate(Ni.Vol.Corrected2 = if_else(Ni.Vol.Corrected == 0.35,
+                                    replace(Ni.Vol.Corrected, Ni.Vol.Corrected == 0.35, 6), Ni.Vol.Corrected2)) %>%
+  mutate(Ni.Vol.Corrected2 = if_else(Ni.Vol.Corrected == 0.40,
+                                    replace(Ni.Vol.Corrected, Ni.Vol.Corrected == 0.40, 7), Ni.Vol.Corrected2)) %>%
+  mutate(Ni.Vol.Corrected2 = if_else(Ni.Vol.Corrected == 0.50,
+                                    replace(Ni.Vol.Corrected, Ni.Vol.Corrected == 0.50, 8), Ni.Vol.Corrected2)) %>%
+  filter(Label != "WH13A") %>% #weird outlier
+  filter(Label != "WH15B") %>%
+  filter(Labelfine != "WH06A/1000-5-35A0006.tiff") %>%
+  filter(Labelfine != "WH06C/1000-5-35C0004.tiff") %>%
+  filter(Label != "WH19A") %>%
+  #filter(Average.Branch.Length > 0) %>%
+  filter(Branches > 0) %>%
+  #
+  filter(Temp == 900) %>%
+  filter(hrs == 5) %>%
+  #
+  ggplot() +
+  geom_density_ridges(size = 1, aes(x = Maximum.Branch.Length, y = Ni.Vol.Corrected2, group = Labelfine, 
+                                    #color = black,
+                                    fill = as.factor(Ni.Vol.Corrected))) +
+  geom_rect(color = "black", aes(xmin = ave.max.branches-0.01, 
+                ymin = Ni.Vol.Corrected2, 
+                xmax = ave.max.branches+0.01, 
+                ymax = Ni.Vol.Corrected2 + 1,
+                fill = as.factor(Ni.Vol.Corrected))) +
   scale_x_log10(sec.axis = sec_axis(~., labels = NULL)) +
   scale_y_continuous(breaks = c(1,2,3,4,5,6,7,8),
                      labels = c("0.05", "0.10", "0.20", "0.24", "0.28", "0.35", "0.40", "0.50"),
@@ -177,12 +372,113 @@ skeleton.data %>%
   filter(Labelfine != "WH06A/1000-5-35A0006.tiff") %>%
   filter(Labelfine != "WH06C/1000-5-35C0004.tiff") %>%
   filter(Label != "WH19A") %>%
+  #
+  filter(Temp == 900) %>%
+  filter(Ni.Vol.Corrected == 0.35) %>%
   #filter(Average.Branch.Length > 0) %>%
   filter(Branches > 0) %>%
   ggplot() +
   geom_density_ridges(size = 1, aes(x = Average.Branch.Length, y = hrs2, group = Labelfine, 
                                     #color = black,
                                     fill = as.factor(hrs))) +
+  geom_rect(color = "black", aes(xmin = ave.ave.branches-0.01, 
+                ymin = hrs2, 
+                xmax = ave.ave.branches+0.01, 
+                ymax = hrs2 + 1,
+                fill = as.factor(hrs))) +
+  scale_x_log10(sec.axis = sec_axis(~., labels = NULL)) +
+  scale_y_continuous(breaks = c(1:4),
+                     labels = c("5","10","50","150"),
+                     sec.axis = sec_axis(~., breaks = c(1:4), labels = NULL)) +
+  guides(color = FALSE, fill = guide_legend(reverse = TRUE, title = "Time [hrs]", 
+                               #override.aes = list(size=4), 
+                               title.theme = element_text(colour = "black",
+                                                          #face = "bold",
+                                                          size = 12))) +
+  ylab("Time [hrs]") +
+  scale_fill_manual(values=c("#00BF7D", "#BF7D00", "#7C00BF", "#BF0041")) +
+  theme_classic() +
+  theme(axis.text.x = element_text(colour = "black", size = 16),
+        axis.text.y = element_text(colour = "black", size = 16),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 16),
+        axis.title.y = element_text(colour = "black", size = 16),
+        legend.text = element_text(colour="black", size = 12))
+
+skeleton.data %>%
+  mutate(hrs = as.double(hrs)) %>%
+  mutate(hrs2 = hrs) %>%
+  mutate(hrs2 = if_else(hrs == 5, replace(hrs, hrs == 5, 1), hrs2)) %>%
+  mutate(hrs2 = if_else(hrs == 10, replace(hrs, hrs == 10, 2), hrs2)) %>%
+  mutate(hrs2 = if_else(hrs == 50, replace(hrs, hrs == 50, 3), hrs2)) %>%
+  mutate(hrs2 = if_else(hrs == 150, replace(hrs, hrs == 150, 4), hrs2)) %>%
+  filter(Label != "WH13A") %>% #weird outlier
+  filter(Label != "WH15B") %>%
+  filter(Labelfine != "WH06A/1000-5-35A0006.tiff") %>%
+  filter(Labelfine != "WH06C/1000-5-35C0004.tiff") %>%
+  filter(Label != "WH19A") %>%
+  #
+  filter(Temp == 900) %>%
+  filter(Ni.Vol.Corrected == 0.35) %>%
+  #filter(Average.Branch.Length > 0) %>%
+  filter(Branches > 0) %>%
+  ggplot() +
+  geom_density_ridges(size = 1, aes(x = Branches, y = hrs2, group = Labelfine, 
+                                    #color = black,
+                                    fill = as.factor(hrs))) +
+  geom_rect(color = "black", aes(xmin = ave.branches-0.01, 
+                ymin = hrs2, 
+                xmax = ave.branches+0.01, 
+                ymax = hrs2 + 1,
+                fill = as.factor(hrs))) +
+  scale_x_log10(sec.axis = sec_axis(~., labels = NULL)) +
+  scale_y_continuous(breaks = c(1:4),
+                     labels = c("5","10","50","150"),
+                     sec.axis = sec_axis(~., breaks = c(1:4), labels = NULL)) +
+  annotation_logticks(sides = "b") +
+  guides(color = FALSE, fill = guide_legend(reverse = TRUE, title = "Time [hrs]", 
+                               #override.aes = list(size=4), 
+                               title.theme = element_text(colour = "black",
+                                                          #face = "bold",
+                                                          size = 12))) +
+  ylab("Time [hrs]") +
+  scale_fill_manual(values=c("#00BF7D", "#BF7D00", "#7C00BF", "#BF0041")) +
+  theme_classic() +
+  theme(axis.text.x = element_text(colour = "black", size = 16),
+        axis.text.y = element_text(colour = "black", size = 16),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 16),
+        axis.title.y = element_text(colour = "black", size = 16),
+        legend.text = element_text(colour="black", size = 12))
+
+skeleton.data %>%
+  mutate(hrs = as.double(hrs)) %>%
+  mutate(hrs2 = hrs) %>%
+  mutate(hrs2 = if_else(hrs == 5, replace(hrs, hrs == 5, 1), hrs2)) %>%
+  mutate(hrs2 = if_else(hrs == 10, replace(hrs, hrs == 10, 2), hrs2)) %>%
+  mutate(hrs2 = if_else(hrs == 50, replace(hrs, hrs == 50, 3), hrs2)) %>%
+  mutate(hrs2 = if_else(hrs == 150, replace(hrs, hrs == 150, 4), hrs2)) %>%
+  filter(Label != "WH13A") %>% #weird outlier
+  filter(Label != "WH15B") %>%
+  filter(Labelfine != "WH06A/1000-5-35A0006.tiff") %>%
+  filter(Labelfine != "WH06C/1000-5-35C0004.tiff") %>%
+  filter(Label != "WH19A") %>%
+  #
+  filter(Temp == 900) %>%
+  filter(Ni.Vol.Corrected == 0.35) %>%
+  #filter(Average.Branch.Length > 0) %>%
+  filter(Branches > 0) %>%
+  ggplot() +
+  geom_density_ridges(size = 1, aes(x = Maximum.Branch.Length, y = hrs2, group = Labelfine, 
+                                    #color = black,
+                                    fill = as.factor(hrs))) +
+  geom_rect(color = "black", aes(xmin = ave.max.branches-0.01, 
+                ymin = hrs2, 
+                xmax = ave.max.branches+0.01, 
+                ymax = hrs2 + 1,
+                fill = as.factor(hrs))) +
   scale_x_log10(sec.axis = sec_axis(~., labels = NULL)) +
   scale_y_continuous(breaks = c(1:4),
                      labels = c("5","10","50","150"),
