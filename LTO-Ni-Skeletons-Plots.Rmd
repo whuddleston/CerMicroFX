@@ -7,6 +7,11 @@ output: html_document
 
 ```{r}
 library(spatstat)
+
+
+df_particles_fine %>%
+  filter(magx == 10) %>%
+  arrange(Area)
 ```
 
 ```{r}
@@ -20,8 +25,6 @@ temp1 <- df_particles_fine %>%
 ```{r}
 temp2 <- skeleton.branches.data %>%
   filter(Labelfine == "1100-5-20Ni-A0008.tiff") %>%
-  select(Skeleton.ID) %>%
-  unique()
   group_by(Skeleton.ID) %>%
   summarise(partX.s = mean(V1.y), partY.s = mean(V1.x), partX.s2 = mean(V2.y), partY.s2 = mean(V2.x)) %>%
   mutate(partX.s.ave = (partX.s + partX.s2)/2) %>%
@@ -30,11 +33,11 @@ temp2 <- skeleton.branches.data %>%
 
 skeleton.data %>%
   filter(Labelfine == "1100-5-20Ni-A0008.tiff") %>%
-  filter(Branches > 0)
+  filter(Branches == 0)
 
 #temp1 and temp2 are different lengths because 0 branch data is left out of branch details info
-#will need to run an ImageJ macro with a larger filter to get matching data
-#PSD analysis and skeleton analysis need same filters
+#will need to run an ImageJ macro with a larger filter to get matching data?
+#PSD analysis and skeleton analysis need to run with same filters
 ```
 
 ```{r}

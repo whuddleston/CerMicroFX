@@ -79,7 +79,7 @@ write.table(skeleton.data, file = "./data-files/skeleton.data.csv", row.names = 
 
 
 ```{r}
-skeleton.branches.list <- list.files("./data-files/skeletons.branches/", full.names = TRUE)
+skeleton.branches.list <- list.files("./data-files/skeleton.branch.info/", full.names = TRUE)
 
 skeleton.branches.data <- data.frame()
 
@@ -91,7 +91,7 @@ for (i in skeleton.branches.list){
   branches.temp <- read.csv(i, header = TRUE) %>%
     cbind(., i) %>%
     rename(Labelfine = i) %>%
-    mutate(Labelfine = substr(Labelfine,33,nchar(i)-4))
+    mutate(Labelfine = substr(Labelfine,35,nchar(i)-4))
   
   skeleton.branches.data <- rbind(skeleton.branches.data, branches.temp)
   
