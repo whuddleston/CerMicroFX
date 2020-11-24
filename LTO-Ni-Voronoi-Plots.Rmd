@@ -557,32 +557,82 @@ voronoidens %>%
   #filter(Temp == 900) %>%
   #filter(hrs == 5) %>%
   filter(Label != "WH13A") %>%
+  filter(Label != "WH17B") %>%
   filter(Labelfine != "WH35A/WH35A0010.tiff") %>%
   #
   mutate(stresso = stressf*exp((1.05-Th.Density/100)*coef(fracmodel)[2]*-1)) %>%
   #
   ggplot() +
-  geom_point(size = 2, aes(y = log(stresso), x = avevcoarse,
-                           shape = as.factor(hrs),
-                           color = as.factor(Temp))) +
+  geom_point(size = 1.5, aes(y = stressf, x = avevoronoix,
+                           shape = as.factor(Temp),
+                           color = as.factor(Ni.Vol.Corrected))) +
   # geom_point(data = filter(voronoidens,aveR3 > 10), 
   #            size = 3,
   #            stroke = 1,
   #            shape = 1,
   #            aes(x = avevoronoix,
   #                y = stressf)) +
-  scale_y_continuous(limits = c(3, 7), sec.axis = sec_axis(~., labels = NULL)) +
-  scale_x_continuous(limits = c(0.25, 2), sec.axis = sec_axis(~., labels = NULL)) +
-  #guides(shape = FALSE) +
-  #guides(color = FALSE) +
+  scale_y_continuous(limits = c(0, 250), 
+                     sec.axis = sec_axis(~., labels = NULL)) +
+  scale_x_continuous(limits = c(0, 2.5), sec.axis = sec_axis(~., labels = NULL)) +
+  ylab(expression(sigma[fr]~'['*MPa*']')) +
+  xlab(expression(Average~Voronoi~Distance~'['*mu*m*']')) +
   theme_classic() +
-  scale_shape_manual(values=c(16, 17, 0, 2)) + #hrs
-  guides(shape = guide_legend(title = "Time [hrs]", reverse = TRUE,
+  #scale_shape_manual(values=c(16, 17, 0, 2)) + #hrs
+  guides(colour = guide_legend(reverse = TRUE, title = "Ni Vol.", 
+                               #override.aes = list(size=4), 
+                               title.theme = element_text(colour = "black",
+                                                          #face = "bold",
+                                                          size = 12))) +
+  guides(fill = FALSE, shape = guide_legend(title = expression(Temp~'['*degree*C*']'), reverse = TRUE,
                                #override.aes = list(size=4), 
                                title.theme = element_text(colour="black",
                                                           #face = "bold",
                                                           size = 12))) +
-  guides(fill = FALSE, colour = guide_legend(title = expression(Temp~'['*degree*C*']'), reverse = TRUE,
+  theme(axis.text.x = element_text(colour = "black", size = 16),
+        axis.text.y = element_text(colour = "black", size = 16),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 16),
+        axis.title.y = element_text(colour = "black", size = 16),
+        legend.text = element_text(colour="black", size = 12))
+
+voronoidens %>%
+  select(-x, -count, -density, -Labelfineshort) %>%
+  unique() %>%
+  #
+  #filter(Ni.Vol.Corrected == 0.35) %>%
+  #filter(Temp == 900) %>%
+  #filter(hrs == 5) %>%
+  filter(Label != "WH13A") %>%
+  filter(Label != "WH17B") %>%
+  filter(Labelfine != "WH35A/WH35A0010.tiff") %>%
+  #
+  mutate(stresso = stressf*exp((1.05-Th.Density/100)*coef(fracmodel)[2]*-1)) %>%
+  #
+  ggplot() +
+  geom_point(size = 1.5, aes(y = stressf, x = fineavennd,
+                           shape = as.factor(Temp),
+                           color = as.factor(Ni.Vol.Corrected))) +
+  # geom_point(data = filter(voronoidens,aveR3 > 10), 
+  #            size = 3,
+  #            stroke = 1,
+  #            shape = 1,
+  #            aes(x = avevoronoix,
+  #                y = stressf)) +
+  scale_y_continuous(limits = c(0, 250), 
+                     sec.axis = sec_axis(~., labels = NULL)) +
+  scale_x_continuous(limits = c(0, 2.5), sec.axis = sec_axis(~., labels = NULL)) +
+  ylab(expression(sigma[fr]~'['*MPa*']')) +
+  xlab(expression(NND[Ave]~'['*mu*m*']')) +
+  theme_classic() +
+  #scale_shape_manual(values=c(16, 17, 0, 2)) + #hrs
+  guides(colour = guide_legend(reverse = TRUE, title = "Ni Vol.", 
+                               #override.aes = list(size=4), 
+                               title.theme = element_text(colour = "black",
+                                                          #face = "bold",
+                                                          size = 12))) +
+  guides(fill = FALSE, shape = guide_legend(title = expression(Temp~'['*degree*C*']'), reverse = TRUE,
                                #override.aes = list(size=4), 
                                title.theme = element_text(colour="black",
                                                           #face = "bold",
@@ -615,7 +665,7 @@ voronoidens %>%
   #geom_boxplot(aes(group = substr(Label,1,4), x = avevoronoix, y = condAve)) +
   geom_mark_hull(aes(x = avevoronoix, y = condAve, fill = Labelcoarse), expand = 0.02) +
   geom_point(size = 2, aes(y = condAve, x = avevoronoix,
-                           shape = as.factor(Temp),
+                           shape = as.factor(hrs),
                            color = as.factor(Ni.Vol.Corrected))) +
   scale_y_log10(sec.axis = sec_axis(~., labels = NULL)) +
   scale_x_continuous(limits = c(0, 2.5), sec.axis = sec_axis(~., labels = NULL)) +
@@ -624,12 +674,64 @@ voronoidens %>%
   #guides(shape = FALSE) +
   guides(color = FALSE) +
   guides(fill = FALSE) +
+  guides(shape = guide_legend(title = "Time [hrs]", reverse = TRUE,
+                               #override.aes = list(size=4), 
+                               title.theme = element_text(colour="black",
+                                                          #face = "bold",
+                                                          size = 12))) +
   scale_fill_manual(values=c("#00BFC4","#00BE67","#00A9FF","#00BFC4","#00BE67","#00A9FF",
                              "#F8766D","#CD9600","#00BFC4","#7CAE00",
                              "#00BE67","#00A9FF","#C77CFF","#FF61CC","#CD9600","#7CAE00",
                              "#C77CFF","#C77CFF","#00BE67","#00A9FF",
                              "#00BFC4","#00BE67","#00A9FF", "#00BFC4","#00BE67","#00A9FF")) +
-  #scale_shape_manual(values=c(16, 17, 0, 2)) + #hrs
+  scale_shape_manual(values=c(16, 17, 0, 2)) + #hrs
+  theme_classic() +
+  theme(axis.text.x = element_text(colour = "black", size = 16),
+        axis.text.y = element_text(colour = "black", size = 16),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 16),
+        axis.title.y = element_text(colour = "black", size = 16),
+        legend.text = element_text(colour="black", size = 12))
+
+voronoidens %>%
+  select(-x, -count, -density, -Labelfineshort) %>%
+  unique() %>%
+  #
+  #filter(Ni.Vol.Corrected == 0.35) %>%
+  #filter(Temp == 900) %>%
+  #filter(hrs == 5) %>% #remove for more datapoints
+  filter(Label != "WH13A") %>%
+  filter(Labelfine != "WH35A/WH35A0010.tiff") %>%
+  filter(is.na(condAve) == FALSE) %>%
+  #
+  mutate(stresso = stressf*exp((1.05-Th.Density/100)*coef(fracmodel)[2]*-1)) %>%
+  mutate(Labelcoarse = substr(Label,1,4)) %>%
+  #
+  ggplot() + #avevcoarse
+  #geom_boxplot(aes(group = substr(Label,1,4), x = avevoronoix, y = condAve)) +
+  geom_mark_hull(aes(x = fineavennd, y = condAve, fill = Labelcoarse), expand = 0.02) +
+  geom_point(size = 2, aes(y = condAve, x = fineavennd,
+                           shape = as.factor(hrs),
+                           color = as.factor(Ni.Vol.Corrected))) +
+  scale_y_log10(sec.axis = sec_axis(~., labels = NULL)) +
+  scale_x_continuous(limits = c(0, 2), sec.axis = sec_axis(~., labels = NULL)) +
+  xlab(expression(NND[Ave]~'['*mu*m*']')) +
+  ylab("Electrical Conductivity [S/cm]") +
+  #guides(shape = FALSE) +
+  guides(color = FALSE) +
+  guides(fill = FALSE) +
+  guides(shape = guide_legend(title = "Time [hrs]", reverse = TRUE,
+                               #override.aes = list(size=4), 
+                               title.theme = element_text(colour="black",
+                                                          #face = "bold",
+                                                          size = 12))) +
+  scale_fill_manual(values=c("#00BFC4","#00BE67","#00A9FF","#00BFC4","#00BE67","#00A9FF",
+                             "#F8766D","#CD9600","#00BFC4","#7CAE00",
+                             "#00BE67","#00A9FF","#C77CFF","#FF61CC","#CD9600","#7CAE00",
+                             "#C77CFF","#C77CFF","#00BE67","#00A9FF",
+                             "#00BFC4","#00BE67","#00A9FF", "#00BFC4","#00BE67","#00A9FF")) +
+  scale_shape_manual(values=c(16, 17, 0, 2)) + #hrs
   theme_classic() +
   theme(axis.text.x = element_text(colour = "black", size = 16),
         axis.text.y = element_text(colour = "black", size = 16),
