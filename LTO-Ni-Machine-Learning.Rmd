@@ -155,9 +155,17 @@ paste(round(summary(rflm)$adj.r.squared,3), "Adj. R^2")
 ```{r}
 #Random forest using just PCA data to predict conductivity
 
-trainset.pcs <- select(trainset, 1:6, condAve)
+trainset %>%
+  select(hrs) %>%
+  unique()
 
-testset.pcs <- select(testset, 1:6, condAve)
+trainset.pcs <- trainset %>%
+  filter(hrs < 1) %>%
+  select(., 1:6, condAve)
+
+testset.pcs <- testset %>%
+  filter(hrs < 1) %>%
+  select(., 1:6, condAve)
 
 
 rf.pcs <- randomForest(x = trainset.pcs, y = trainset.pcs$condAve, ntree = 300)
@@ -191,8 +199,9 @@ rfresults.pcs <- predict(rf.pcs, testset.pcs) %>%
 colnames(rfresults.pcs)[1] <- "prediction"
 colnames(rfresults.pcs)[2] <- "actual"
 
-
-cbind(rfresults.pcs, testset) %>%
+testset %>%
+  filter(hrs < 1) %>%
+cbind(rfresults.pcs, .) %>%
   ggplot() +
   geom_point(aes(y = prediction, x = condAve, color = as.factor(Ni.Vol.Corrected))) +
   geom_abline(slope = 1, intercept = 0) +
@@ -211,6 +220,83 @@ paste(round(summary(rflm.pcs)$r.squared,3), "R^2")
 
 paste(round(summary(rflm.pcs)$adj.r.squared,3), "Adj. R^2")
 ```
+
+```{r}
+#Random forest using just microstructure data to predict conductivity
+#no size or processing info
+
+
+
+
+trainset.u <- select(trainset, -1,-2,-3,-4,-5,-6, -aveAreafine,
+       -totNifrace,
+       -Ni.Vol.Corrected, -Temp, -hrs,
+       -Th.Density)
+
+testset.u <- select(testset, -1,-2,-3,-4,-5,-6, -aveAreafine,
+       -totNifrace,
+       -Ni.Vol.Corrected, -Temp, -hrs,
+       -Th.Density)
+
+
+rf.u <- randomForest(x = trainset.u, y = trainset.u$condAve, ntree = 300)
+
+#remove Ni.Vol.Corrected from RF model
+
+plot(rf.u, main = paste("Conductivity Random Forest - microstructure only -", 
+                        round(last(rf.u$rsq)*100,2),
+                        "% Var Explained"
+                        )
+     )
+#print(rfmodel)
+
+rfmodimp.u <- importance(rf.u) %>%
+  as.data.frame() %>%
+  rownames_to_column() %>%
+  arrange(IncNodePurity) %>%
+  filter(rowname != "condAve")
+
+dotchart(rfmodimp.u$IncNodePurity, labels = rfmodimp.u$rowname, main = "Conductivity RF")
+
+importance(rf.u) %>%
+  as.data.frame() %>%
+  rownames_to_column() %>%
+  arrange(desc(IncNodePurity))
+
+rfresults.u <- predict(rf.u, testset.u) %>%
+  as.data.frame() %>%
+  cbind(as.data.frame(testset.u$condAve))
+
+colnames(rfresults.u)[1] <- "prediction"
+colnames(rfresults.u)[2] <- "actual"
+
+
+cbind(rfresults.u, testset) %>%
+  ggplot() +
+  geom_point(aes(y = prediction, x = condAve, color = as.factor(Ni.Vol.Corrected))) +
+  geom_abline(slope = 1, intercept = 0) +
+  guides(color = FALSE) +
+  theme_classic() +
+  scale_x_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  scale_y_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  coord_fixed() +
+  xlab("Conductivity [S/cm]") +
+  ylab("Conductivity Predicted [S/cm]")
+  #annotate("text", label = round(last(rfmodel$rsq)*100,2), x = mean(rfresults$actual), y = mean(rfresults$prediction)*2)
+
+rflm.u <- lm(rfresults.u$prediction ~ rfresults.u$actual)
+
+paste(round(summary(rflm.u)$r.squared,3), "R^2")
+
+paste(round(summary(rflm.u)$adj.r.squared,3), "Adj. R^2")
+
+```
+
+
+
+
+
+
 
 
 ```{r}
@@ -660,6 +746,81 @@ paste(round(summary(rflm.pcs.stressf2)$r.squared,3), "R^2")
 
 paste(round(summary(rflm.pcs.stressf2)$adj.r.squared,3), "Adj. R^2")
 ```
+
+
+
+```{r}
+#Random forest using just microstructure data to predict stress
+#no size or processing info
+
+
+
+
+trainset.us <- select(trainset2, -1,-2,-3,-4,-5,-6, -aveAreafine,
+       -totNifrace,
+       -Ni.Vol.Corrected, -Temp, -hrs,
+       -Th.Density)
+
+testset.us <- select(testset2, -1,-2,-3,-4,-5,-6, -aveAreafine,
+       -totNifrace,
+       -Ni.Vol.Corrected, -Temp, -hrs,
+       -Th.Density)
+
+
+rf.us <- randomForest(x = trainset.us, y = trainset.us$stressf2, ntree = 300)
+
+#remove Ni.Vol.Corrected from RF model
+
+plot(rf.us, main = paste("Stress Random Forest - microstructure only -", 
+                        round(last(rf.us$rsq)*100,2),
+                        "% Var Explained"
+                        )
+     )
+#print(rfmodel)
+
+rfmodimp.us <- importance(rf.us) %>%
+  as.data.frame() %>%
+  rownames_to_column() %>%
+  arrange(IncNodePurity) %>%
+  filter(rowname != "stressf2")
+
+dotchart(rfmodimp.us$IncNodePurity, labels = rfmodimp.us$rowname, main = "Stress RF")
+
+importance(rf.us) %>%
+  as.data.frame() %>%
+  rownames_to_column() %>%
+  arrange(desc(IncNodePurity))
+
+rfresults.us <- predict(rf.us, testset.us) %>%
+  as.data.frame() %>%
+  cbind(as.data.frame(testset.us$stressf2))
+
+colnames(rfresults.us)[1] <- "prediction"
+colnames(rfresults.us)[2] <- "actual"
+
+
+cbind(rfresults.us, testset2) %>%
+  ggplot() +
+  geom_point(aes(y = prediction, x = stressf2, color = as.factor(Ni.Vol.Corrected))) +
+  geom_abline(slope = 1, intercept = 0) +
+  guides(color = FALSE) +
+  theme_classic() +
+  scale_x_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  scale_y_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  coord_fixed() +
+  xlab(expression(sigma[fr]~'['*MPa*']')) +
+  ylab(expression(sigma[fr]~'-'~predicted~'['*MPa*']'))
+  #annotate("text", label = round(last(rfmodel$rsq)*100,2), x = mean(rfresults$actual), y = mean(rfresults$prediction)*2)
+
+rflm.us <- lm(rfresults.us$prediction ~ rfresults.us$actual)
+
+paste(round(summary(rflm.us)$r.squared,3), "R^2")
+
+paste(round(summary(rflm.us)$adj.r.squared,3), "Adj. R^2")
+
+```
+
+
 
 
 
