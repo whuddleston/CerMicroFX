@@ -500,3 +500,28 @@ skeleton.data %>%
         legend.text = element_text(colour="black", size = 12))
 ```
 
+```{r}
+skeleton.data %>%
+  filter(Branches == 0) %>%
+  group_by(Labelfine) %>%
+  #group_by(substr(Label,1,4)) %>%
+  count() %>%
+  rename(zerocount = n) %>%
+  left_join(skeleton.data, ., by = "Labelfine") %>%
+  ggplot() +
+  geom_point(aes(x = Temp, y = zerocount))
+
+skeleton.data %>%
+  filter(Branches == 0) %>%
+  filter(Temp >= 800) %>%
+  group_by(Labelfine) %>%
+  #group_by(substr(Label,1,4)) %>%
+  count() %>%
+  rename(zerocount = n) %>%
+  left_join(skeleton.data, ., by = "Labelfine") %>%
+  ggplot() +
+  geom_point(aes(x = Temp, y = zerocount,
+                 shape = as.factor(hrs),
+                 color = as.factor(Ni.Vol.Corrected))) +
+  scale_shape_manual(values=c(16, 17, 0, 2)) #hrs
+```
