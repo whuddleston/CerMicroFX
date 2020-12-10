@@ -538,6 +538,99 @@ skeleton.data <- skeleton.data %>%
   left_join(skeleton.data, ., by = "Labelfine")
 ```
 
+```{r}
+#Import subset Skeleton Data
+skeleton.data.subset <- read.csv("./data-files/skeleton.data.subset.csv", header = TRUE)
+
+#correct Labelfine naming system to be consistent with other df's
+skeleton.data.subset <- skeleton.data.subset %>%
+  mutate(Labelfineshort = Labelfine) %>%
+  select(-Labelfine)
+
+#Import Skeleton Detailed Branch Data
+skeleton.branches.data.subset <- read.csv("./data-files/skeleton.branches.data.subset.csv", header = TRUE)
+
+#correct Labelfine naming system to be consistent with other df's
+skeleton.branches.data.subset <- skeleton.branches.data.subset %>%
+  mutate(Labelfineshort = Labelfine) %>%
+  select(-Labelfine)
+```
+
+<!--
+```{r}
+#combine skeleton and sample information
+skeleton.data.subset <- voronoidens %>%
+  select(-x, -count, -density) %>%
+  unique() %>%
+  left_join(skeleton.data.subset, ., by = "Labelfineshort")
+
+#calculate average values per image
+skeleton.data.subset <- skeleton.data.subset %>%
+  group_by(Labelfine) %>%
+  summarise(ave.max.branches = mean(Maximum.Branch.Length)) %>%
+  left_join(skeleton.data.subset, ., by = "Labelfine")
+
+#calculate average values per image
+skeleton.data.subset <- skeleton.data.subset %>%
+  group_by(Labelfine) %>%
+  summarise(ave.ave.branches = mean(Average.Branch.Length)) %>%
+  left_join(skeleton.data.subset, ., by = "Labelfine")
+
+#calculate average values per image
+skeleton.data.subset <- skeleton.data.subset %>%
+  group_by(Labelfine) %>%
+  summarise(ave.branches = mean(Branches)) %>%
+  left_join(skeleton.data.subset, ., by = "Labelfine")
+```
+-->
+
+
+```{r}
+df_particles_fine.subset <- read.csv("./data-files/PSD.Data.subset.csv", header = TRUE) %>%
+  mutate(R3 = 1.5*sqrt(Area)^3) %>%
+  mutate(Labelfine = substr(Label, 43, 100)) %>%
+  mutate(Label = substr(Label, 1, 5)) %>%
+  mutate(Labelfineshort = substr(Labelfine,7,50)) %>%
+  select(-1)
+```
+
+```{r}
+#check for zero branch particles
+skeleton.data.subset %>%
+  filter(Branches == 0)
+```
+
+```{r}
+#match skeleton data to PSA data
+
+imagelist <- skeleton.data.subset %>%
+  select(Labelfineshort) %>%
+  unique() %>%
+  pull()
+
+skelematch <- data.frame()
+
+for (i in imagelist) {
+
+temp1 <- skeleton.data.subset %>%
+  filter(Labelfineshort == i)
+
+temp2 <- df_particles_fine.subset %>%
+  filter(Labelfineshort == i) %>%
+  select(-Labelfineshort)
+
+skelematch <- cbind(temp1,temp2) %>%
+  rbind(skelematch, .)
+
+rm(temp1)
+rm(temp2)
+
+}
+
+rm(i)
+rm(imagelist)
+```
+
 
 
 

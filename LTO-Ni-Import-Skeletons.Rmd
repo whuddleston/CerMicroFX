@@ -111,3 +111,112 @@ write.table(skeleton.branches.data, file = "./data-files/skeleton.branches.data.
 
 
 
+#Subset of >900C
+
+
+```{r}
+skeleton.list <- list.files("./data-files/skeletons.subset/", full.names = TRUE)
+
+#skeleton.dens <- data.frame()
+
+skeleton.data <- data.frame()
+
+nR3 <- 512 #number of points in each estimate, defaule is 512
+
+for (i in skeleton.list){
+  
+  #read in skeleton data
+  skeleton.temp <- read.csv(i, header = TRUE) %>%
+    rename(skel.num = X) %>%
+    rename(Branches = X..Branches) %>%
+    rename(Junctions = X..Junctions) %>%
+    rename(End.point.voxels = X..End.point.voxels) %>%
+    rename(Junction.voxels = X..Junction.voxels) %>%
+    rename(Slab.voxels = X..Slab.voxels) %>%
+    #
+    rename(Triple.points = X..Triple.points) %>%
+    rename(Quadruple.points = X..Quadruple.points) %>%
+    cbind(., i) %>%
+    rename(Labelfine = i) %>%
+    mutate(Labelfine = substr(Labelfine,31,nchar(i)-4))
+  
+  skeleton.data <- rbind(skeleton.data, skeleton.temp)
+  
+  #create the density curves
+  # skeleton.dist <- skeleton.data %>%
+  # ggplot() +
+  # geom_density(n = nR3, aes(x = METRIC)) +
+  #   scale_x_continuous(limits = c(LIM1,LIM2))
+  
+  #save the density curves to a dataframe
+  # skeleton.dens <- ggplot_build(skeleton.dist)$data[[1]] %>%
+  # dplyr::select(2, COLS) %>% #second number is 3 for density or 6 for stat(count)
+  # cbind(., i) %>%
+  # rbind(skeleton.dens, .)
+  
+  #calculate means in the for loop
+  # skeleton.data <- skeleton.temp %>%
+  # summarise(METRIC = mean(METRIC)) %>%
+  # cbind(., nrow(skeleton.data), i) %>%
+  # rbind(skeleton.data, .)
+  
+  rm(skeleton.temp)
+}
+
+rm(skeleton.list)
+rm(i)
+rm(nR3)
+
+
+```
+
+```{r}
+#write.table(skeleton.dens, file = "./data-files/skeleton.dens.csv", row.names = FALSE, sep = ",")
+
+write.table(skeleton.data, file = "./data-files/skeleton.data.subset.csv", row.names = FALSE, sep = ",")
+```
+
+
+
+
+
+
+
+```{r}
+skeleton.branches.list <- list.files("./data-files/skeleton.branch.info.subset/", full.names = TRUE)
+
+skeleton.branches.data <- data.frame()
+
+#nR3 <- 512 #number of points in each estimate, defaule is 512
+
+for (i in skeleton.branches.list){
+  
+  #read in skeleton branches data
+  branches.temp <- read.csv(i, header = TRUE) %>%
+    cbind(., i) %>%
+    rename(Labelfine = i) %>%
+    mutate(Labelfine = substr(Labelfine,42,nchar(i)-4))
+  
+  skeleton.branches.data <- rbind(skeleton.branches.data, branches.temp)
+  
+  rm(branches.temp)
+}
+
+rm(skeleton.branches.list)
+rm(i)
+#rm(nR3)
+
+
+```
+
+```{r}
+write.table(skeleton.branches.data, file = "./data-files/skeleton.branches.data.subset.csv", row.names = FALSE, sep = ",")
+```
+
+
+```{r}
+#cleanup
+rm(skeleton.data)
+rm(skeleton.branches.data)
+```
+

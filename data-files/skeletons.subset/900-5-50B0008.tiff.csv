@@ -1,0 +1,6 @@
+ ,# Branches,# Junctions,# End-point voxels,# Junction voxels,# Slab voxels,Average Branch Length,# Triple points,# Quadruple points,Maximum Branch Length
+1,11,5,7,17,185,0.590,5,0,1.631
+2,5,2,4,5,62,0.419,2,0,0.701
+3,5,2,4,7,96,0.673,2,0,1.038
+4,7,3,5,12,105,0.550,3,0,1.254
+5,9,4,6,8,201,0.729,4,0,1.890

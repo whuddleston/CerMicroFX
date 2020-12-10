@@ -525,3 +525,24 @@ skeleton.data %>%
                  color = as.factor(Ni.Vol.Corrected))) +
   scale_shape_manual(values=c(16, 17, 0, 2)) #hrs
 ```
+
+
+#Subset data analysis (Large Particles Only to ensure data match)
+
+```{r}
+skelematch <- voronoidens %>%
+  select(-x,-density,-count) %>%
+  unique() %>%
+  left_join(select(skelematch, -Labelfine,-Label), ., by = "Labelfineshort")
+
+
+skelematch %>%
+  ggplot() +
+  geom_point(aes(x = Area, y = Branches, color = as.factor(Ni.Vol.Corrected))) +
+  scale_x_log10() +
+  scale_y_log10()
+
+
+
+
+```
