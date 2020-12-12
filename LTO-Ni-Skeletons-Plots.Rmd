@@ -539,10 +539,77 @@ skelematch <- voronoidens %>%
 skelematch %>%
   ggplot() +
   geom_point(aes(x = Area, y = Branches, color = as.factor(Ni.Vol.Corrected))) +
+  geom_smooth(method = lm, se = FALSE, aes(group = Labelfine, 
+                               color = as.factor(Ni.Vol.Corrected),
+                               x = Area, y = Branches)) +
   scale_x_log10() +
   scale_y_log10()
 
 
 
+skelematch %>%
+  ggplot() +
+  geom_boxplot(aes(group = Ni.Vol.Corrected, x = Ni.Vol.Corrected, y = Branches)) +
+  geom_point(aes(x = Ni.Vol.Corrected, y = Branches, color = as.factor(Ni.Vol.Corrected))) +
+  #scale_x_log10() +
+  scale_y_log10()
 
+
+skelematch %>%
+  ggplot() +
+  geom_point(alpha = 0.5, aes(x = Area, y = Maximum.Branch.Length, 
+                 shape = as.factor(hrs),
+                 color = as.factor(Ni.Vol.Corrected))) +
+  geom_smooth(method = lm, se = FALSE, aes(group = Labelfine, 
+                               color = as.factor(Ni.Vol.Corrected),
+                               x = Area, y = Maximum.Branch.Length)) +
+  scale_shape_manual(values=c(16, 17, 0, 2)) + #hrs
+  scale_x_log10() +
+  #scale_y_log10() +
+  theme_classic()
+```
+
+```{r}
+skelematch %>%
+  ggplot() +
+  geom_point(alpha = 0.5, aes(x = Area, y = Maximum.Branch.Length, 
+                 shape = as.factor(hrs),
+                 color = as.factor(Ni.Vol.Corrected))) +
+  geom_smooth(method = lm, se = FALSE, aes(group = Labelfine, 
+                               color = as.factor(Ni.Vol.Corrected),
+                               x = Area, y = Maximum.Branch.Length)) +
+  scale_shape_manual(values=c(16, 17, 0, 2)) + #hrs
+  scale_x_log10() +
+  #scale_y_log10() +
+  theme_classic()
+```
+
+```{r}
+skelematch %>%
+  ggplot() +
+  geom_point(alpha = 0.5, aes(x = AR, y = Feret, 
+                 shape = as.factor(hrs),
+                 color = as.factor(Ni.Vol.Corrected))) +
+  geom_smooth(method = lm, se = FALSE, aes(group = Labelfine,
+                               color = as.factor(Ni.Vol.Corrected),
+                               x = AR, y = Feret)) +
+  scale_shape_manual(values=c(16, 17, 0, 2)) + #hrs
+  #scale_x_log10() +
+  #scale_y_log10() +
+  theme_classic()
+```
+
+```{r}
+skelematch %>%
+  ggplot() +
+  geom_point(alpha = 0.5, aes(x = AR, y = Maximum.Branch.Length, 
+                 shape = as.factor(hrs),
+                 color = as.factor(Ni.Vol.Corrected))) +
+  # geom_smooth(method = lm, se = FALSE, aes(group = Labelfine, 
+  #                              color = as.factor(Ni.Vol.Corrected),
+  #                              x = Area, y = Quadruple.points)) +
+  scale_shape_manual(values=c(16, 17, 0, 2)) + #hrs
+  scale_x_log10() +
+  scale_y_log10() +
+  theme_classic()
 ```
