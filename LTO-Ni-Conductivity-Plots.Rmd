@@ -151,7 +151,50 @@ ggsave(filename = "./plotexports/plotexportcondtemp.png", plot = condtemp, devic
 rm(condtemp)
 
 
+condhrs2 <- fractSum %>%
+  filter(is.na(condAve) == FALSE) %>%
+  filter(Temp == 900) %>%
+  filter(Ni.Vol.Corrected == 0.35 | Ni.Vol.Corrected == 0.24) %>%
+  #
+  ggplot() +
+  geom_point(size = 2, stroke = 2, aes(y = condAve, x = hrs,
+                           shape = as.factor(hrs),
+                 color = as.factor(Ni.Vol.Corrected))) +
+  geom_point(data = filter(condExtra, Ni.Vol.Corrected == 0.35 | Ni.Vol.Corrected == 0.24), 
+             size = 2, stroke = 2, aes(y = condAve, x = hrs, 
+                                       shape = as.factor(hrs),
+                 color = as.factor(Ni.Vol.Corrected))) +
+  #
+  scale_y_log10(breaks = scales::trans_breaks("log10", function(x) 10^x),
+                labels = trans_format("log10", math_format(10^.x)),
+                limits = c(0.01,1000),
+                sec.axis = sec_axis(~., labels = NULL)) +
+  scale_x_log10(breaks = c(5,10,50,150),sec.axis = sec_axis(~., labels = NULL)) +
+  xlab("Dwell Time [hrs]") +
+  ylab("Electrical Conductivity [S/cm]") +
+  guides(shape = guide_legend(reverse = TRUE, title = "Time [hrs]", 
+                               title.theme = element_text(colour="black", 
+                                                          #face = "bold", 
+                                                          size = 12))) +
+  guides(color = guide_legend(reverse = TRUE, title = "Ni Vol.", 
+                               title.theme = element_text(colour="black", 
+                                                          #face = "bold", 
+                                                          size = 12))) +
+  #scale_color_manual(values=c("#00BF7D", "#BF7D00", "#7C00BF", "#BF0041")) +
+  scale_shape_manual(values=c(16, 17, 0, 2)) + #hrs
+  scale_color_manual(values=c("#00BE67", "#00A9FF")) +
+  theme_classic() +
+  theme(axis.text.x = element_text(colour = "black", size = 16),
+        axis.text.y = element_text(colour = "black", size = 16),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 16),
+        axis.title.y = element_text(colour = "black", size = 16),
+        legend.text = element_text(colour="black", size = 12))
 
+print(condhrs2)
+ggsave(filename = "./plotexports/plotexportcondhrs2.png", plot = condhrs2, device = "png", width = 8, height = 6, units = "in")
+rm(condhrs2)
 ```
 
 ```{r}
@@ -178,8 +221,7 @@ fractSum %>%
                 breaks = scales::trans_breaks("log10", function(x) 10^x),
                 labels = trans_format("log10", math_format(10^.x)),
                 sec.axis = sec_axis(~., labels = NULL)) +
-  scale_x_continuous(#limits = c(0.01, 10000),
-                sec.axis = sec_axis(~., labels = NULL)) +
+  scale_x_continuous(sec.axis = sec_axis(~., labels = NULL)) +
   xlab("Nickel Volume Fraction") +
   guides(color = guide_legend(reverse = TRUE, title = "Ni Vol.", 
                               title.theme = element_text(colour="black",
@@ -190,6 +232,7 @@ fractSum %>%
                                                          #face = "bold",
                                                          size = 12))) +
   scale_shape_manual(values=c(16, 17, 0, 2)) + #hrs
+  scale_color_manual(values=c("#000000","#F8766D","#CD9600","#7CAE00","#00BE67","#00BFC4","#00A9FF","#C77CFF","#FF61CC")) +
   theme_classic() +
   theme(axis.text.x = element_text(colour = "black", size = 16),
         axis.text.y = element_text(colour = "black", size = 16),
@@ -198,6 +241,10 @@ fractSum %>%
         axis.title.x = element_text(colour = "black", size = 16),
         axis.title.y = element_text(colour = "black", size = 16),
         legend.text = element_text(colour="black", size = 12))
+
+
+
+
 ```
 
 ```{r}
@@ -221,6 +268,7 @@ condnorm <- fractSum %>%
   scale_x_continuous(#limits = c(0.01, 10000),
                 sec.axis = sec_axis(~., labels = NULL)) +
   scale_shape_manual(values=c(16, 17, 0, 2)) + #hrs
+  scale_color_manual(values=c("#000000","#F8766D","#CD9600","#7CAE00","#00BE67","#00BFC4","#00A9FF","#C77CFF","#FF61CC")) +
   xlab("Nickel Volume Fraction") +
   guides(color = guide_legend(reverse = TRUE, title = "Ni Vol.", 
                               title.theme = element_text(colour="black",
@@ -273,6 +321,7 @@ condavemod <- fractSum %>%
                                                          #face = "bold",
                                                          size = 12))) +
   scale_shape_manual(values=c(16, 17, 0, 2)) + #hrs
+  scale_color_manual(values=c("#000000","#F8766D","#CD9600","#7CAE00","#00BE67","#00BFC4","#00A9FF","#C77CFF","#FF61CC")) +
   theme_classic() +
   theme(axis.text.x = element_text(colour = "black", size = 16),
         axis.text.y = element_text(colour = "black", size = 16),
@@ -316,6 +365,7 @@ condnorm2 <- fractSum %>%
                               title.theme = element_text(colour="black",
                                                          #face = "bold",
                                                          size = 12))) +
+  scale_color_manual(values=c("#000000","#F8766D","#CD9600","#7CAE00","#00BE67","#00BFC4","#00A9FF","#C77CFF","#FF61CC")) +
   theme_classic() +
   theme(axis.text.x = element_text(colour = "black", size = 16),
         axis.text.y = element_text(colour = "black", size = 16),
@@ -359,6 +409,7 @@ condcal <- fractSum %>%
                               title.theme = element_text(colour="black",
                                                          #face = "bold",
                                                          size = 12))) +
+  scale_color_manual(values=c("#000000","#F8766D","#CD9600","#7CAE00","#00BE67","#00BFC4","#00A9FF","#C77CFF","#FF61CC")) +
   theme_classic() +
   theme(axis.text.x = element_text(colour = "black", size = 16),
         axis.text.y = element_text(colour = "black", size = 16),
@@ -426,6 +477,7 @@ fractSum %>%
                                                          #face = "bold",
                                                          size = 12))) +
   scale_shape_manual(values=c(16, 17, 0, 2), na.translate = FALSE) + #remove na from legend
+  scale_color_manual(values=c("#000000","#F8766D","#CD9600","#7CAE00","#00BE67","#00BFC4","#00A9FF","#C77CFF","#FF61CC")) +
   theme_classic() +
   geom_hline(aes(yintercept = 0.5)) +
   theme(axis.text.x = element_text(colour = "black", size = 16),
@@ -451,6 +503,7 @@ conzz <- fractSum %>%
   xlab(expression(ln~(T*R^'3'*'/'~t))) +
   scale_y_log10(sec.axis = sec_axis(~., labels = NULL)) +
   scale_x_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  scale_color_manual(values=c("#000000","#F8766D","#CD9600","#7CAE00","#00BE67","#00BFC4","#00A9FF","#C77CFF","#FF61CC")) +
   #guides(color = FALSE) +
   theme_classic() +
   theme(axis.text.x = element_text(colour = "black", size = 16),
@@ -474,6 +527,7 @@ fractSum %>%
   xlab(expression(ln~(T*R^'3'*'/'~t)*~'/'~'Density')) +
   scale_y_log10(sec.axis = sec_axis(~., labels = NULL)) +
   scale_x_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  scale_color_manual(values=c("#000000","#F8766D","#CD9600","#7CAE00","#00BE67","#00BFC4","#00A9FF","#C77CFF","#FF61CC")) +
   #guides(color = FALSE) +
   theme_classic() +
   theme(axis.text.x = element_text(colour = "black", size = 16),
