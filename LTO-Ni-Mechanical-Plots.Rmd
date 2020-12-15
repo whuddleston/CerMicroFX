@@ -429,6 +429,7 @@ df_particles %>%
 
 toughsize <- fractSum %>%
   filter(Label != "WH03A") %>%
+  filter(Ni.Vol.Corrected > 0) %>%
   ggplot() +
   geom_point(size = 3, stroke = 2,
              aes(x = Temp, y = R3,
