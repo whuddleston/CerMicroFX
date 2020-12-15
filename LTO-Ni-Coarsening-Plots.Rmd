@@ -120,6 +120,7 @@ rm(temp2)
 ```{r, fig.cap="Grain growth exponent prelim", fig.show='asis'}
 #used
 tempy <- one %>%
+  filter(Ni.Vol.Corrected != 0) %>%
   #filter(Ni.Vol.Corrected < 0.5) %>%
   #filter(Ni.Vol.Corrected > 0.05) %>%
   #filter(Ni.Vol.Corrected == 0.35) %>%
@@ -284,6 +285,7 @@ rm(mlswmod)
 ```{r}
 #regsubsets model: LSW + (normalized for composition variable) plotting #used
 temp6 <- one %>%
+  filter(Ni.Vol.Corrected != 0) %>%
   filter(Temp >= 800) %>%
   ggplot() +
   geom_point(size = 2,aes(x = z*1000, y = zz-coef(regmod,2)[3]*Ni.Vol.Corrected, 
