@@ -11,7 +11,7 @@ knitr::opts_chunk$set(echo = FALSE, warning=FALSE, message=FALSE) #set echo to F
 ```
 
 ```{r}
-condModels <- seq(0,1,by = 0.001) %>%
+condModels <- seq(0,1,by = 0.0001) %>%
   as.data.frame()
 
 colnames(condModels)[1] <- "Ni.Vol.Corrected"
@@ -38,8 +38,6 @@ condModels <- condModels %>%
   mutate(conParen2 = (Ni.Vol.Corrected-nc80)^2) %>%
   mutate(condMod100 = conPre*conParen) %>%
   mutate(condMod80 = conPre2*conParen2)
-
-
 ```
 
 
@@ -52,9 +50,6 @@ condModels <- condModels %>%
 #correct for totnifraction
 
 condExtra <- read.csv("./data-files/condExtra.csv", header = TRUE)
-
-
-
 
 fractSum %>%
   filter(is.na(condAve) == FALSE) %>%
@@ -72,18 +67,10 @@ condhrs <- fractSum %>%
                                              shape = as.factor(hrs),
                  color = as.factor(hrs))) +
   #
-  geom_line(data = condModels, linetype = "dashed", aes(x = Ni.Vol.Corrected, y = seriescond)) +
-  geom_line(data = condModels, linetype = "dashed", aes(x = Ni.Vol.Corrected, y = parallcond)) +
-  geom_line(data = filter(condModels, disccond < condNi), linetype = "dashed", 
-            aes(x = Ni.Vol.Corrected, y = disccond)) +
-  #
-  geom_line(data = filter(condModels, Ni.Vol.Corrected > nc100), linetype = "dashed", 
-            aes(x = Ni.Vol.Corrected, y = condMod100)) +
-  #
   scale_y_log10(breaks = scales::trans_breaks("log10", function(x) 10^x),
                 labels = trans_format("log10", math_format(10^.x)),
                 sec.axis = sec_axis(~., labels = NULL)) +
-  scale_x_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  scale_x_continuous(breaks = seq(0,1,by = 0.2), sec.axis = sec_axis(~., labels = NULL)) +
   xlab("Nickel Volume Fraction") +
   ylab("Electrical Conductivity [S/cm]") +
   guides(shape = guide_legend(reverse = TRUE, title = "Time [hrs]", 
@@ -103,7 +90,17 @@ condhrs <- fractSum %>%
         axis.line = element_line(colour = 'black', size = 1),
         axis.title.x = element_text(colour = "black", size = 16),
         axis.title.y = element_text(colour = "black", size = 16),
-        legend.text = element_text(colour="black", size = 12))
+        legend.text = element_text(colour="black", size = 12)) +
+  geom_line(data = condModels, linetype = "dashed", color = "purple", size = 0.75,
+            aes(x = Ni.Vol.Corrected, y = seriescond)) +
+  geom_line(data = condModels, linetype = "dashed", color = "brown", size = 0.75,
+            aes(x = Ni.Vol.Corrected, y = parallcond)) +
+  geom_line(data = filter(condModels, disccond < condNi), linetype = "dashed", color = "orange", size = 0.75,
+            aes(x = Ni.Vol.Corrected, y = disccond)) +
+  geom_line(data = filter(condModels, Ni.Vol.Corrected > nc100 & condMod100 > 0.1), 
+            linetype = "twodash", color = "blue", size = 0.75,
+            aes(x = Ni.Vol.Corrected, y = condMod100))
+
 
 print(condhrs)
 ggsave(filename = "./plotexports/plotexportcondhrs.png", plot = condhrs, device = "png", width = 8, height = 6, units = "in")
@@ -118,17 +115,12 @@ condtemp <- fractSum %>%
   geom_point(data = condExtra, size = 3, aes(y = condAve, x = Ni.Vol.Corrected, 
                  color = as.factor(Temp))) +
   #
-  
-  
-  #
-  geom_line(data = filter(condModels, Ni.Vol.Corrected > nc80), linetype = "dashed", 
-            aes(x = Ni.Vol.Corrected, y = condMod80)) +
-  #
   scale_y_log10(breaks = scales::trans_breaks("log10", function(x) 10^x),
                 labels = trans_format("log10", math_format(10^.x)),
                 sec.axis = sec_axis(~., labels = NULL)) +
-  scale_x_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  scale_x_continuous(breaks = seq(0,1,by = 0.2), sec.axis = sec_axis(~., labels = NULL)) +
   xlab("Nickel Volume Fraction") +
+  ylab("Electrical Conductivity [S/cm]") +
   guides(colour = guide_legend(reverse = TRUE, title = expression(Temp~'['*degree*C*']'), 
                                title.theme = element_text(colour="black", 
                                                           #face = "bold", 
@@ -140,7 +132,19 @@ condtemp <- fractSum %>%
         axis.line = element_line(colour = 'black', size = 1),
         axis.title.x = element_text(colour = "black", size = 16),
         axis.title.y = element_text(colour = "black", size = 16),
-        legend.text = element_text(colour="black", size = 12))
+        legend.text = element_text(colour="black", size = 12)) +
+  geom_line(data = condModels, linetype = "dashed", color = "purple", size = 0.75,
+            aes(x = Ni.Vol.Corrected, y = seriescond)) +
+  geom_line(data = condModels, linetype = "dashed", color = "brown", size = 0.75,
+            aes(x = Ni.Vol.Corrected, y = parallcond)) +
+  geom_line(data = filter(condModels, disccond < condNi), linetype = "dashed", color = "orange", size = 0.75,
+            aes(x = Ni.Vol.Corrected, y = disccond)) +
+  geom_line(data = filter(condModels, Ni.Vol.Corrected > nc100 & condMod100 > 0.1), 
+            linetype = "twodash", color = "blue", size = 0.75,
+            aes(x = Ni.Vol.Corrected, y = condMod100)) +
+  geom_line(data = filter(condModels, Ni.Vol.Corrected > nc80 & condMod80 > 0.125),
+            linetype = "twodash", color = "navy", size = 0.75,
+            aes(x = Ni.Vol.Corrected, y = condMod80))
 
 print(condtemp)
 ggsave(filename = "./plotexports/plotexportcondtemp.png", plot = condtemp, device = "png", width = 8, height = 6, units = "in")
