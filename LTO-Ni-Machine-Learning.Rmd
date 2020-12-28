@@ -95,7 +95,10 @@ rm(split)
 
 ```{r}
 
-rfmodel <- randomForest(x = trainset, y = trainset$condAve, ntree = 300)
+rfmodel <- trainset %>%
+  select(-1,-2,-3,-4,-5,-6) %>%
+  select(-Ni.Vol.Corrected) %>%
+  randomForest(x = ., y = trainset$condAve, ntree = 300)
 
 #remove Ni.Vol.Corrected from RF model
 
@@ -616,7 +619,7 @@ rm(bind2)
 tempscaled2 <- as.data.frame(scale(temp2))
 
 #split into testing and training
-split <- createDataPartition(temp2$stressf, p = 0.5, times = 4)
+split <- createDataPartition(temp2$stressf, p = 0.7, times = 4)
 
 trainset2 <- temp2[as.vector(split[[1]]),]
 testset2 <- temp2[-as.vector(split[[1]]),]
@@ -624,9 +627,14 @@ testset2 <- temp2[-as.vector(split[[1]]),]
 #scale features
 trainset2 <- as.data.frame(scale(trainset2))
 testset2 <- as.data.frame(scale(testset2))
+```
 
 
-rfmodels <- randomForest(x = trainset2, y = trainset2$stressf, ntree = 300)
+```{r}
+rfmodels <- trainset2 %>%
+  select(-1,-2,-3,-4,-5,-6) %>%
+  select(-Ni.Vol.Corrected) %>%
+  randomForest(x = ., y = trainset2$stressf, ntree = 300)
 
 #remove Ni.Vol.Corrected from RF model
 
