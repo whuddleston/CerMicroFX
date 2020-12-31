@@ -524,6 +524,16 @@ skeleton.data %>%
                  shape = as.factor(hrs),
                  color = as.factor(Ni.Vol.Corrected))) +
   scale_shape_manual(values=c(16, 17, 0, 2)) #hrs
+
+skeleton.data %>%
+  ggplot() +
+  geom_point(alpha = 0.5, aes(x = Branches, y = Maximum.Branch.Length, 
+                 shape = as.factor(hrs),
+                 color = as.factor(Temp))) +
+  scale_shape_manual(values=c(16, 17, 0, 2)) + #hrs
+  scale_x_log10() +
+  #scale_y_log10() +
+  theme_classic()
 ```
 
 
@@ -554,6 +564,14 @@ skelematch %>%
   #scale_x_log10() +
   scale_y_log10()
 
+skelematch %>%
+  ggplot() +
+  geom_point(alpha = 0.5,aes(x = totNifrace, y = Branches, 
+                             shape = as.factor(hrs),
+                             color = as.factor(Ni.Vol.Corrected))) +
+  #scale_x_log10() +
+  scale_y_log10()
+
 
 skelematch %>%
   ggplot() +
@@ -563,6 +581,16 @@ skelematch %>%
   geom_smooth(method = lm, se = FALSE, aes(group = Labelfine, 
                                color = as.factor(Ni.Vol.Corrected),
                                x = Area, y = Maximum.Branch.Length)) +
+  scale_shape_manual(values=c(16, 17, 0, 2)) + #hrs
+  scale_x_log10() +
+  #scale_y_log10() +
+  theme_classic()
+
+skelematch %>%
+  ggplot() +
+  geom_point(alpha = 0.5, aes(x = Branches, y = Maximum.Branch.Length, 
+                 shape = as.factor(hrs),
+                 color = as.factor(Temp))) +
   scale_shape_manual(values=c(16, 17, 0, 2)) + #hrs
   scale_x_log10() +
   #scale_y_log10() +
