@@ -96,7 +96,7 @@ rm(split)
 ```{r}
 
 rfmodel <- trainset %>%
-  select(-1,-2,-3,-4,-5,-6) %>%
+  select(-Dim.1,-Dim.2,-Dim.3,-Dim.4,-Dim.5,-Dim.6) %>%
   select(-Ni.Vol.Corrected) %>%
   randomForest(x = ., y = trainset$condAve, ntree = 300)
 
@@ -164,11 +164,11 @@ trainset %>%
 
 trainset.pcs <- trainset %>%
   filter(hrs < 1) %>%
-  select(., 1:6, condAve)
+  select(., Dim.1,Dim.2,Dim.3,Dim.4,Dim.5,Dim.6, condAve)
 
 testset.pcs <- testset %>%
   filter(hrs < 1) %>%
-  select(., 1:6, condAve)
+  select(., Dim.1,Dim.2,Dim.3,Dim.4,Dim.5,Dim.6, condAve)
 
 
 rf.pcs <- randomForest(x = trainset.pcs, y = trainset.pcs$condAve, ntree = 300)
@@ -231,12 +231,12 @@ paste(round(summary(rflm.pcs)$adj.r.squared,3), "Adj. R^2")
 
 
 
-trainset.u <- select(trainset, -1,-2,-3,-4,-5,-6, -aveAreafine,
+trainset.u <- select(trainset, -Dim.1,-Dim.2,-Dim.3,-Dim.4,-Dim.5,-Dim.6, -aveAreafine,
        -totNifrace,
        -Ni.Vol.Corrected, -Temp, -hrs,
        -Th.Density)
 
-testset.u <- select(testset, -1,-2,-3,-4,-5,-6, -aveAreafine,
+testset.u <- select(testset, -Dim.1,-Dim.2,-Dim.3,-Dim.4,-Dim.5,-Dim.6, -aveAreafine,
        -totNifrace,
        -Ni.Vol.Corrected, -Temp, -hrs,
        -Th.Density)
@@ -632,7 +632,7 @@ testset2 <- as.data.frame(scale(testset2))
 
 ```{r}
 rfmodels <- trainset2 %>%
-  select(-1,-2,-3,-4,-5,-6) %>%
+  select(-Dim.1,-Dim.2,-Dim.3,-Dim.4,-Dim.5,-Dim.6,) %>%
   select(-Ni.Vol.Corrected) %>%
   randomForest(x = ., y = trainset2$stressf, ntree = 300)
 
@@ -764,12 +764,12 @@ paste(round(summary(rflm.pcs.stressf2)$adj.r.squared,3), "Adj. R^2")
 
 
 
-trainset.us <- select(trainset2, -1,-2,-3,-4,-5,-6, -aveAreafine,
+trainset.us <- select(trainset2, -Dim.1,-Dim.2,-Dim.3,-Dim.4,-Dim.5,-Dim.6, -aveAreafine,
        -totNifrace,
        -Ni.Vol.Corrected, -Temp, -hrs,
        -Th.Density)
 
-testset.us <- select(testset2, -1,-2,-3,-4,-5,-6, -aveAreafine,
+testset.us <- select(testset2, -Dim.1,-Dim.2,-Dim.3,-Dim.4,-Dim.5,-Dim.6, -aveAreafine,
        -totNifrace,
        -Ni.Vol.Corrected, -Temp, -hrs,
        -Th.Density)
