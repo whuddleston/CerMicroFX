@@ -101,6 +101,7 @@ voronoidens %>%
   filter(Label != "WH03A") %>%
   #
   mutate(stresso = stressf*exp((1.05-Th.Density/100)*coef(fracmodel)[2]*-1)) %>%
+  mutate(voronoicount = voronoicount*100/(1024*1024)) %>%
   #
   ggplot() +
   geom_boxplot(aes(group = Temp, x = Temp, y = voronoicount)) +
@@ -109,8 +110,8 @@ voronoidens %>%
                  #shape = as.factor(Temp),
                  color = as.factor(Temp))) +
   xlab(expression(Temp~'['*degree*C*']')) +
-  ylab("Voronoi Pixel Count") +
-  scale_y_continuous(limits = c(0,100000),
+  ylab("Voronoi Map Coverage [%]") +
+  scale_y_continuous(limits = c(0,10),
                      sec.axis = sec_axis(~., labels = NULL)) +
   scale_x_continuous(sec.axis = sec_axis(~., labels = NULL)) +
   guides(color = FALSE) +
@@ -237,6 +238,7 @@ voronoidens %>%
   filter(Labelfine != "WH15B/900-5-50B0008.tiff") %>%
   #
   mutate(stresso = stressf*exp((1.05-Th.Density/100)*coef(fracmodel)[2]*-1)) %>%
+  mutate(voronoicount = voronoicount*100/(1024*1024)) %>%
   #
   ggplot() +
   geom_boxplot(aes(group = Ni.Vol.Corrected, x = Ni.Vol.Corrected, y = voronoicount)) +
@@ -245,8 +247,8 @@ voronoidens %>%
                  shape = as.factor(Temp),
                  color = as.factor(Ni.Vol.Corrected))) +
   xlab("Nickel Volume Fraction") +
-  ylab("Voronoi Pixel Count") +
-  scale_y_continuous(limits = c(0,80000), 
+  ylab("Voronoi Map Coverage [%]") +
+  scale_y_continuous(limits = c(0,8), 
                      sec.axis = sec_axis(~., labels = NULL)) +
   scale_x_continuous(sec.axis = sec_axis(~., labels = NULL)) +
   guides(color = FALSE) +
@@ -519,6 +521,7 @@ voronoidens %>%
   filter(Labelfine != "WH35A/WH35A0010.tiff") %>%
   #
   mutate(stresso = stressf*exp((1.05-Th.Density/100)*coef(fracmodel)[2]*-1)) %>%
+  mutate(voronoicount = voronoicount*100/(1024*1024)) %>%
   #
   ggplot() +
   geom_boxplot(aes(group = hrs, x = hrs, y = voronoicount)) +
@@ -527,8 +530,8 @@ voronoidens %>%
                  shape = as.factor(Temp),
                  color = as.factor(hrs))) +
   xlab("Time [hrs]") +
-  ylab("Voronoi Pixel Count") +
-  scale_y_continuous(limits = c(0,50000), 
+  ylab("Voronoi Map Coverage [%]") +
+  scale_y_continuous(limits = c(0,5), 
                      sec.axis = sec_axis(~., labels = NULL)) +
   scale_x_log10(breaks = c(5,10,50,150),sec.axis = sec_axis(~., labels = NULL)) +
   guides(colour = guide_legend(reverse = TRUE, title = "Time [hrs]", 
@@ -614,6 +617,7 @@ voronoidens %>%
   geom_point(size = 1.5, aes(y = stressf, x = fineavennd,
                            shape = as.factor(Temp),
                            color = as.factor(Ni.Vol.Corrected))) +
+  #geom_smooth(method = "lm", aes(x = fineavennd, y = stressf)) +
   # geom_point(data = filter(voronoidens,aveR3 > 10), 
   #            size = 3,
   #            stroke = 1,
