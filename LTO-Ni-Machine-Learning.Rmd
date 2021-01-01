@@ -12,6 +12,7 @@ library(randomForest)
 library(e1071)
 library(ipred)
 library(concaveman)
+library(randomForestExplainer)
 ```
 
 #data splitting
@@ -81,6 +82,11 @@ testset <- temp[-as.vector(split[[1]]),]
 #scale features
 trainset <- as.data.frame(scale(trainset))
 testset <- as.data.frame(scale(testset))
+
+#move condAve to last column
+trainset <- select(trainset,c(names(select(trainset, -condAve)), "condAve"))
+testset <- select(testset,c(names(select(testset, -condAve)), "condAve"))
+
 
 #summary(temp)
 summary(trainset)
@@ -154,6 +160,17 @@ paste(round(summary(rflm)$r.squared,3), "R^2")
 paste(round(summary(rflm)$adj.r.squared,3), "Adj. R^2")
 
 ```
+
+```{r}
+rfmodel.min.depth.df <- min_depth_distribution(rfmodel)
+
+rfmodel.min.depth.df <- rfmodel.min.depth.df %>%
+  filter(variable != "condAve")
+
+plot_min_depth_distribution(rfmodel.min.depth.df)
+```
+
+
 
 ```{r}
 #Random forest using just PCA data to predict conductivity
