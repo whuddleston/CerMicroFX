@@ -630,6 +630,11 @@ rm(temp2)
 
 rm(i)
 rm(imagelist)
+
+skelematch <- voronoidens %>%
+  select(-x,-density,-count) %>%
+  unique() %>%
+  left_join(select(skelematch, -Labelfine,-Label), ., by = "Labelfineshort")
 ```
 
 
