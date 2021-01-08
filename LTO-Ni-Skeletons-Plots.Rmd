@@ -116,7 +116,7 @@ skeleton.data %>%
   filter(Labelfine != "WH06C/1000-5-35C0004.tiff") %>%
   filter(Label != "WH19A") %>%
   #filter(Average.Branch.Length > 0) %>%
-  filter(Branches > 0) %>%
+  filter(Branches > 1) %>%
   #
   filter(Ni.Vol.Corrected == 0.35) %>%
   filter(hrs == 5) %>%
@@ -133,6 +133,7 @@ skeleton.data %>%
   scale_x_log10(sec.axis = sec_axis(~., labels = NULL)) +
   scale_y_continuous(breaks = c(700,800,900,1000,1100),
                      sec.axis = sec_axis(~., labels = NULL)) +
+  ylab(expression(Temp~'['*degree*C*']')) +
   annotation_logticks(sides = "b") +
   guides(color = FALSE, fill = guide_legend(reverse = TRUE, title = expression(Temp~'['*degree*C*']'), 
                                #override.aes = list(size=4), 
@@ -164,6 +165,8 @@ skeleton.data %>%
   geom_density_ridges(size = 1, aes(x = Maximum.Branch.Length, y = Temp, group = Labelfine, 
                                     #color = black,
                                     fill = as.factor(Temp))) +
+  ylab(expression(Temp~'['*degree*C*']')) +
+  xlab(expression(Maximum~Branch~Length~'['*mu*m*']')) +
   geom_rect(color = "black", aes(xmin = ave.max.branches-0.01, 
                 ymin = Temp, 
                 xmax = ave.max.branches+0.01, 
@@ -264,6 +267,7 @@ skeleton.data %>%
                 xmax = ave.ave.branches+0.01, 
                 ymax = Ni.Vol.Corrected2 + 1,
                 fill = as.factor(Ni.Vol.Corrected))) +
+  ylab("Nickel Volume Fraction") +
   scale_x_log10(sec.axis = sec_axis(~., labels = NULL)) +
   scale_y_continuous(breaks = c(1,2,3,4,5,6,7,8),
                      labels = c("0.05", "0.10", "0.20", "0.24", "0.28", "0.35", "0.40", "0.50"),
@@ -306,7 +310,7 @@ skeleton.data %>%
   filter(Labelfine != "WH06C/1000-5-35C0004.tiff") %>%
   filter(Label != "WH19A") %>%
   #filter(Average.Branch.Length > 0) %>%
-  filter(Branches > 0) %>%
+  filter(Branches > 1) %>%
   #
   filter(Temp == 900) %>%
   filter(hrs == 5) %>%
@@ -320,6 +324,7 @@ skeleton.data %>%
                 xmax = ave.branches+0.01, 
                 ymax = Ni.Vol.Corrected2 + 1,
                 fill = as.factor(Ni.Vol.Corrected))) +
+  ylab("Nickel Volume Fraction") +
   scale_x_log10(sec.axis = sec_axis(~., labels = NULL)) +
   scale_y_continuous(breaks = c(1,2,3,4,5,6,7,8),
                      labels = c("0.05", "0.10", "0.20", "0.24", "0.28", "0.35", "0.40", "0.50"),
@@ -372,6 +377,8 @@ skeleton.data %>%
   geom_density_ridges(size = 1, aes(x = Maximum.Branch.Length, y = Ni.Vol.Corrected2, group = Labelfine, 
                                     #color = black,
                                     fill = as.factor(Ni.Vol.Corrected))) +
+  ylab("Nickel Volume Fraction") +
+  xlab(expression(Maximum~Branch~Length~'['*mu*m*']')) +
   geom_rect(color = "black", aes(xmin = ave.max.branches-0.01, 
                 ymin = Ni.Vol.Corrected2, 
                 xmax = ave.max.branches+0.01, 
@@ -516,7 +523,7 @@ skeleton.data %>%
   filter(Temp == 900) %>%
   filter(Ni.Vol.Corrected == 0.35) %>%
   #filter(Average.Branch.Length > 0) %>%
-  filter(Branches > 0) %>%
+  filter(Branches > 1) %>%
   ggplot() +
   geom_density_ridges(size = 1, aes(x = Branches, y = hrs2, group = Labelfine, 
                                     #color = black,
@@ -568,6 +575,7 @@ skeleton.data %>%
   geom_density_ridges(size = 1, aes(x = Maximum.Branch.Length, y = hrs2, group = Labelfine, 
                                     #color = black,
                                     fill = as.factor(hrs))) +
+  xlab(expression(Maximum~Branch~Length~'['*mu*m*']')) +
   geom_rect(color = "black", aes(xmin = ave.max.branches-0.01, 
                 ymin = hrs2, 
                 xmax = ave.max.branches+0.01, 
@@ -735,16 +743,36 @@ skelematch %>%
 ```{r}
 skelematch %>%
   ggplot() +
-  geom_point(alpha = 0.5, aes(x = Area, y = Maximum.Branch.Length, 
+  geom_point(#alpha = 0.5, 
+             aes(x = Area, y = Maximum.Branch.Length, 
                  shape = as.factor(hrs),
                  color = as.factor(Ni.Vol.Corrected))) +
-  geom_smooth(method = lm, se = FALSE, aes(group = Labelfine, 
-                               color = as.factor(Ni.Vol.Corrected),
-                               x = Area, y = Maximum.Branch.Length)) +
+  # geom_smooth(method = lm, color = "black", se = FALSE, aes(#group = Labelfine, 
+  #                              #color = as.factor(Ni.Vol.Corrected),
+  #                              x = Area, y = Maximum.Branch.Length)) +
   scale_shape_manual(values=c(16, 17, 0, 2)) + #hrs
-  scale_x_log10() +
-  #scale_y_log10() +
-  theme_classic()
+  scale_x_log10(sec.axis = sec_axis(~., labels = NULL)) +
+  scale_y_continuous(limits = c(0,7), sec.axis = sec_axis(~., labels = NULL)) +
+  ylab(expression(Maximum~Branch~Length~'['*mu*m*']')) +
+  xlab(expression(Nickel~Particle~Area~'['*mu*m^2*']')) +
+  guides(shape = guide_legend(title = "Time [hrs]", reverse = TRUE,
+                               #override.aes = list(size=4), 
+                               title.theme = element_text(colour="black",
+                                                          #face = "bold",
+                                                          size = 12))) +
+  guides(colour = guide_legend(reverse = TRUE, title = "Ni Vol.", 
+                               #override.aes = list(size=4), 
+                               title.theme = element_text(colour = "black",
+                                                          #face = "bold",
+                                                          size = 12))) +
+  theme_classic() +
+  theme(axis.text.x = element_text(colour = "black", size = 16),
+        axis.text.y = element_text(colour = "black", size = 16),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 16),
+        axis.title.y = element_text(colour = "black", size = 16),
+        legend.text = element_text(colour="black", size = 12))
 ```
 
 ```{r}
@@ -764,15 +792,39 @@ skelematch %>%
 
 ```{r}
 skelematch %>%
+  filter(Branches > 1) %>%
+  filter(Ni.Vol.Corrected == 0.35) %>%
   ggplot() +
-  geom_point(alpha = 0.5, aes(x = AR, y = Maximum.Branch.Length, 
+  geom_point(#alpha = 0.5, 
+             aes(x = Branches, y = Maximum.Branch.Length, 
                  shape = as.factor(hrs),
-                 color = as.factor(Ni.Vol.Corrected))) +
-  # geom_smooth(method = lm, se = FALSE, aes(group = Labelfine, 
-  #                              color = as.factor(Ni.Vol.Corrected),
-  #                              x = Area, y = Quadruple.points)) +
+                 color = as.factor(hrs)
+                 )
+             ) +
+  # geom_smooth(method = lm, se = FALSE, aes(#group = Labelfine,
+  #                              #color = as.factor(Ni.Vol.Corrected),
+  #                              x = Branches, y = Maximum.Branch.Length)) +
   scale_shape_manual(values=c(16, 17, 0, 2)) + #hrs
-  scale_x_log10() +
-  scale_y_log10() +
-  theme_classic()
+  scale_color_manual(values=c("#00BF7D", "#BF7D00", "#7C00BF", "#BF0041")) +
+  guides(shape = guide_legend(title = "Time [hrs]", reverse = TRUE,
+                               #override.aes = list(size=4), 
+                               title.theme = element_text(colour="black",
+                                                          #face = "bold",
+                                                          size = 12))) +
+  guides(color = guide_legend(title = "Time [hrs]", reverse = TRUE,
+                               #override.aes = list(size=4), 
+                               title.theme = element_text(colour="black",
+                                                          #face = "bold",
+                                                          size = 12))) +
+  ylab(expression(Maximum~Branch~Length~'['*mu*m*']')) +
+  scale_x_log10(sec.axis = sec_axis(~., labels = NULL)) +
+  scale_y_log10(limits = c(0.1,10),sec.axis = sec_axis(~., labels = NULL)) +
+  theme_classic() +
+  theme(axis.text.x = element_text(colour = "black", size = 16),
+        axis.text.y = element_text(colour = "black", size = 16),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 16),
+        axis.title.y = element_text(colour = "black", size = 16),
+        legend.text = element_text(colour="black", size = 12))
 ```
