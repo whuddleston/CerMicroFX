@@ -648,6 +648,7 @@ skeleton.data %>%
         legend.text = element_text(colour="black", size = 12))
 ```
 
+<!--
 ```{r}
 skeleton.data %>%
   filter(Branches == 0) %>%
@@ -672,16 +673,39 @@ skeleton.data %>%
                  shape = as.factor(hrs),
                  color = as.factor(Ni.Vol.Corrected))) +
   scale_shape_manual(values=c(16, 17, 0, 2)) #hrs
+```
+-->
 
+```{r}
 skeleton.data %>%
+  filter(Ni.Vol.Corrected == 0.35) %>%
+  filter(Branches > 0) %>%
   ggplot() +
-  geom_point(alpha = 0.5, aes(x = Branches, y = Maximum.Branch.Length, 
+  geom_point(aes(x = Branches, y = Maximum.Branch.Length, 
                  shape = as.factor(hrs),
                  color = as.factor(Temp))) +
   scale_shape_manual(values=c(16, 17, 0, 2)) + #hrs
-  scale_x_log10() +
-  #scale_y_log10() +
-  theme_classic()
+  guides(shape = guide_legend(title = "Time [hrs]", reverse = TRUE,
+                               #override.aes = list(size=4), 
+                               title.theme = element_text(colour="black",
+                                                          #face = "bold",
+                                                          size = 12))) +
+  guides(color = guide_legend(reverse = TRUE, title = expression(Temp~'['*degree*C*']'), 
+                               #override.aes = list(size=4), 
+                               title.theme = element_text(colour = "black",
+                                                          #face = "bold",
+                                                          size = 12))) +
+  ylab(expression(Maximum~Branch~Length~'['*mu*m*']')) +
+  scale_x_log10(sec.axis = sec_axis(~., labels = NULL)) +
+  scale_y_log10(limits = c(0.01,10),sec.axis = sec_axis(~., labels = NULL)) +
+  theme_classic() +
+  theme(axis.text.x = element_text(colour = "black", size = 16),
+        axis.text.y = element_text(colour = "black", size = 16),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 16),
+        axis.title.y = element_text(colour = "black", size = 16),
+        legend.text = element_text(colour="black", size = 12))
 ```
 
 
@@ -691,15 +715,40 @@ skeleton.data %>%
 
 skelematch %>%
   ggplot() +
-  geom_point(aes(x = Area, y = Branches, color = as.factor(Ni.Vol.Corrected))) +
-  geom_smooth(method = lm, se = FALSE, aes(group = Labelfine, 
-                               color = as.factor(Ni.Vol.Corrected),
-                               x = Area, y = Branches)) +
-  scale_x_log10() +
-  scale_y_log10()
+  geom_point(aes(x = Area, y = Branches,
+                 shape = as.factor(hrs),
+                 color = as.factor(Ni.Vol.Corrected))) +
+  # geom_smooth(method = lm, se = FALSE, aes(group = Labelfine, 
+  #                              color = as.factor(Ni.Vol.Corrected),
+  #                              x = Area, y = Branches)) +
+  scale_shape_manual(values=c(16, 17, 0, 2)) + #hrs
+  scale_x_log10(sec.axis = sec_axis(~., labels = NULL)) +
+  scale_y_log10(sec.axis = sec_axis(~., labels = NULL)) +
+  xlab(expression(Nickel~Particle~Area~'['*mu*m^2*']')) +
+  guides(shape = guide_legend(title = "Time [hrs]", reverse = TRUE,
+                               #override.aes = list(size=4), 
+                               title.theme = element_text(colour="black",
+                                                          #face = "bold",
+                                                          size = 12))) +
+  guides(colour = guide_legend(reverse = TRUE, title = "Ni Vol.", 
+                               #override.aes = list(size=4), 
+                               title.theme = element_text(colour = "black",
+                                                          #face = "bold",
+                                                          size = 12))) +
+  coord_fixed() +
+  theme_classic() +
+  theme(axis.text.x = element_text(colour = "black", size = 16),
+        axis.text.y = element_text(colour = "black", size = 16),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 16),
+        axis.title.y = element_text(colour = "black", size = 16),
+        legend.text = element_text(colour="black", size = 12))
+
+```
 
 
-
+```{r}
 skelematch %>%
   ggplot() +
   geom_boxplot(aes(group = Ni.Vol.Corrected, x = Ni.Vol.Corrected, y = Branches)) +
@@ -714,30 +763,6 @@ skelematch %>%
                              color = as.factor(Ni.Vol.Corrected))) +
   #scale_x_log10() +
   scale_y_log10()
-
-
-skelematch %>%
-  ggplot() +
-  geom_point(alpha = 0.5, aes(x = Area, y = Maximum.Branch.Length, 
-                 shape = as.factor(hrs),
-                 color = as.factor(Ni.Vol.Corrected))) +
-  geom_smooth(method = lm, se = FALSE, aes(group = Labelfine, 
-                               color = as.factor(Ni.Vol.Corrected),
-                               x = Area, y = Maximum.Branch.Length)) +
-  scale_shape_manual(values=c(16, 17, 0, 2)) + #hrs
-  scale_x_log10() +
-  #scale_y_log10() +
-  theme_classic()
-
-skelematch %>%
-  ggplot() +
-  geom_point(alpha = 0.5, aes(x = Branches, y = Maximum.Branch.Length, 
-                 shape = as.factor(hrs),
-                 color = as.factor(Temp))) +
-  scale_shape_manual(values=c(16, 17, 0, 2)) + #hrs
-  scale_x_log10() +
-  #scale_y_log10() +
-  theme_classic()
 ```
 
 ```{r}
@@ -775,20 +800,6 @@ skelematch %>%
         legend.text = element_text(colour="black", size = 12))
 ```
 
-```{r}
-skelematch %>%
-  ggplot() +
-  geom_point(alpha = 0.5, aes(x = AR, y = Feret, 
-                 shape = as.factor(hrs),
-                 color = as.factor(Ni.Vol.Corrected))) +
-  geom_smooth(method = lm, se = FALSE, aes(group = Labelfine,
-                               color = as.factor(Ni.Vol.Corrected),
-                               x = AR, y = Feret)) +
-  scale_shape_manual(values=c(16, 17, 0, 2)) + #hrs
-  #scale_x_log10() +
-  #scale_y_log10() +
-  theme_classic()
-```
 
 ```{r}
 skelematch %>%
@@ -828,3 +839,20 @@ skelematch %>%
         axis.title.y = element_text(colour = "black", size = 16),
         legend.text = element_text(colour="black", size = 12))
 ```
+
+<!--
+```{r}
+plot_ly(x = skeleton.data$Maximum.Branch.Length, 
+        y = skeleton.data$Branches, 
+        z = skeleton.data$Ni.Vol.Corrected, 
+        color = skeleton.data$Ni.Vol.Corrected,
+        colors = hue_pal()(8),
+        type = 'scatter3d') %>%
+  layout(title = 'Skeletons',
+         scene = list(
+           xaxis = list(title = "Maximum.Branch.Length"),
+           yaxis = list(title = "Branches", type = "log"),
+           zaxis = list(title = "Ni.Vol.Corrected")
+           ))
+```
+-->
