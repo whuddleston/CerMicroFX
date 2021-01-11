@@ -990,11 +990,11 @@ prcomp.R3.rot %>%
   mutate(r3x = 10^r3x) %>%
   #
   ggplot() +
-  geom_tile(aes(x = r3x, y = 1, height = 0.1, fill = PC1)) +
-  geom_tile(aes(x = r3x, y = 2, height = 0.1, fill = PC2)) +
-  geom_tile(aes(x = r3x, y = 3, height = 0.1, fill = PC3)) +
-  geom_tile(aes(x = r3x, y = 4, height = 0.1, fill = PC4)) +
-  geom_tile(aes(x = r3x, y = 5, height = 0.1, fill = PC5)) +
+  geom_tile(aes(x = r3x, y = 1, width = 0.025, height = 0.1, fill = PC1)) +
+  geom_tile(aes(x = r3x, y = 2, width = 0.025, height = 0.1, fill = PC2)) +
+  geom_tile(aes(x = r3x, y = 3, width = 0.025, height = 0.1, fill = PC3)) +
+  geom_tile(aes(x = r3x, y = 4, width = 0.025, height = 0.1, fill = PC4)) +
+  geom_tile(aes(x = r3x, y = 5, width = 0.025, height = 0.1, fill = PC5)) +
   #
   scale_fill_scico(palette = "roma", limits = c(-0.15,0.15), direction = -1) +
   #scale_fill_gradientn(colors = brewer_pal(palette = "RdBu")(5), limits = c(-0.15,0.15)) +
@@ -1064,7 +1064,7 @@ PCANi <- r3densities %>%
   geom_ridgeline_gradient(size = 1, aes(x = r3x, y = ni2-1, 
                               group = Labelfine, 
                               height = density*5)) +
-  geom_tile(aes(x = r3x, y = 9, height = 0.1)) +
+  geom_tile(aes(x = r3x, y = 9, width = 0.025, height = 0.25)) +
   scale_fill_scico(palette = "roma", limits = c(-0.15,0.15), direction = -1) +
   #scale_fill_gradientn(colors = brewer_pal(palette = "RdBu")(5), limits = c(-0.15,0.15)) +
   scale_x_log10(sec.axis = sec_axis(~.^(1/3)*2, name = expression(D~'['*mu*m*']')),
@@ -1137,7 +1137,7 @@ PCAhrs <- r3densities %>%
   geom_ridgeline_gradient(size = 1, aes(x = r3x, y = hrs2, 
                               group = Labelfine, 
                               height = density*200)) +
-  geom_tile(aes(x = r3x, y = 270, height = 10)) +
+  geom_tile(aes(x = r3x, y = 270, width = 0.025, height = 10)) +
   scale_fill_scico(palette = "roma", limits = c(-0.15,0.15), direction = -1) +
   #scale_fill_gradientn(colors = brewer_pal(palette = "RdBu")(5), limits = c(-0.15,0.15)) +
   scale_x_log10(sec.axis = sec_axis(~.^(1/3)*2, name = expression(D~'['*mu*m*']')),
@@ -1199,7 +1199,7 @@ for (i in c("PC1","PC2","PC3","PC4","PC5")) {
   geom_ridgeline_gradient(size = 1, aes(x = r3x, y = Temp, 
                               group = Labelfine, 
                               height = density*500)) +
-  geom_tile(aes(x = r3x, y = 1500, height = 10)) +
+  geom_tile(aes(x = r3x, y = 1500, width = 0.025, height = 25)) +
   scale_fill_scico(palette = "roma", limits = c(-0.15,0.15), direction = -1) +
   #scale_fill_gradientn(colors = brewer_pal(palette = "RdBu")(5), limits = c(-0.15,0.15)) +
   scale_x_log10(sec.axis = sec_axis(~.^(1/3)*2, name = expression(D~'['*mu*m*']')),
@@ -1244,3 +1244,26 @@ paletteer_c(palette = "scico::roma", n = 5)
 scico(5, palette = "roma")
 ```
 
+<!--
+```{r}
+procspace <- df_particles_fine %>%
+  select(Label,Temp,hrs,Ni.Vol.Corrected) %>%
+  mutate(Label = substr(Label,1,4)) %>%
+  unique()
+
+plot_ly(x = procspace$Temp,
+        y = procspace$Ni.Vol.Corrected,
+        z = procspace$hrs,
+        color = procspace$Temp,
+        colors = hue_pal()(5),
+        type = 'scatter3d') %>%
+  layout(title = 'Processing Space',
+         scene = list(
+           xaxis = list(title = "Sintering Temperature"),
+           yaxis = list(title = "Nickel Fraction"),
+           zaxis = list(type = "log", title = "Dwell Time")
+           ))
+
+#rm(procspace)
+```
+-->
