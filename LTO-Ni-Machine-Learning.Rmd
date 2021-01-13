@@ -111,7 +111,7 @@ rm(split)
 ```{r}
 
 rfmodel <- trainset %>%
-  select(-Dim.1,-Dim.2,-Dim.3,-Dim.4,-Dim.5,-Dim.6) %>%
+  #select(-Dim.1,-Dim.2,-Dim.3,-Dim.4,-Dim.5,-Dim.6) %>%
   select(-Ni.Vol.Corrected) %>%
   randomForest(x = ., y = trainset$condAve, ntree = 300)
 
@@ -186,11 +186,17 @@ rfmodel.min.depth.df <- rfmodel.min.depth.df %>%
   mutate(variable = if_else(variable == "Temp", "Sintering Temperature", variable)) %>%
   mutate(variable = if_else(variable == "Th.Density", "Bulk Density", variable)) %>%
   mutate(variable = if_else(variable == "totNifrace", "Nickel Area Fraction", variable)) %>%
-  mutate(variable = if_else(variable == "voronoicount", "Voronoi Map Coverage", variable))
+  mutate(variable = if_else(variable == "voronoicount", "Voronoi Map Coverage", variable)) %>%
+  mutate(variable = if_else(variable == "Dim.1", "Size-PC-1", variable)) %>%
+  mutate(variable = if_else(variable == "Dim.2", "Size-PC-2", variable)) %>%
+  mutate(variable = if_else(variable == "Dim.3", "Size-PC-3", variable)) %>%
+  mutate(variable = if_else(variable == "Dim.4", "Size-PC-4", variable)) %>%
+  mutate(variable = if_else(variable == "Dim.5", "Size-PC-5", variable)) %>%
+  mutate(variable = if_else(variable == "Dim.6", "Size-PC-6", variable))
 
-plot_min_depth_distribution(rfmodel.min.depth.df) +
+plot_min_depth_distribution(rfmodel.min.depth.df, k = 30) +
   xlab("") +
-  {if(cb == 1)scale_fill_scico_d(palette = "nuuk", direction = 1, begin = 0, end = 1)}
+  {if(cb == 1)scale_fill_scico_d(na.translate = FALSE, palette = "nuuk", direction = 1, begin = 0, end = 1)}
 ```
 
 
@@ -678,7 +684,7 @@ testset2 <- as.data.frame(scale(testset2))
 
 ```{r}
 rfmodels <- trainset2 %>%
-  select(-Dim.1,-Dim.2,-Dim.3,-Dim.4,-Dim.5,-Dim.6,) %>%
+  #select(-Dim.1,-Dim.2,-Dim.3,-Dim.4,-Dim.5,-Dim.6,) %>%
   select(-Ni.Vol.Corrected) %>%
   randomForest(x = ., y = trainset2$stressf, ntree = 300)
 
@@ -759,11 +765,17 @@ rfmodels.min.depth.df <- rfmodels.min.depth.df %>%
   mutate(variable = if_else(variable == "Temp", "Sintering Temperature", variable)) %>%
   mutate(variable = if_else(variable == "Th.Density", "Bulk Density", variable)) %>%
   mutate(variable = if_else(variable == "totNifrace", "Nickel Area Fraction", variable)) %>%
-  mutate(variable = if_else(variable == "voronoicount", "Voronoi Map Coverage", variable))
+  mutate(variable = if_else(variable == "voronoicount", "Voronoi Map Coverage", variable)) %>%
+  mutate(variable = if_else(variable == "Dim.1", "Size-PC-1", variable)) %>%
+  mutate(variable = if_else(variable == "Dim.2", "Size-PC-2", variable)) %>%
+  mutate(variable = if_else(variable == "Dim.3", "Size-PC-3", variable)) %>%
+  mutate(variable = if_else(variable == "Dim.4", "Size-PC-4", variable)) %>%
+  mutate(variable = if_else(variable == "Dim.5", "Size-PC-5", variable)) %>%
+  mutate(variable = if_else(variable == "Dim.6", "Size-PC-6", variable))
   
-plot_min_depth_distribution(rfmodels.min.depth.df) +
+plot_min_depth_distribution(rfmodels.min.depth.df, k = 30) +
   xlab("") +
-  {if(cb == 1)scale_fill_scico_d(palette = "nuuk", direction = 1, begin = 0, end = 1)}
+  {if(cb == 1)scale_fill_scico_d(na.translate = FALSE, palette = "nuuk", direction = 1, begin = 0, end = 1)}
 ```
 
 ```{r}
