@@ -813,10 +813,124 @@ autoplot(prcomp.R3,
                                title.theme = element_text(colour = "black",
                                                           #face = "bold",
                                                           size = 10)))
-
 ```
 
+```{r}
+autoplot(prcomp.R3, 
+         x = 3,
+         y = 4,
+         data = prcomp.R3.fractSum,
+         colour = "Temp",
+         shape = "hrs",
+         label = FALSE, frame = TRUE) +
+  scale_x_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  scale_y_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  geom_hline(yintercept = 0, color = "black", size = 0.5, linetype = "dashed") +
+  geom_vline(xintercept = 0, color = "black", size = 0.5, linetype = "dashed") +
+  scale_shape_manual(values=c(16, 17, 0, 2)) + #hrs
+  {if(cb == 1)scale_fill_scico_d(palette = "batlow", direction = 1, begin = 0, end = 0.7)} +
+  {if(cb == 1)scale_color_scico_d(palette = "batlow", direction = 1, begin = 0, end = 0.7)} +
+  theme_classic() +
+  guides(shape = guide_legend(title = "Time [hrs]", reverse = TRUE,
+                               #override.aes = list(size=4), 
+                               title.theme = element_text(colour="black",
+                                                          #face = "bold",
+                                                          size = 10))) +
+  guides(fill = guide_legend(reverse = FALSE, title = expression(Temp~'['*degree*C*']'), 
+                               #override.aes = list(size=4), 
+                               title.theme = element_text(colour = "black",
+                                                          #face = "bold",
+                                                          size = 10))) +
+  guides(color = guide_legend(reverse = FALSE, title = expression(Temp~'['*degree*C*']'), 
+                               #override.aes = list(size=4), 
+                               title.theme = element_text(colour = "black",
+                                                          #face = "bold",
+                                                          size = 10)))
 
+
+autoplot(prcomp.R3, data = prcomp.R3.fractSum,
+         x = 3,
+         y = 4,
+         colour = "hrs",
+         label = FALSE, frame = TRUE) +
+  scale_x_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  scale_y_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  geom_hline(yintercept = 0, color = "black", size = 0.5, linetype = "dashed") +
+  geom_vline(xintercept = 0, color = "black", size = 0.5, linetype = "dashed") +
+  {if(cb == 1)scale_fill_scico_d(palette = "lajolla", direction = 1, begin = 0.4, end = 1)} +
+  {if(cb == 1)scale_color_scico_d(palette = "lajolla", direction = 1, begin = 0.4, end = 1)} +
+  theme_classic() +
+  guides(fill = guide_legend(title = "Time [hrs]", reverse = TRUE,
+                               #override.aes = list(size=4), 
+                               title.theme = element_text(colour="black",
+                                                          #face = "bold",
+                                                          size = 10))) +
+  guides(color = guide_legend(title = "Time [hrs]", reverse = TRUE,
+                               #override.aes = list(size=4), 
+                               title.theme = element_text(colour="black",
+                                                          #face = "bold",
+                                                          size = 10)))
+
+autoplot(prcomp.R3, data = prcomp.R3.fractSum,
+         x = 3,
+         y = 4,
+         colour = "Ni.Vol.Corrected",
+         #shape = "hrs",
+         label = FALSE, frame = TRUE) +
+  scale_x_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  scale_y_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  geom_hline(yintercept = 0, color = "black", size = 0.5, linetype = "dashed") +
+  geom_vline(xintercept = 0, color = "black", size = 0.5, linetype = "dashed") +
+  {if(cb == 1)scale_fill_scico_d(palette = "roma", direction = 1)} +
+  {if(cb == 1)scale_color_scico_d(palette = "roma", direction = 1)} +
+  labs(colour = "Ni Vol.") +
+  labs(fill = "Ni Vol.") +
+  scale_shape_manual(values=c(16, 17, 0, 2)) + #hrs
+  theme_classic() +
+  guides(fill = guide_legend(reverse = TRUE, title = "Ni Vol.", 
+                               #override.aes = list(size=4), 
+                               title.theme = element_text(colour = "black",
+                                                          #face = "bold",
+                                                          size = 10))) +
+  guides(colour = guide_legend(reverse = TRUE, title = "Ni Vol.", 
+                               #override.aes = list(size=4), 
+                               title.theme = element_text(colour = "black",
+                                                          #face = "bold",
+                                                          size = 10)))
+```
+
+```{r}
+autoplot(prcomp.R3, 
+         x = 5,
+         y = 6,
+         data = prcomp.R3.fractSum,
+         colour = "Temp",
+         shape = "hrs",
+         label = FALSE, frame = TRUE) +
+  scale_x_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  scale_y_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  geom_hline(yintercept = 0, color = "black", size = 0.5, linetype = "dashed") +
+  geom_vline(xintercept = 0, color = "black", size = 0.5, linetype = "dashed") +
+  scale_shape_manual(values=c(16, 17, 0, 2)) + #hrs
+  {if(cb == 1)scale_fill_scico_d(palette = "batlow", direction = 1, begin = 0, end = 0.7)} +
+  {if(cb == 1)scale_color_scico_d(palette = "batlow", direction = 1, begin = 0, end = 0.7)} +
+  theme_classic() +
+  guides(shape = guide_legend(title = "Time [hrs]", reverse = TRUE,
+                               #override.aes = list(size=4), 
+                               title.theme = element_text(colour="black",
+                                                          #face = "bold",
+                                                          size = 10))) +
+  guides(fill = guide_legend(reverse = FALSE, title = expression(Temp~'['*degree*C*']'), 
+                               #override.aes = list(size=4), 
+                               title.theme = element_text(colour = "black",
+                                                          #face = "bold",
+                                                          size = 10))) +
+  guides(color = guide_legend(reverse = FALSE, title = expression(Temp~'['*degree*C*']'), 
+                               #override.aes = list(size=4), 
+                               title.theme = element_text(colour = "black",
+                                                          #face = "bold",
+                                                          size = 10)))
+```
 
 
 
@@ -1102,7 +1216,7 @@ nifix <- function(z){
 }
 
 
-for (i in c("PC1","PC2","PC3","PC4","PC5")) {
+for (i in c("PC1","PC2","PC3","PC4","PC5","PC6")) {
   
 PCANi <- r3densities %>%
   mutate(Label = substr(Labelfine, 1, 5)) %>%
@@ -1176,7 +1290,7 @@ timefix <- function(y){
 
 
 
-for (i in c("PC1","PC2","PC3","PC4","PC5")) {
+for (i in c("PC1","PC2","PC3","PC4","PC5","PC6")) {
   
 PCAhrs <- r3densities %>%
   mutate(Label = substr(Labelfine, 1, 5)) %>%
@@ -1239,7 +1353,7 @@ rm(PCAhrs)
 
 
 ```{r}
-for (i in c("PC1","PC2","PC3","PC4","PC5")) {
+for (i in c("PC1","PC2","PC3","PC4","PC5","PC6")) {
   
   PCATemp <- r3densities %>%
   mutate(Label = substr(Labelfine, 1, 5)) %>%
@@ -1338,7 +1452,7 @@ plot_ly(x = procspace$Temp,
 -->
 
 ```{r}
-for (i in c("PC1","PC2","PC3","PC4","PC5")) {
+for (i in c("PC1","PC2","PC3","PC4","PC5","PC6")) {
 
 PCA_Ni_Temp <- r3densities %>%
   mutate(Label = substr(Labelfine, 1, 5)) %>%
@@ -1378,7 +1492,7 @@ PCA_Ni_Temp <- r3densities %>%
                 breaks = scales::trans_breaks("log10", function(x) 10^x),
                 labels = trans_format("log10", math_format(10^.x))) +
   scale_y_continuous(breaks = c(0,1,2,3,4,5,6,7,9),
-                     labels = c("0.05", "0.10", "0.20", "0.24", "0.28", "0.35", "0.40", "0.50", "PC"),
+                     labels = c("0.05", "0.10", "0.20", "0.24", "0.28", "0.35", "0.40", "0.50", paste(i)),
                      sec.axis = sec_axis(~., breaks = c(0,1,2,3,4,5,6,7,9), labels = NULL)) +
   theme_classic() +
   ylab("Nickel Volume Fraction") +
@@ -1429,7 +1543,8 @@ PCA_Temp_Ni <- r3densities %>%
                 limits = c(0.0001, 10000),
                 breaks = scales::trans_breaks("log10", function(x) 10^x),
                 labels = trans_format("log10", math_format(10^.x))) +
-  scale_y_continuous(breaks = c(700,800,900,1000,1100),
+  scale_y_continuous(breaks = c(700,800,900,1000,1100,1500),
+                     labels = c(700,800,900,1000,1100,paste(i)),
                      sec.axis = sec_axis(~., breaks = c(700,800,900,1000,1100), labels = NULL)) +
   theme_classic() +
   ylab(expression(Temp~'['*degree*C*']')) +

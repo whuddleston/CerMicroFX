@@ -141,6 +141,38 @@ importance(rfmodel) %>%
 ```
 
 ```{r}
+rfmodimp.verb <- rfmodimp %>%
+  mutate(variable = rowname) %>%
+  select(-rowname) %>%
+  mutate(variable = if_else(variable == "ave.ave.branches", "Average Branch Length", variable)) %>%
+  mutate(variable = if_else(variable == "ave.max.branches", "Maximum Branch Length", variable)) %>%
+  mutate(variable = if_else(variable == "ave.branches", "Average Number of Branches", variable)) %>%
+  mutate(variable = if_else(variable == "aveAreafine", "Average Particle Area", variable)) %>%
+  mutate(variable = if_else(variable == "avevoronoix", "Average Voronoi Spacing", variable)) %>%
+  mutate(variable = if_else(variable == "fineavennd", "Average NND", variable)) %>%
+  mutate(variable = if_else(variable == "finecount", "Counts Per Area", variable)) %>%
+  mutate(variable = if_else(variable == "hrs", "Dwell Time", variable)) %>%
+  mutate(variable = if_else(variable == "Temp", "Sintering Temperature", variable)) %>%
+  mutate(variable = if_else(variable == "Th.Density", "Bulk Density", variable)) %>%
+  mutate(variable = if_else(variable == "totNifrace", "Nickel Area Fraction", variable)) %>%
+  mutate(variable = if_else(variable == "voronoicount", "Voronoi Map Coverage", variable)) %>%
+  mutate(variable = if_else(variable == "Dim.1", "Size-PC-1", variable)) %>%
+  mutate(variable = if_else(variable == "Dim.2", "Size-PC-2", variable)) %>%
+  mutate(variable = if_else(variable == "Dim.3", "Size-PC-3", variable)) %>%
+  mutate(variable = if_else(variable == "Dim.4", "Size-PC-4", variable)) %>%
+  mutate(variable = if_else(variable == "Dim.5", "Size-PC-5", variable)) %>%
+  mutate(variable = if_else(variable == "Dim.6", "Size-PC-6", variable))
+
+ggplot() +
+  geom_point(data = rfmodimp.verb, aes(x = variable, y = -IncNodePurity*10))
+
+dotchart(rfmodimp.verb$IncNodePurity, labels = rfmodimp.verb$variable, main = "Conductivity RF")
+
+#somehow combine node purity and depth information?
+```
+
+
+```{r}
 rfresults <- predict(rfmodel, testset) %>%
   as.data.frame() %>%
   cbind(as.data.frame(testset$condAve))
