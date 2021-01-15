@@ -158,8 +158,8 @@ cbind(rfresults, testset) %>%
   scale_x_continuous(sec.axis = sec_axis(~., labels = NULL)) +
   scale_y_continuous(sec.axis = sec_axis(~., labels = NULL)) +
   coord_fixed() +
-  xlab("Conductivity [S/cm]") +
-  ylab("Conductivity Predicted [S/cm]")
+  xlab("Scaled Conductivity") +
+  ylab("Conductivity Predicted")
   #annotate("text", label = round(last(rfmodel$rsq)*100,2), x = mean(rfresults$actual), y = mean(rfresults$prediction)*2)
 
 rflm <- lm(rfresults$prediction ~ rfresults$actual)
@@ -200,7 +200,7 @@ plot_min_depth_distribution(rfmodel.min.depth.df, k = 30) +
 ```
 
 
-
+<
 ```{r}
 #Random forest using just PCA data to predict conductivity
 
@@ -475,7 +475,7 @@ print(consvm)
 #to try: ensemble SVM / cross validate across different test/train splits
 ```
 
-
+<!--
 ```{r}
 #not scaled
 condbag <- bagging(condAve ~., data = temp, nbagg = 25)
@@ -493,6 +493,8 @@ cbind(bagpred, temp) %>%
   coord_fixed() +
   guides(color = FALSE)
 ```
+-->
+
 
 <!--
 ```{r}
@@ -539,7 +541,7 @@ varImp(treebagresults2)[1] %>%
 ```
 -->
 
-
+<!--
 ```{r}
 tbctrl <- trainControl(method = "repeatedcv",
              number = 10,
@@ -575,7 +577,7 @@ varImp(treebagresults)[1] %>%
   arrange(desc(Overall))
 
 ```
-
+-->
 
 
 <!--
@@ -734,8 +736,8 @@ cbind(rfresultss, testset2) %>%
   scale_x_continuous(sec.axis = sec_axis(~., labels = NULL)) +
   scale_y_continuous(sec.axis = sec_axis(~., labels = NULL)) +
   coord_fixed() +
-  xlab(expression(sigma[fr]~'['*MPa*']')) +
-  ylab(expression(sigma[fr]~'-'~predicted~'['*MPa*']')) 
+  xlab(expression(Scaled~sigma[fr])) +
+  ylab(expression(sigma[fr]~'-'~predicted)) 
   #annotate("text", label = round(last(rfmodels$rsq)*100,2), x = mean(rfresultss$actual), y = mean(rfresultss$prediction)*2)
   #
 
