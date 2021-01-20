@@ -48,7 +48,10 @@ options(tinytex.verbose = TRUE)
  \setcounter{subsection}{0}
  \setcounter{subsubsection}{0}
 
-
+```{r}
+#color-blind-friendly off 0 / on 1
+cb <- 1
+```
 
 ```{r, echo=FALSE}
 #density data import (also is the sample key)
@@ -656,7 +659,7 @@ skelematch <- voronoidens %>%
 
 ```{r}
 
-#check nickel composition by comparing Ni.Vol.Corrected with totNifrace(total nickel fraction including edges)
+#check of nickel composition labels by comparing Ni.Vol.Corrected with totNifrace(total nickel fraction including edges)
 
 voronoidens %>%
   select(Temp, hrs, Ni.Vol.Corrected, Label, Labelfine, totNifrace) %>%
@@ -676,7 +679,8 @@ voronoidens %>%
   #filter(Ni.Vol.Corrected < 0.35) %>%
   #filter(Ni.Vol.Corrected > 0.15) %>%
   ggplot() +
-  geom_point(aes(x = Ni.Vol.Corrected, y = totNifrace, color = as.factor(Temp))) +
+  geom_point(aes(x = Ni.Vol.Corrected, y = totNifrace, shape = as.factor(hrs),
+                 color = as.factor(Temp))) +
   coord_fixed() +
   geom_abline(slope = 1, intercept = 0)
 

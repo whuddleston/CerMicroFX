@@ -1158,6 +1158,146 @@ df_particles_fine %>%
         legend.text = element_text(colour="black", size = 12))
 ```
 
+```{r}
+df_particles_fine %>%
+  select(Label, Labelfine, 
+         finecount,countperarea,
+         Ni.Vol.Corrected, Temp, hrs, Th.Density,
+         stressf, condAve) %>%
+  unique() %>%
+  #
+  filter(Ni.Vol.Corrected <= 0.35) %>%
+  filter(Ni.Vol.Corrected >= 0.24) %>%
+  filter(Ni.Vol.Corrected != 0.28) %>%
+  filter(hrs == 5) %>%
+  filter(Label != "WH13A") %>%
+  filter(Label != "WH03A") %>%
+  #
+  mutate(stresso = stressf*exp((1.05-Th.Density/100)*coef(fracmodel)[2]*-1)) %>%
+  #
+  ggplot() +
+  geom_boxplot(position = "identity", aes(group = substr(Label,1,4), x = Temp, y = countperarea,
+                   
+                   color = as.factor(Ni.Vol.Corrected))) +
+  geom_point(size = 2, aes(y = countperarea, x = Temp, 
+                 #size = as.factor(hrs),
+                 #shape = as.factor(Temp),
+                 color = as.factor(Ni.Vol.Corrected))) +
+  xlab(expression(Temp~'['*degree*C*']')) +
+  ylab(expression(Counts~Per~Area~'['*cts*'/'*mu*m^2*']')) +
+  scale_y_continuous(limits = c(0, 2.5), sec.axis = sec_axis(~., labels = NULL)) +
+  scale_x_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  scale_color_manual(values=c("#00BE67", "#00A9FF")) +
+  guides(colour = guide_legend(reverse = TRUE, title = "Ni Vol.", 
+                               #override.aes = list(size=4), 
+                               title.theme = element_text(colour = "black",
+                                                          #face = "bold",
+                                                          size = 12))) +
+  theme_classic() +
+  theme(axis.text.x = element_text(colour = "black", size = 16),
+        axis.text.y = element_text(colour = "black", size = 16),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 16),
+        axis.title.y = element_text(colour = "black", size = 16),
+        legend.text = element_text(colour="black", size = 12))
+
+df_particles_fine %>%
+  select(Label, Labelfine, 
+         finecount,countperarea,
+         Ni.Vol.Corrected, Temp, hrs, Th.Density,
+         stressf, condAve) %>%
+  unique() %>%
+  #
+  filter(Ni.Vol.Corrected <= 0.35) %>%
+  filter(Ni.Vol.Corrected >= 0.24) %>%
+  filter(Ni.Vol.Corrected != 0.28) %>%
+  filter(hrs == 5) %>%
+  filter(Label != "WH13A") %>%
+  filter(Label != "WH03A") %>%
+  #
+  group_by(substr(Label,1,4)) %>%
+  mutate(meancount = mean(countperarea)) %>%
+  mutate(countperarea = if_else(Ni.Vol.Corrected == 0.24,countperarea/2.1880088,countperarea/1.8591760)) %>%
+  #
+  mutate(stresso = stressf*exp((1.05-Th.Density/100)*coef(fracmodel)[2]*-1)) %>%
+  #
+  ggplot() +
+  geom_boxplot(position = "identity", aes(group = substr(Label,1,4), x = Temp, y = countperarea,
+                   
+                   color = as.factor(Ni.Vol.Corrected))) +
+  geom_point(size = 2, aes(y = countperarea, x = Temp, 
+                 #size = as.factor(hrs),
+                 #shape = as.factor(Temp),
+                 color = as.factor(Ni.Vol.Corrected))) +
+  xlab(expression(Temp~'['*degree*C*']')) +
+  ylab(expression(Counts~Per~Area~Ratio)) +
+  scale_y_continuous(limits = c(0, 1.5), sec.axis = sec_axis(~., labels = NULL)) +
+  scale_x_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  scale_color_manual(values=c("#00BE67", "#00A9FF")) +
+  guides(colour = guide_legend(reverse = TRUE, title = "Ni Vol.", 
+                               #override.aes = list(size=4), 
+                               title.theme = element_text(colour = "black",
+                                                          #face = "bold",
+                                                          size = 12))) +
+  theme_classic() +
+  theme(axis.text.x = element_text(colour = "black", size = 16),
+        axis.text.y = element_text(colour = "black", size = 16),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 16),
+        axis.title.y = element_text(colour = "black", size = 16),
+        legend.text = element_text(colour="black", size = 12))
+```
+
+```{r}
+df_particles_fine %>%
+  select(Label, Labelfine, 
+         finecount,countperarea,
+         Ni.Vol.Corrected, Temp, hrs, Th.Density,
+         stressf, condAve) %>%
+  unique() %>%
+  #
+  filter(Temp <= 900) %>%
+  filter(Temp != 800) %>%
+  #filter(Ni.Vol.Corrected == 0.35) %>%
+  filter(hrs == 5) %>%
+  filter(Label != "WH13A") %>%
+  filter(Labelfine != "WH15B/900-5-50B0008.tiff") %>%
+  #
+  mutate(stresso = stressf*exp((1.05-Th.Density/100)*coef(fracmodel)[2]*-1)) %>%
+  #
+  ggplot() +
+  geom_boxplot(position = "identity", aes(group = substr(Label,1,4),
+                                          color = as.factor(Temp),
+                                          x = Ni.Vol.Corrected, 
+                                          y = countperarea)) +
+  geom_point(size = 2, aes(y = countperarea, x = Ni.Vol.Corrected, 
+                 #size = as.factor(hrs),
+                 #shape = as.factor(Temp),
+                 color = as.factor(Temp))) +
+  xlab("Nickel Volume Fraction") +
+  ylab(expression(Counts~Per~Area~'['*cts*'/'*mu*m^2*']')) +
+  scale_y_continuous(limits = c(0, 2.5), sec.axis = sec_axis(~., labels = NULL)) +
+  scale_x_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  scale_color_manual(values=c("#F8766D", "#00BF7D")) +
+  guides(color = guide_legend(reverse = TRUE, title = expression(Temp~'['*degree*C*']'), 
+                               #override.aes = list(size=4), 
+                               title.theme = element_text(colour = "black",
+                                                          #face = "bold",
+                                                          size = 12))) +
+  guides(shape = FALSE) +
+  theme_classic() +
+  theme(axis.text.x = element_text(colour = "black", size = 16),
+        axis.text.y = element_text(colour = "black", size = 16),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 16),
+        axis.title.y = element_text(colour = "black", size = 16),
+        legend.text = element_text(colour="black", size = 12))
+```
+
+
 #NND-PCA
 
 ```{r}

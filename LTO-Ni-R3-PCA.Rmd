@@ -14,10 +14,6 @@ library(scico)
 library(paletteer)
 ```
 
-```{r}
-#color-blind-friendly off/on
-cb <- 1
-```
 
 
 <!--
@@ -663,7 +659,7 @@ prcomp.R3 <- r3densities %>%
   select(-Labelfine) %>%
   prcomp(scale = TRUE)
 
-PCAscree <- fviz_eig(prcomp.R3, addlabels = TRUE) +
+PCAscree <- fviz_eig(prcomp.R3, addlabels = TRUE, barfill = "#00A9FF") +
   labs(title = "") +
   theme_classic() +
   scale_y_continuous(limits = c(0,37), expand = c(0,0), sec.axis = sec_axis(~., labels = NULL)) +
@@ -717,8 +713,8 @@ autoplot(prcomp.R3, data = prcomp.R3.fractSum,
   geom_hline(yintercept = 0, color = "black", size = 0.5, linetype = "dashed") +
   geom_vline(xintercept = 0, color = "black", size = 0.5, linetype = "dashed") +
   scale_shape_manual(values=c(16, 17, 0, 2)) + #hrs
-  {if(cb == 1)scale_fill_scico_d(palette = "batlow", direction = 1, begin = 0, end = 0.7)} +
-  {if(cb == 1)scale_color_scico_d(palette = "batlow", direction = 1, begin = 0, end = 0.7)} +
+  {if(cb == 1)scale_fill_scico_d(palette = "batlow", direction = 1, begin = 0, end = 0.7)} + #Temp
+  {if(cb == 1)scale_color_scico_d(palette = "batlow", direction = 1, begin = 0, end = 0.7)} + #Temp
   theme_classic() +
   guides(fill = guide_legend(reverse = FALSE, title = expression(Temp~'['*degree*C*']'), 
                                #override.aes = list(size=4), 
@@ -740,8 +736,8 @@ autoplot(prcomp.R3, data = prcomp.R3.fractSum,
   scale_y_continuous(sec.axis = sec_axis(~., labels = NULL)) +
   geom_hline(yintercept = 0, color = "black", size = 0.5, linetype = "dashed") +
   geom_vline(xintercept = 0, color = "black", size = 0.5, linetype = "dashed") +
-  {if(cb == 1)scale_fill_scico_d(palette = "lajolla", direction = 1, begin = 0.4, end = 1)} +
-  {if(cb == 1)scale_color_scico_d(palette = "lajolla", direction = 1, begin = 0.4, end = 1)} +
+  {if(cb == 1)scale_fill_scico_d(palette = "lajolla", direction = 1, begin = 0.4, end = 1)} + #hrs
+  {if(cb == 1)scale_color_scico_d(palette = "lajolla", direction = 1, begin = 0.4, end = 1)} + #hrs
   theme_classic() +
   guides(fill = guide_legend(title = "Time [hrs]", reverse = TRUE,
                                #override.aes = list(size=4), 
@@ -764,8 +760,8 @@ autoplot(prcomp.R3, data = prcomp.R3.fractSum,
   scale_y_continuous(sec.axis = sec_axis(~., labels = NULL)) +
   geom_hline(yintercept = 0, color = "black", size = 0.5, linetype = "dashed") +
   geom_vline(xintercept = 0, color = "black", size = 0.5, linetype = "dashed") +
-  {if(cb == 1)scale_fill_scico_d(palette = "roma", direction = 1)} +
-  {if(cb == 1)scale_color_scico_d(palette = "roma", direction = 1)} +
+  {if(cb == 1)scale_fill_scico_d(palette = "roma", direction = 1)} + #nickel
+  {if(cb == 1)scale_color_scico_d(palette = "roma", direction = 1)} + #nickel
   labs(colour = "Ni Vol.") +
   labs(fill = "Ni Vol.") +
   scale_shape_manual(values=c(16, 17, 0, 2)) + #hrs

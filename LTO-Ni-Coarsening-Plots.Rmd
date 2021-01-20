@@ -59,6 +59,7 @@ rm(temp00)
 
 temp1 <- one %>%
   filter(Label != "WH03A") %>%
+  filter(Label != "WH15B") %>%
   filter(Ni.Vol.Corrected != 0) %>%
   ggplot() +
   geom_point(aes(x = Temp, y = R3,
@@ -124,6 +125,7 @@ tempy <- one %>%
   #filter(Ni.Vol.Corrected < 0.5) %>%
   #filter(Ni.Vol.Corrected > 0.05) %>%
   #filter(Ni.Vol.Corrected == 0.35) %>%
+  filter(Label != "WH15B") %>%
   filter(Temp == 900) %>%
   ggplot(aes(x = hrs, y = R3, color = as.factor(Ni.Vol.Corrected))) +
   scale_x_continuous(sec.axis = sec_axis(~., labels = NULL)) +
