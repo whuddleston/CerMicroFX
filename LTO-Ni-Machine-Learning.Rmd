@@ -421,6 +421,7 @@ svmvarex <- consvm$results %>%
   as.numeric() %>%
   round(3)
 
+
 dotchart(consvmimp$Overall, labels = consvmimp$rowname, 
          main = paste("Conductivity (SVM-Linear rpt-CV)",
                       svmvarex*100,
@@ -450,7 +451,7 @@ svmctrl <- trainControl(method = "LOOCV", #repeatedcv vs Leave one out cross val
              )
              
 
-consvm <- train(condAve ~ ., data = trainset, 
+consvm <- train(condAve ~ ., data = select(trainset, -Ni.Vol.Corrected), 
                 method = "svmPoly", #svmLinear is worse
                 trControl = svmctrl)
 
@@ -469,9 +470,9 @@ cbind(svmresults, testset) %>%
   theme_classic() +
   scale_x_continuous(sec.axis = sec_axis(~., labels = NULL)) +
   scale_y_continuous(sec.axis = sec_axis(~., labels = NULL)) +
-  #coord_fixed() +
-  xlab("Conductivity [S/cm]") +
-  ylab("Conductivity Predicted [S/cm]")
+  coord_fixed() +
+  xlab("Scaled Conductivity") +
+  ylab("Conductivity Predicted")
   #annotate("text", label = round(summary(svmlm)$r.squared,3), x = mean(testset$condAve), y = mean(svmresults$prediction)*2)
 
 consvmimp <- varImp(consvm)[1] %>%
@@ -490,6 +491,38 @@ dotchart(consvmimp$Overall, labels = consvmimp$rowname,
                       svmvarex*100,
                       "% Var Explained")
          )
+
+
+consvmimp.verb <- consvmimp %>%
+  mutate(variable = rowname) %>%
+  select(-rowname) %>%
+  mutate(variable = if_else(variable == "ave.ave.branches", "Average Branch Length", variable)) %>%
+  mutate(variable = if_else(variable == "ave.max.branches", "Maximum Branch Length", variable)) %>%
+  mutate(variable = if_else(variable == "ave.branches", "Average Number of Branches", variable)) %>%
+  mutate(variable = if_else(variable == "aveAreafine", "Average Particle Area", variable)) %>%
+  mutate(variable = if_else(variable == "avevoronoix", "Average Voronoi Spacing", variable)) %>%
+  mutate(variable = if_else(variable == "fineavennd", "Average NND", variable)) %>%
+  mutate(variable = if_else(variable == "finecount", "Counts Per Area", variable)) %>%
+  mutate(variable = if_else(variable == "hrs", "Dwell Time", variable)) %>%
+  mutate(variable = if_else(variable == "Temp", "Sintering Temperature", variable)) %>%
+  mutate(variable = if_else(variable == "Th.Density", "Bulk Density", variable)) %>%
+  mutate(variable = if_else(variable == "totNifrace", "Nickel Area Fraction", variable)) %>%
+  mutate(variable = if_else(variable == "voronoicount", "Voronoi Map Coverage", variable)) %>%
+  mutate(variable = if_else(variable == "Dim.1", "Size-PC-1", variable)) %>%
+  mutate(variable = if_else(variable == "Dim.2", "Size-PC-2", variable)) %>%
+  mutate(variable = if_else(variable == "Dim.3", "Size-PC-3", variable)) %>%
+  mutate(variable = if_else(variable == "Dim.4", "Size-PC-4", variable)) %>%
+  mutate(variable = if_else(variable == "Dim.5", "Size-PC-5", variable)) %>%
+  mutate(variable = if_else(variable == "Dim.6", "Size-PC-6", variable))
+
+ggplot() +
+  geom_point(data = consvmimp.verb, aes(x = variable, y = Overall))
+
+dotchart(consvmimp.verb$Overall, labels = consvmimp.verb$variable, main = paste("Conductivity (SVM-Poly.)",
+                      svmvarex*100,
+                      "% Var Explained"))
+
+
 
 varImp(consvm)[1] %>%
   as.data.frame() %>%
@@ -995,7 +1028,7 @@ svmctrl <- trainControl(method = "LOOCV", #repeatedcv vs Leave one out cross val
              )
              
 
-stress.svm <- train(stressf2 ~ ., data = trainset2, 
+stress.svm <- train(stressf2 ~ ., data = select(trainset2,-Ni.Vol.Corrected), 
                 method = "svmPoly", #svmLinear is worse
                 trControl = svmctrl)
 
@@ -1008,18 +1041,18 @@ colnames(svmresults)[1] <- "prediction"
 
 cbind(svmresults, testset2) %>%
   ggplot() +
-  geom_point(aes(y = prediction, x = stressf2, color = as.factor(Temp))) +
+  geom_point(aes(y = prediction, x = stressf2, color = as.factor(Ni.Vol.Corrected))) +
   geom_abline(slope = 1, intercept = 0) +
   guides(color = FALSE) +
   theme_classic() +
   scale_x_continuous(sec.axis = sec_axis(~., labels = NULL)) +
   scale_y_continuous(sec.axis = sec_axis(~., labels = NULL)) +
-  #coord_fixed() +
-  xlab("Stress [MPa]") +
-  ylab("Stress Predicted [MPa]")
+  coord_fixed() +
+  xlab(expression(Scaled~sigma[fr])) +
+  ylab(expression(sigma[fr]~'-'~predicted))
   #annotate("text", label = round(summary(svmlm)$r.squared,3), x = mean(testset$condAve), y = mean(svmresults$prediction)*2)
 
-stress.svmimp <- varImp(consvm)[1] %>%
+stress.svmimp <- varImp(stress.svm)[1] %>%
   as.data.frame() %>%
   rownames_to_column() %>%
   arrange(Overall)
@@ -1035,6 +1068,37 @@ dotchart(stress.svmimp$Overall, labels = stress.svmimp$rowname,
                       svmvarex*100,
                       "% Var Explained")
          )
+
+
+stress.svmimp.verb <- stress.svmimp %>%
+  mutate(variable = rowname) %>%
+  select(-rowname) %>%
+  mutate(variable = if_else(variable == "ave.ave.branches", "Average Branch Length", variable)) %>%
+  mutate(variable = if_else(variable == "ave.max.branches", "Maximum Branch Length", variable)) %>%
+  mutate(variable = if_else(variable == "ave.branches", "Average Number of Branches", variable)) %>%
+  mutate(variable = if_else(variable == "aveAreafine", "Average Particle Area", variable)) %>%
+  mutate(variable = if_else(variable == "avevoronoix", "Average Voronoi Spacing", variable)) %>%
+  mutate(variable = if_else(variable == "fineavennd", "Average NND", variable)) %>%
+  mutate(variable = if_else(variable == "finecount", "Counts Per Area", variable)) %>%
+  mutate(variable = if_else(variable == "hrs", "Dwell Time", variable)) %>%
+  mutate(variable = if_else(variable == "Temp", "Sintering Temperature", variable)) %>%
+  mutate(variable = if_else(variable == "Th.Density", "Bulk Density", variable)) %>%
+  mutate(variable = if_else(variable == "totNifrace", "Nickel Area Fraction", variable)) %>%
+  mutate(variable = if_else(variable == "voronoicount", "Voronoi Map Coverage", variable)) %>%
+  mutate(variable = if_else(variable == "Dim.1", "Size-PC-1", variable)) %>%
+  mutate(variable = if_else(variable == "Dim.2", "Size-PC-2", variable)) %>%
+  mutate(variable = if_else(variable == "Dim.3", "Size-PC-3", variable)) %>%
+  mutate(variable = if_else(variable == "Dim.4", "Size-PC-4", variable)) %>%
+  mutate(variable = if_else(variable == "Dim.5", "Size-PC-5", variable)) %>%
+  mutate(variable = if_else(variable == "Dim.6", "Size-PC-6", variable))
+
+ggplot() +
+  geom_point(data = stress.svmimp.verb, aes(x = variable, y = Overall))
+
+dotchart(stress.svmimp.verb$Overall, labels = stress.svmimp.verb$variable, main = paste("Stress (SVM-Poly.)",
+                      svmvarex*100,
+                      "% Var Explained"))
+
 
 varImp(stress.svm)[1] %>%
   as.data.frame() %>%
