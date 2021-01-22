@@ -64,6 +64,7 @@ temp <- left_join(prcomp.R3.Results, bind2, by = "Labelfine") %>%
 
 rm(bind1)
 rm(bind2)
+rm(bind3)
 ```
 
 
@@ -117,11 +118,36 @@ rfmodel <- trainset %>%
 
 #remove Ni.Vol.Corrected from RF model
 
-plot(rfmodel, main = paste("Conductivity Random Forest -", 
+conrferr <- plot(rfmodel, main = paste("Conductivity Random Forest -", 
                         round(last(rfmodel$rsq)*100,2),
-                        "% Var Explained"
-                        )
-     )
+                        "% Var Explained"))
+
+conrferrplot <- ggplot() +
+  geom_line(size = 1, aes(x = 1:300, y = conrferr)) +
+  labs(title = paste("Conductivity Random Forest - ", 
+                        round(last(rfmodel$rsq)*100,2),
+                        "% Var Explained", sep = "")) +
+  xlab("Trees") +
+  ylab("Error") +
+  scale_x_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  scale_y_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  theme_classic() +
+  theme(axis.text.x = element_text(colour = "black", size = 16),
+        axis.text.y = element_text(colour = "black", size = 16),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 16),
+        axis.title.y = element_text(colour = "black", size = 16),
+        plot.title = element_text(colour = "black", size = 16),
+        legend.text = element_text(colour="black", size = 12))
+
+
+print(conrferrplot)
+ggsave(filename = "./MLexports/conrferrplot.png", plot = conrferrplot, 
+         device = "png", width = 6,height = 4, units = "in")
+rm(conrferr)
+rm(conrferrplot)
+
 #print(rfmodel)
 ```
 
@@ -131,8 +157,6 @@ rfmodimp <- importance(rfmodel) %>%
   rownames_to_column() %>%
   arrange(IncNodePurity) %>%
   filter(rowname != "condAve")
-
-dotchart(rfmodimp$IncNodePurity, labels = rfmodimp$rowname, main = "Conductivity RF")
 
 importance(rfmodel) %>%
   as.data.frame() %>%
@@ -166,7 +190,18 @@ rfmodimp.verb <- rfmodimp %>%
 ggplot() +
   geom_point(data = rfmodimp.verb, aes(x = variable, y = -IncNodePurity*10))
 
-dotchart(rfmodimp.verb$IncNodePurity, labels = rfmodimp.verb$variable, main = "Conductivity RF")
+
+
+# conrfnode <- dotchart(rfmodimp.verb$IncNodePurity, labels = rfmodimp.verb$variable, main = "Conductivity RF")
+# 
+# print(conrfnode)
+# ggsave(filename = "./MLexports/conrfnode.png", plot = conrfnode, 
+#          device = "png", width = 6,height = 4, units = "in")
+# rm(conrfnode)
+png("./MLexports/conrfnode.png")
+print(dotchart(rfmodimp.verb$IncNodePurity, labels = rfmodimp.verb$variable, main = "Conductivity RF"))
+dev.off()
+
 
 #somehow combine node purity and depth information?
 ```
@@ -181,7 +216,16 @@ colnames(rfresults)[1] <- "prediction"
 colnames(rfresults)[2] <- "actual"
 
 
-cbind(rfresults, testset) %>%
+
+rflm <- lm(rfresults$prediction ~ rfresults$actual)
+
+paste(round(summary(rflm)$r.squared,3), "R^2")
+
+paste(round(summary(rflm)$adj.r.squared,3), "Adj. R^2")
+
+
+
+conrfpredmeas <- cbind(rfresults, testset) %>%
   ggplot() +
   geom_point(aes(y = prediction, x = condAve, color = as.factor(Ni.Vol.Corrected))) +
   geom_abline(slope = 1, intercept = 0) +
@@ -191,14 +235,15 @@ cbind(rfresults, testset) %>%
   scale_y_continuous(sec.axis = sec_axis(~., labels = NULL)) +
   coord_fixed() +
   xlab("Scaled Conductivity") +
-  ylab("Conductivity Predicted")
-  #annotate("text", label = round(last(rfmodel$rsq)*100,2), x = mean(rfresults$actual), y = mean(rfresults$prediction)*2)
+  ylab("Conductivity Predicted") +
+  geom_abline(slope = rflm$coefficients[2], 
+              intercept = rflm$coefficients[1],
+              color = "red",linetype = "dashed")
 
-rflm <- lm(rfresults$prediction ~ rfresults$actual)
-
-paste(round(summary(rflm)$r.squared,3), "R^2")
-
-paste(round(summary(rflm)$adj.r.squared,3), "Adj. R^2")
+print(conrfpredmeas)
+ggsave(filename = "./MLexports/conrfpredmeas.png", plot = conrfpredmeas, 
+         device = "png", width = 6,height = 4, units = "in")
+rm(conrfpredmeas)
 
 ```
 
@@ -226,13 +271,18 @@ rfmodel.min.depth.df <- rfmodel.min.depth.df %>%
   mutate(variable = if_else(variable == "Dim.5", "Size-PC-5", variable)) %>%
   mutate(variable = if_else(variable == "Dim.6", "Size-PC-6", variable))
 
-plot_min_depth_distribution(rfmodel.min.depth.df, k = 30) +
+conrfmindepth <- plot_min_depth_distribution(rfmodel.min.depth.df, k = 30) +
   xlab("") +
   {if(cb == 1)scale_fill_scico_d(na.translate = FALSE, palette = "nuuk", direction = 1, begin = 0, end = 1)}
+
+print(conrfmindepth)
+ggsave(filename = "./MLexports/conrfmindepth.png", plot = conrfmindepth, 
+         device = "png", width = 7.29,height = 4.5, units = "in")
+rm(conrfmindepth)
 ```
 
 
-<
+<!--
 ```{r}
 #Random forest using just PCA data to predict conductivity
 
@@ -375,11 +425,6 @@ paste(round(summary(rflm.u)$adj.r.squared,3), "Adj. R^2")
 
 
 
-
-
-
-
-
 ```{r}
 #old SVM code
 
@@ -441,6 +486,9 @@ paste(round(summary(svmlm)$adj.r.squared,3)*100, "Adj. R^2")
 
 print(consvm)
 ```
+-->
+
+
 
 ```{r}
 svmctrl <- trainControl(method = "LOOCV", #repeatedcv vs Leave one out cross validation
@@ -455,42 +503,26 @@ consvm <- train(condAve ~ ., data = select(trainset, -Ni.Vol.Corrected),
                 method = "svmPoly", #svmLinear is worse
                 trControl = svmctrl)
 
-svmresults <- predict(consvm, testset) %>%
+consvmresults <- predict(consvm, testset) %>%
   as.data.frame()
 
-colnames(svmresults)[1] <- "prediction"
+colnames(consvmresults)[1] <- "prediction"
 
 
 
-cbind(svmresults, testset) %>%
-  ggplot() +
-  geom_point(aes(y = prediction, x = condAve, color = as.factor(Ni.Vol.Corrected))) +
-  geom_abline(slope = 1, intercept = 0) +
-  guides(color = FALSE) +
-  theme_classic() +
-  scale_x_continuous(sec.axis = sec_axis(~., labels = NULL)) +
-  scale_y_continuous(sec.axis = sec_axis(~., labels = NULL)) +
-  coord_fixed() +
-  xlab("Scaled Conductivity") +
-  ylab("Conductivity Predicted")
-  #annotate("text", label = round(summary(svmlm)$r.squared,3), x = mean(testset$condAve), y = mean(svmresults$prediction)*2)
+
 
 consvmimp <- varImp(consvm)[1] %>%
   as.data.frame() %>%
   rownames_to_column() %>%
   arrange(Overall)
 
-svmvarex <- consvm$results %>%
+consvmvarex <- consvm$results %>%
   select(Rsquared) %>%
   slice(which.max(Rsquared)) %>%
   as.numeric() %>%
   round(3)
 
-dotchart(consvmimp$Overall, labels = consvmimp$rowname, 
-         main = paste("Conductivity (SVM-Poly LOOCV)",
-                      svmvarex*100,
-                      "% Var Explained")
-         )
 
 
 consvmimp.verb <- consvmimp %>%
@@ -515,12 +547,19 @@ consvmimp.verb <- consvmimp %>%
   mutate(variable = if_else(variable == "Dim.5", "Size-PC-5", variable)) %>%
   mutate(variable = if_else(variable == "Dim.6", "Size-PC-6", variable))
 
-ggplot() +
-  geom_point(data = consvmimp.verb, aes(x = variable, y = Overall))
 
-dotchart(consvmimp.verb$Overall, labels = consvmimp.verb$variable, main = paste("Conductivity (SVM-Poly.)",
-                      svmvarex*100,
-                      "% Var Explained"))
+# consvmvar <- dotchart(consvmimp.verb$Overall, labels = consvmimp.verb$variable, main = paste("Conductivity (SVM-Poly.)",
+#                       consvmvarex*100,
+#                       "% Var Explained"))
+# print(consvmvar)
+# ggsave(filename = "./MLexports/consvmvar.png", plot = consvmvar, 
+#          device = "png", width = 6,height = 4, units = "in")
+# rm(consvmvar)
+png("./MLexports/consvmvar.png")
+print(dotchart(consvmimp.verb$Overall, labels = consvmimp.verb$variable, main = paste("Conductivity (SVM-Poly.)",
+                                                                                      consvmvarex*100,
+                                                                                      "% Var Explained")))
+dev.off()
 
 
 
@@ -530,14 +569,36 @@ varImp(consvm)[1] %>%
   arrange(desc(Overall))
 
 
-svmlm <- lm(svmresults$prediction ~ testset$condAve)
+consvmlm <- lm(consvmresults$prediction ~ testset$condAve)
 
-paste(round(summary(svmlm)$r.squared,3)*100, "R^2")
+paste(round(summary(consvmlm)$r.squared,3)*100, "R^2")
 
-paste(round(summary(svmlm)$adj.r.squared,3)*100, "Adj. R^2")
+paste(round(summary(consvmlm)$adj.r.squared,3)*100, "Adj. R^2")
 
 print(consvm)
 #to try: ensemble SVM / cross validate across different test/train splits
+#
+
+consvmpredmeas <- cbind(consvmresults, testset) %>%
+  ggplot() +
+  geom_point(aes(y = prediction, x = condAve, color = as.factor(Ni.Vol.Corrected))) +
+  geom_abline(slope = 1, intercept = 0) +
+  guides(color = FALSE) +
+  theme_classic() +
+  scale_x_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  scale_y_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  coord_fixed() +
+  xlab("Scaled Conductivity") +
+  ylab("Conductivity Predicted") +
+  geom_abline(slope = consvmlm$coefficients[2], 
+              intercept = consvmlm$coefficients[1],
+              color = "red",linetype = "dashed")
+
+
+print(consvmpredmeas)
+ggsave(filename = "./MLexports/consvmpredmeas.png", plot = consvmpredmeas, 
+         device = "png", width = 6,height = 4, units = "in")
+rm(consvmpredmeas)
 ```
 
 <!--
@@ -757,11 +818,34 @@ rfmodels <- trainset2 %>%
 
 #remove Ni.Vol.Corrected from RF model
 
-plot(rfmodels, main = paste("Stress Random Forest -", 
+stressrferr <- plot(rfmodels, main = paste("Stress Random Forest -", 
                         round(last(rfmodels$rsq)*100,2),
-                        "% Var Explained"
-                        )
-     )
+                        "% Var Explained"))
+
+stressrferrplot <- ggplot() +
+  geom_line(size = 1, aes(x = 1:300, y = stressrferr)) +
+  labs(title = paste("Stress Random Forest - ", 
+                        round(last(rfmodels$rsq)*100,2),
+                        "% Var Explained", sep = "")) +
+  xlab("Trees") +
+  ylab("Error") +
+  scale_x_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  scale_y_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  theme_classic() +
+  theme(axis.text.x = element_text(colour = "black", size = 16),
+        axis.text.y = element_text(colour = "black", size = 16),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 16),
+        axis.title.y = element_text(colour = "black", size = 16),
+        plot.title = element_text(colour = "black", size = 16),
+        legend.text = element_text(colour="black", size = 12))
+
+print(stressrferrplot)
+ggsave(filename = "./MLexports/stressrferrplot.png", plot = stressrferrplot, 
+         device = "png", width = 6,height = 4, units = "in")
+rm(stressrferr)
+rm(stressrferrplot)
 #print(rfmodels)
 ```
 
@@ -771,8 +855,6 @@ rfmodimps <- importance(rfmodels) %>%
   rownames_to_column() %>%
   arrange(IncNodePurity) %>%
   filter(rowname != "stressf2")
-
-dotchart(rfmodimps$IncNodePurity, labels = rfmodimps$rowname, main = "Stress RF")
 
 importance(rfmodels) %>%
   as.data.frame() %>%
@@ -792,7 +874,15 @@ colnames(rfresultss)[2] <- "actual"
 #round(summary(rflms)$r.squared,3)
 
 
-cbind(rfresultss, testset2) %>%
+
+stress.rf.lm <- lm(rfresultss$prediction ~ rfresultss$actual)
+
+paste(round(summary(stress.rf.lm)$r.squared,3)*100, "R^2")
+
+paste(round(summary(stress.rf.lm)$adj.r.squared,3)*100, "Adj. R^2")
+
+
+stressrfpredmeas <- cbind(rfresultss, testset2) %>%
   ggplot() +
   geom_point(aes(y = prediction, x = stressf2, color = as.factor(Ni.Vol.Corrected))) +
   geom_abline(slope = 1, intercept = 0) +
@@ -802,16 +892,16 @@ cbind(rfresultss, testset2) %>%
   scale_y_continuous(sec.axis = sec_axis(~., labels = NULL)) +
   coord_fixed() +
   xlab(expression(Scaled~sigma[fr])) +
-  ylab(expression(sigma[fr]~'-'~predicted)) 
+  ylab(expression(sigma[fr]~'-'~predicted)) +
+  geom_abline(slope = stress.rf.lm$coefficients[2], 
+              intercept = stress.rf.lm$coefficients[1],
+              color = "red",linetype = "dashed")
   #annotate("text", label = round(last(rfmodels$rsq)*100,2), x = mean(rfresultss$actual), y = mean(rfresultss$prediction)*2)
-  #
 
-
-stress.rf.lm <- lm(rfresultss$prediction ~ rfresultss$actual)
-
-paste(round(summary(stress.rf.lm)$r.squared,3)*100, "R^2")
-
-paste(round(summary(stress.rf.lm)$adj.r.squared,3)*100, "Adj. R^2")
+print(stressrfpredmeas)
+ggsave(filename = "./MLexports/stressrfpredmeas.png", plot = stressrfpredmeas, 
+         device = "png", width = 6,height = 4, units = "in")
+rm(stressrfpredmeas)
 ```
 
 ```{r}
@@ -840,7 +930,15 @@ rfmodimps.verb <- rfmodimps %>%
 ggplot() +
   geom_point(data = rfmodimps.verb, aes(x = variable, y = -IncNodePurity*10))
 
-dotchart(rfmodimps.verb$IncNodePurity, labels = rfmodimps.verb$variable, main = "Stress RF")
+# stressrfnode <- dotchart(rfmodimps.verb$IncNodePurity, labels = rfmodimps.verb$variable, main = "Stress RF")
+# 
+# print(stressrfnode)
+# ggsave(filename = "./MLexports/stressrfnode.png", plot = stressrfnode, 
+#          device = "png", width = 6,height = 4, units = "in")
+# rm(stressrfnode)
+png("./MLexports/stressrfnode.png")
+print(dotchart(rfmodimps.verb$IncNodePurity, labels = rfmodimps.verb$variable, main = "Stress RF"))
+dev.off()
 
 #somehow combine node purity and depth information?
 ```
@@ -872,17 +970,23 @@ rfmodels.min.depth.df <- rfmodels.min.depth.df %>%
   mutate(variable = if_else(variable == "Dim.5", "Size-PC-5", variable)) %>%
   mutate(variable = if_else(variable == "Dim.6", "Size-PC-6", variable))
   
-plot_min_depth_distribution(rfmodels.min.depth.df, k = 30) +
+stressrfmindepth <- plot_min_depth_distribution(rfmodels.min.depth.df, k = 30) +
   xlab("") +
   {if(cb == 1)scale_fill_scico_d(na.translate = FALSE, palette = "nuuk", direction = 1, begin = 0, end = 1)} #+
   #geom_col(data = rfmodimps.verb, aes(x = variable, y = IncNodePurity))
+
+
+print(stressrfmindepth)
+ggsave(filename = "./MLexports/stressrfmindepth.png", plot = stressrfmindepth, 
+         device = "png", width = 7.29,height = 4.5, units = "in")
+rm(stressrfmindepth)
 
 # measure_importance(rfmodels) %>%
 #   plot_importance_ggpairs()
 ```
 
 
-
+<!--
 ```{r}
 #Random forest using just PCA data to predict stress
 
@@ -1014,7 +1118,7 @@ paste(round(summary(rflm.us)$r.squared,3), "R^2")
 paste(round(summary(rflm.us)$adj.r.squared,3), "Adj. R^2")
 
 ```
-
+-->
 
 
 
@@ -1032,42 +1136,32 @@ stress.svm <- train(stressf2 ~ ., data = select(trainset2,-Ni.Vol.Corrected),
                 method = "svmPoly", #svmLinear is worse
                 trControl = svmctrl)
 
-svmresults <- predict(stress.svm, testset2) %>%
+stress.svmresults <- predict(stress.svm, testset2) %>%
   as.data.frame()
 
-colnames(svmresults)[1] <- "prediction"
+colnames(stress.svmresults)[1] <- "prediction"
 
 
 
-cbind(svmresults, testset2) %>%
-  ggplot() +
-  geom_point(aes(y = prediction, x = stressf2, color = as.factor(Ni.Vol.Corrected))) +
-  geom_abline(slope = 1, intercept = 0) +
-  guides(color = FALSE) +
-  theme_classic() +
-  scale_x_continuous(sec.axis = sec_axis(~., labels = NULL)) +
-  scale_y_continuous(sec.axis = sec_axis(~., labels = NULL)) +
-  coord_fixed() +
-  xlab(expression(Scaled~sigma[fr])) +
-  ylab(expression(sigma[fr]~'-'~predicted))
-  #annotate("text", label = round(summary(svmlm)$r.squared,3), x = mean(testset$condAve), y = mean(svmresults$prediction)*2)
+
 
 stress.svmimp <- varImp(stress.svm)[1] %>%
   as.data.frame() %>%
   rownames_to_column() %>%
   arrange(Overall)
 
-svmvarex <- stress.svm$results %>%
+stress.svmvarex <- stress.svm$results %>%
   select(Rsquared) %>%
   slice(which.max(Rsquared)) %>%
   as.numeric() %>%
   round(3)
 
-dotchart(stress.svmimp$Overall, labels = stress.svmimp$rowname, 
-         main = paste("Stress (SVM-Poly LOOCV)",
-                      svmvarex*100,
-                      "% Var Explained")
-         )
+stress.svm$results %>%
+  select(RMSE) %>%
+  slice(which.min(RMSE)) %>%
+  as.numeric() %>%
+  round(3)
+
 
 
 stress.svmimp.verb <- stress.svmimp %>%
@@ -1095,9 +1189,18 @@ stress.svmimp.verb <- stress.svmimp %>%
 ggplot() +
   geom_point(data = stress.svmimp.verb, aes(x = variable, y = Overall))
 
-dotchart(stress.svmimp.verb$Overall, labels = stress.svmimp.verb$variable, main = paste("Stress (SVM-Poly.)",
-                      svmvarex*100,
-                      "% Var Explained"))
+# stress.svmvar <- dotchart(stress.svmimp.verb$Overall, labels = stress.svmimp.verb$variable, main = paste("Stress (SVM-Poly.)",
+#                       stress.svmvarex*100,
+#                       "% Var Explained"))
+# print(stress.svmvar)
+# ggsave(filename = "./MLexports/stress.svmvar.png", plot = stress.svmvar, 
+#          device = "png", width = 6,height = 4, units = "in")
+# rm(stress.svmvar)
+png("./MLexports/stress.svmvar.png")
+print(dotchart(stress.svmimp.verb$Overall, labels = stress.svmimp.verb$variable, main = paste("Stress (SVM-Poly.)",
+                                                                                              stress.svmvarex*100,
+                                                                                              "% Var Explained")))
+dev.off()
 
 
 varImp(stress.svm)[1] %>%
@@ -1106,14 +1209,34 @@ varImp(stress.svm)[1] %>%
   arrange(desc(Overall))
 
 
-svmlm <- lm(svmresults$prediction ~ testset2$stressf2)
+stress.svmlm <- lm(stress.svmresults$prediction ~ testset2$stressf2)
 
-paste(round(summary(svmlm)$r.squared,3)*100, "R^2")
+paste(round(summary(stress.svmlm)$r.squared,3)*100, "R^2")
 
-paste(round(summary(svmlm)$adj.r.squared,3)*100, "Adj. R^2")
+paste(round(summary(stress.svmlm)$adj.r.squared,3)*100, "Adj. R^2")
 
 print(stress.svm)
 #to try: ensemble SVM / cross validate across different test/train splits
+
+stress.svmpredmeas <- cbind(stress.svmresults, testset2) %>%
+  ggplot() +
+  geom_point(aes(y = prediction, x = stressf2, color = as.factor(Ni.Vol.Corrected))) +
+  geom_abline(slope = 1, intercept = 0) +
+  guides(color = FALSE) +
+  theme_classic() +
+  scale_x_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  scale_y_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  coord_fixed() +
+  xlab(expression(Scaled~sigma[fr])) +
+  ylab(expression(sigma[fr]~'-'~predicted)) +
+  geom_abline(slope = stress.svmlm$coefficients[2], 
+              intercept = stress.svmlm$coefficients[1],
+              color = "red",linetype = "dashed")
+
+print(stress.svmpredmeas)
+ggsave(filename = "./MLexports/stress.svmpredmeas.png", plot = stress.svmpredmeas, 
+         device = "png", width = 6,height = 4, units = "in")
+rm(stress.svmpredmeas)
 ```
 
 
