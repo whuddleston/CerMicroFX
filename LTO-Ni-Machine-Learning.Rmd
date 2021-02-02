@@ -118,15 +118,15 @@ rfmodel <- trainset %>%
 
 #remove Ni.Vol.Corrected from RF model
 
-conrferr <- plot(rfmodel, main = paste("Conductivity Random Forest -", 
-                        round(last(rfmodel$rsq)*100,2),
-                        "% Var Explained"))
+conrferr <- plot(rfmodel, main = paste("Conductivity RF -", 
+                        round(sqrt(last(rfmodel$mse)),2),
+                        "RMSE"))
 
 conrferrplot <- ggplot() +
   geom_line(size = 1, aes(x = 1:300, y = conrferr)) +
-  labs(title = paste("Conductivity Random Forest - ", 
-                        round(last(rfmodel$rsq)*100,2),
-                        "% Var Explained", sep = "")) +
+  labs(title = paste("Conductivity RF - ", 
+                        round(sqrt(last(rfmodel$mse)),2),
+                        " RMSE", sep = "")) +
   xlab("Trees") +
   ylab("Error") +
   scale_x_continuous(sec.axis = sec_axis(~., labels = NULL)) +
@@ -238,7 +238,10 @@ conrfpredmeas <- cbind(rfresults, testset) %>%
   ylab("Conductivity Predicted") +
   geom_abline(slope = rflm$coefficients[2], 
               intercept = rflm$coefficients[1],
-              color = "red",linetype = "dashed")
+              color = "red",linetype = "dashed") +
+  annotate("text", label = paste(round(summary(rflm)$adj.r.squared,3), "Adj. R^2"), 
+           x = 1, 
+           y = -1)
 
 print(conrfpredmeas)
 ggsave(filename = "./MLexports/conrfpredmeas.png", plot = conrfpredmeas, 
@@ -518,10 +521,10 @@ consvmimp <- varImp(consvm)[1] %>%
   arrange(Overall)
 
 consvmvarex <- consvm$results %>%
-  select(Rsquared) %>%
-  slice(which.max(Rsquared)) %>%
+  select(RMSE) %>%
+  slice(which.min(RMSE)) %>%
   as.numeric() %>%
-  round(3)
+  round(2)
 
 
 
@@ -556,9 +559,9 @@ consvmimp.verb <- consvmimp %>%
 #          device = "png", width = 6,height = 4, units = "in")
 # rm(consvmvar)
 png("./MLexports/consvmvar.png")
-print(dotchart(consvmimp.verb$Overall, labels = consvmimp.verb$variable, main = paste("Conductivity (SVM-Poly.)",
-                                                                                      consvmvarex*100,
-                                                                                      "% Var Explained")))
+print(dotchart(consvmimp.verb$Overall, xlab = "Importance", labels = consvmimp.verb$variable, main = paste("Conductivity SVM -",
+                                                                                      consvmvarex,
+                                                                                      "RMSE")))
 dev.off()
 
 
@@ -592,7 +595,10 @@ consvmpredmeas <- cbind(consvmresults, testset) %>%
   ylab("Conductivity Predicted") +
   geom_abline(slope = consvmlm$coefficients[2], 
               intercept = consvmlm$coefficients[1],
-              color = "red",linetype = "dashed")
+              color = "red",linetype = "dashed") +
+  annotate("text", label = paste(round(summary(consvmlm)$adj.r.squared,3), "Adj. R^2"), 
+           x = 1, 
+           y = -1)
 
 
 print(consvmpredmeas)
@@ -818,15 +824,15 @@ rfmodels <- trainset2 %>%
 
 #remove Ni.Vol.Corrected from RF model
 
-stressrferr <- plot(rfmodels, main = paste("Stress Random Forest -", 
-                        round(last(rfmodels$rsq)*100,2),
-                        "% Var Explained"))
+stressrferr <- plot(rfmodels, main = paste("Stress RF -", 
+                        round(sqrt(last(rfmodels$mse)),2),
+                        " RMSE"))
 
 stressrferrplot <- ggplot() +
   geom_line(size = 1, aes(x = 1:300, y = stressrferr)) +
-  labs(title = paste("Stress Random Forest - ", 
-                        round(last(rfmodels$rsq)*100,2),
-                        "% Var Explained", sep = "")) +
+  labs(title = paste("Stress RF - ", 
+                        round(sqrt(last(rfmodels$mse)),2),
+                        " RMSE", sep = "")) +
   xlab("Trees") +
   ylab("Error") +
   scale_x_continuous(sec.axis = sec_axis(~., labels = NULL)) +
@@ -895,8 +901,10 @@ stressrfpredmeas <- cbind(rfresultss, testset2) %>%
   ylab(expression(sigma[fr]~'-'~predicted)) +
   geom_abline(slope = stress.rf.lm$coefficients[2], 
               intercept = stress.rf.lm$coefficients[1],
-              color = "red",linetype = "dashed")
-  #annotate("text", label = round(last(rfmodels$rsq)*100,2), x = mean(rfresultss$actual), y = mean(rfresultss$prediction)*2)
+              color = "red",linetype = "dashed") +
+  annotate("text", label = paste(round(summary(stress.rf.lm)$adj.r.squared,3), "Adj. R^2"), 
+           x = 1, 
+           y = -1)
 
 print(stressrfpredmeas)
 ggsave(filename = "./MLexports/stressrfpredmeas.png", plot = stressrfpredmeas, 
@@ -1151,16 +1159,12 @@ stress.svmimp <- varImp(stress.svm)[1] %>%
   arrange(Overall)
 
 stress.svmvarex <- stress.svm$results %>%
-  select(Rsquared) %>%
-  slice(which.max(Rsquared)) %>%
-  as.numeric() %>%
-  round(3)
-
-stress.svm$results %>%
   select(RMSE) %>%
   slice(which.min(RMSE)) %>%
   as.numeric() %>%
   round(3)
+
+
 
 
 
@@ -1196,10 +1200,10 @@ ggplot() +
 # ggsave(filename = "./MLexports/stress.svmvar.png", plot = stress.svmvar, 
 #          device = "png", width = 6,height = 4, units = "in")
 # rm(stress.svmvar)
-png("./MLexports/stress.svmvar.png")
-print(dotchart(stress.svmimp.verb$Overall, labels = stress.svmimp.verb$variable, main = paste("Stress (SVM-Poly.)",
-                                                                                              stress.svmvarex*100,
-                                                                                              "% Var Explained")))
+png("./MLexports/stresssvmvar.png")
+print(dotchart(stress.svmimp.verb$Overall, xlab = "Importance", labels = stress.svmimp.verb$variable, main = paste("Stress SVM -",
+                                                                                              stress.svmvarex,
+                                                                                              "RMSE")))
 dev.off()
 
 
@@ -1231,10 +1235,13 @@ stress.svmpredmeas <- cbind(stress.svmresults, testset2) %>%
   ylab(expression(sigma[fr]~'-'~predicted)) +
   geom_abline(slope = stress.svmlm$coefficients[2], 
               intercept = stress.svmlm$coefficients[1],
-              color = "red",linetype = "dashed")
+              color = "red",linetype = "dashed") +
+  annotate("text", label = paste(round(summary(stress.svmlm)$adj.r.squared,3), "Adj. R^2"), 
+           x = 1, 
+           y = -1)
 
 print(stress.svmpredmeas)
-ggsave(filename = "./MLexports/stress.svmpredmeas.png", plot = stress.svmpredmeas, 
+ggsave(filename = "./MLexports/stresssvmpredmeas.png", plot = stress.svmpredmeas, 
          device = "png", width = 6,height = 4, units = "in")
 rm(stress.svmpredmeas)
 ```
