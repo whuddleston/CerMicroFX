@@ -1159,7 +1159,7 @@ df_particles_fine %>%
 ```
 
 ```{r}
-df_particles_fine %>%
+counts_24_35_temp <- df_particles_fine %>%
   select(Label, Labelfine, 
          finecount,countperarea,
          Ni.Vol.Corrected, Temp, hrs, Th.Density,
@@ -1201,6 +1201,11 @@ df_particles_fine %>%
         axis.title.x = element_text(colour = "black", size = 16),
         axis.title.y = element_text(colour = "black", size = 16),
         legend.text = element_text(colour="black", size = 12))
+
+print(counts_24_35_temp)
+ggsave(filename = "./plotexports/plotexportcounts_24_35_temp.png", plot = counts_24_35_temp, 
+       device = "png", width = 6,height = 4, units = "in")
+rm(counts_24_35_temp)
 
 df_particles_fine %>%
   select(Label, Labelfine, 
@@ -1251,7 +1256,7 @@ df_particles_fine %>%
 ```
 
 ```{r}
-df_particles_fine %>%
+counts_700_900 <- df_particles_fine %>%
   select(Label, Labelfine, 
          finecount,countperarea,
          Ni.Vol.Corrected, Temp, hrs, Th.Density,
@@ -1295,6 +1300,11 @@ df_particles_fine %>%
         axis.title.x = element_text(colour = "black", size = 16),
         axis.title.y = element_text(colour = "black", size = 16),
         legend.text = element_text(colour="black", size = 12))
+
+print(counts_700_900)
+ggsave(filename = "./plotexports/plotexportcounts_700_900_ni.png", plot = counts_700_900, 
+       device = "png", width = 6,height = 4, units = "in")
+rm(counts_700_900)
 ```
 
 
