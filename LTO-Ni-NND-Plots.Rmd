@@ -259,6 +259,77 @@ df_particles_fine %>%
 ```{r}
 df_particles_fine %>%
   select(Label, Labelfine, 
+         finecount,countperarea, avennd, fineavennd,
+         Ni.Vol.Corrected, Temp, hrs, Th.Density,
+         stressf, condAve) %>%
+  unique() %>%
+  filter(Temp >= 700) %>%
+  filter(Temp != 800) %>%
+  filter(Temp <= 900) %>%
+  filter(hrs == 5) %>%
+  filter(Labelfine != "WH15B/900-5-50B0008.tiff") %>%
+  ggplot() +
+  geom_boxplot(position = "identity", aes(group = substr(Label,1,4), color = as.factor(Temp), 
+                   x = Ni.Vol.Corrected, y = fineavennd)) +
+  geom_point(size = 3, aes(x = Ni.Vol.Corrected, y = fineavennd, color = as.factor(Temp))) +
+  scale_x_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  scale_y_continuous(limits = c(0, 1.5), sec.axis = sec_axis(~., labels = NULL)) +
+  ylab(expression(NND[Ave]~'['*mu*m*']')) +
+  xlab("Nickel Volume Fraction") +
+  scale_color_manual(values=c("#F8766D", "#00BF7D")) +
+  guides(color = guide_legend(reverse = TRUE, title = expression(Temp~'['*degree*C*']'), 
+                               #override.aes = list(size=4), 
+                               title.theme = element_text(colour = "black",
+                                                          #face = "bold",
+                                                          size = 12))) +
+  theme_classic() +
+  theme(axis.text.x = element_text(colour = "black", size = 16),
+        axis.text.y = element_text(colour = "black", size = 16),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 16),
+        axis.title.y = element_text(colour = "black", size = 16),
+        legend.text = element_text(colour="black", size = 12))
+
+df_particles_fine %>%
+  select(Label, Labelfine, 
+         finecount,countperarea, fineavennd,
+         Ni.Vol.Corrected, Temp, hrs, Th.Density,
+         stressf, condAve) %>%
+  unique() %>%
+  filter(Ni.Vol.Corrected <= 0.35) %>%
+  filter(Ni.Vol.Corrected >= 0.24) %>%
+  filter(Ni.Vol.Corrected != 0.28) %>%
+  filter(hrs == 5) %>%
+  filter(Label != "WH03A") %>%
+  ggplot() +
+  geom_boxplot(position = "identity", aes(group = substr(Label,1,4), color = as.factor(Ni.Vol.Corrected),
+                                          x = Temp, y = fineavennd)) +
+  geom_point(size = 3, aes(x = Temp, y = fineavennd, color = as.factor(Ni.Vol.Corrected))) +
+  scale_x_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  scale_y_continuous(limits = c(0, 1.5), sec.axis = sec_axis(~., labels = NULL)) +
+  ylab(expression(NND[Ave]~'['*mu*m*']')) +
+  xlab(expression(Temp~'['*degree*C*']')) +
+  scale_color_manual(values=c("#00BE67", "#00A9FF")) +
+  guides(colour = guide_legend(reverse = TRUE, title = "Ni Vol.", 
+                               #override.aes = list(size=4), 
+                               title.theme = element_text(colour = "black",
+                                                          #face = "bold",
+                                                          size = 12))) +
+  theme_classic() +
+  theme(axis.text.x = element_text(colour = "black", size = 16),
+        axis.text.y = element_text(colour = "black", size = 16),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 16),
+        axis.title.y = element_text(colour = "black", size = 16),
+        legend.text = element_text(colour="black", size = 12))
+```
+
+
+```{r}
+df_particles_fine %>%
+  select(Label, Labelfine, 
          finecount,countperarea, avennd,
          Ni.Vol.Corrected, Temp, hrs, Th.Density,
          stressf, condAve) %>%
@@ -1229,8 +1300,7 @@ df_particles_fine %>%
   #
   ggplot() +
   geom_boxplot(position = "identity", aes(group = substr(Label,1,4), x = Temp, y = countperarea,
-                   
-                   color = as.factor(Ni.Vol.Corrected))) +
+                                          color = as.factor(Ni.Vol.Corrected))) +
   geom_point(size = 2, aes(y = countperarea, x = Temp, 
                  #size = as.factor(hrs),
                  #shape = as.factor(Temp),

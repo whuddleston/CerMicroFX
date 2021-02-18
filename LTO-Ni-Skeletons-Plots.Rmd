@@ -648,6 +648,267 @@ skeleton.data %>%
         legend.text = element_text(colour="black", size = 12))
 ```
 
+```{r}
+branches_hrs <- skeleton.data %>%
+  mutate(hrs = as.double(hrs)) %>%
+  mutate(hrs2 = hrs) %>%
+  mutate(hrs2 = if_else(hrs == 5, replace(hrs, hrs == 5, 1), hrs2)) %>%
+  mutate(hrs2 = if_else(hrs == 10, replace(hrs, hrs == 10, 2), hrs2)) %>%
+  mutate(hrs2 = if_else(hrs == 50, replace(hrs, hrs == 50, 3), hrs2)) %>%
+  mutate(hrs2 = if_else(hrs == 150, replace(hrs, hrs == 150, 4), hrs2)) %>%
+  filter(Label != "WH13A") %>% #weird outlier
+  filter(Label != "WH15B") %>%
+  filter(Labelfine != "WH06A/1000-5-35A0006.tiff") %>%
+  filter(Labelfine != "WH06C/1000-5-35C0004.tiff") %>%
+  filter(Label != "WH19A") %>%
+  #
+  filter(Temp == 900) %>%
+  filter(Ni.Vol.Corrected == 0.35) %>%
+  #filter(Average.Branch.Length > 0) %>%
+  filter(Branches > 1) %>%
+  ggplot() +
+  geom_boxplot(aes(group = hrs, x = hrs, y = ave.branches)) +
+  geom_point(size = 2, aes(y = ave.branches, x = hrs, 
+                 #size = as.factor(hrs),
+                 shape = as.factor(Temp),
+                 color = as.factor(hrs))) +
+  xlab("Time [hrs]") +
+  ylab(expression(Average~Number~of~Branches)) +
+  scale_y_continuous(limits = c(0,8), 
+                     sec.axis = sec_axis(~., labels = NULL)) +
+  scale_x_log10(breaks = c(5,10,50,150),sec.axis = sec_axis(~., labels = NULL)) +
+  guides(colour = guide_legend(reverse = TRUE, title = "Time [hrs]", 
+                               title.theme = element_text(colour="black", 
+                                                          #face = "bold", 
+                                                          size = 12))) +
+  scale_color_manual(values=c("#00BF7D", "#BF7D00", "#7C00BF", "#BF0041")) +
+  guides(shape = FALSE) +
+  guides(color = FALSE) +
+  theme_classic() +
+  theme(axis.text.x = element_text(colour = "black", size = 16),
+        axis.text.y = element_text(colour = "black", size = 16),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 16),
+        axis.title.y = element_text(colour = "black", size = 16),
+        legend.text = element_text(colour="black", size = 12))
+
+print(branches_hrs)
+ggsave(filename = "./skeletonexports/branches_hrs.png", plot = branches_hrs, 
+       device = "png", width = 6,height = 4, units = "in")
+rm(branches_hrs)
+
+
+
+branches_ni <- skeleton.data %>%
+  mutate(Ni.Vol.Corrected2 = Ni.Vol.Corrected) %>%
+  mutate(Ni.Vol.Corrected2 = if_else(Ni.Vol.Corrected == 0.05,
+                                    replace(Ni.Vol.Corrected, Ni.Vol.Corrected == 0.05, 1), Ni.Vol.Corrected2)) %>%
+  mutate(Ni.Vol.Corrected2 = if_else(Ni.Vol.Corrected == 0.10,
+                                    replace(Ni.Vol.Corrected, Ni.Vol.Corrected == 0.10, 2), Ni.Vol.Corrected2)) %>%
+  mutate(Ni.Vol.Corrected2 = if_else(Ni.Vol.Corrected == 0.20,
+                                    replace(Ni.Vol.Corrected, Ni.Vol.Corrected == 0.20, 3), Ni.Vol.Corrected2)) %>%
+  mutate(Ni.Vol.Corrected2 = if_else(Ni.Vol.Corrected == 0.24,
+                                    replace(Ni.Vol.Corrected, Ni.Vol.Corrected == 0.24, 4), Ni.Vol.Corrected2)) %>%
+  mutate(Ni.Vol.Corrected2 = if_else(Ni.Vol.Corrected == 0.28,
+                                    replace(Ni.Vol.Corrected, Ni.Vol.Corrected == 0.28, 5), Ni.Vol.Corrected2)) %>%
+  mutate(Ni.Vol.Corrected2 = if_else(Ni.Vol.Corrected == 0.35,
+                                    replace(Ni.Vol.Corrected, Ni.Vol.Corrected == 0.35, 6), Ni.Vol.Corrected2)) %>%
+  mutate(Ni.Vol.Corrected2 = if_else(Ni.Vol.Corrected == 0.40,
+                                    replace(Ni.Vol.Corrected, Ni.Vol.Corrected == 0.40, 7), Ni.Vol.Corrected2)) %>%
+  mutate(Ni.Vol.Corrected2 = if_else(Ni.Vol.Corrected == 0.50,
+                                    replace(Ni.Vol.Corrected, Ni.Vol.Corrected == 0.50, 8), Ni.Vol.Corrected2)) %>%
+  filter(Label != "WH13A") %>% #weird outlier
+  filter(Label != "WH15B") %>%
+  filter(Labelfine != "WH06A/1000-5-35A0006.tiff") %>%
+  filter(Labelfine != "WH06C/1000-5-35C0004.tiff") %>%
+  filter(Label != "WH19A") %>%
+  #filter(Average.Branch.Length > 0) %>%
+  filter(Branches > 1) %>%
+  #
+  filter(Temp == 900) %>%
+  filter(hrs == 5) %>%
+  #
+  ggplot() +
+  geom_boxplot(aes(group = Ni.Vol.Corrected, x = Ni.Vol.Corrected, y = ave.branches)) +
+  geom_point(size = 2, aes(y = ave.branches, x = Ni.Vol.Corrected, 
+                 #size = as.factor(hrs),
+                 shape = as.factor(Temp),
+                 color = as.factor(Ni.Vol.Corrected))) +
+  xlab("Nickel Volume Fraction") +
+  ylab(expression(Average~Number~of~Branches)) +
+  scale_y_continuous(limits = c(0,8), 
+                     sec.axis = sec_axis(~., labels = NULL)) +
+  scale_x_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  guides(color = FALSE) +
+  guides(shape = FALSE) +
+  theme_classic() +
+  theme(axis.text.x = element_text(colour = "black", size = 16),
+        axis.text.y = element_text(colour = "black", size = 16),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 16),
+        axis.title.y = element_text(colour = "black", size = 16),
+        legend.text = element_text(colour="black", size = 12))
+
+print(branches_ni)
+ggsave(filename = "./skeletonexports/branches_ni.png", plot = branches_ni, 
+       device = "png", width = 6,height = 4, units = "in")
+rm(branches_ni)
+
+
+branches_temp <- skeleton.data %>%
+  filter(Label != "WH13A") %>% #weird outlier
+  filter(Label != "WH15B") %>%
+  filter(Labelfine != "WH06A/1000-5-35A0006.tiff") %>%
+  filter(Labelfine != "WH06C/1000-5-35C0004.tiff") %>%
+  filter(Label != "WH19A") %>%
+  #filter(Average.Branch.Length > 0) %>%
+  filter(Branches > 1) %>%
+  #
+  filter(Ni.Vol.Corrected == 0.35) %>%
+  filter(hrs == 5) %>%
+  #
+  ggplot() +
+  geom_boxplot(aes(group = Temp, x = Temp, y = ave.branches)) +
+  geom_point(size = 2, aes(y = ave.branches, x = Temp, 
+                 #size = as.factor(hrs),
+                 #shape = as.factor(Temp),
+                 color = as.factor(Temp))) +
+  xlab(expression(Temp~'['*degree*C*']')) +
+  ylab(expression(Average~Number~of~Branches)) +
+  scale_y_continuous(limits = c(0,8), sec.axis = sec_axis(~., labels = NULL)) +
+  scale_x_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  guides(color = FALSE) +
+  theme_classic() +
+  theme(axis.text.x = element_text(colour = "black", size = 16),
+        axis.text.y = element_text(colour = "black", size = 16),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 16),
+        axis.title.y = element_text(colour = "black", size = 16),
+        legend.text = element_text(colour="black", size = 12))
+
+print(branches_temp)
+ggsave(filename = "./skeletonexports/branches_temp.png", plot = branches_temp, 
+       device = "png", width = 6,height = 4, units = "in")
+rm(branches_temp)
+```
+
+```{r}
+branches_ni_700_900 <- skeleton.data %>%
+  mutate(Ni.Vol.Corrected2 = Ni.Vol.Corrected) %>%
+  mutate(Ni.Vol.Corrected2 = if_else(Ni.Vol.Corrected == 0.05,
+                                    replace(Ni.Vol.Corrected, Ni.Vol.Corrected == 0.05, 1), Ni.Vol.Corrected2)) %>%
+  mutate(Ni.Vol.Corrected2 = if_else(Ni.Vol.Corrected == 0.10,
+                                    replace(Ni.Vol.Corrected, Ni.Vol.Corrected == 0.10, 2), Ni.Vol.Corrected2)) %>%
+  mutate(Ni.Vol.Corrected2 = if_else(Ni.Vol.Corrected == 0.20,
+                                    replace(Ni.Vol.Corrected, Ni.Vol.Corrected == 0.20, 3), Ni.Vol.Corrected2)) %>%
+  mutate(Ni.Vol.Corrected2 = if_else(Ni.Vol.Corrected == 0.24,
+                                    replace(Ni.Vol.Corrected, Ni.Vol.Corrected == 0.24, 4), Ni.Vol.Corrected2)) %>%
+  mutate(Ni.Vol.Corrected2 = if_else(Ni.Vol.Corrected == 0.28,
+                                    replace(Ni.Vol.Corrected, Ni.Vol.Corrected == 0.28, 5), Ni.Vol.Corrected2)) %>%
+  mutate(Ni.Vol.Corrected2 = if_else(Ni.Vol.Corrected == 0.35,
+                                    replace(Ni.Vol.Corrected, Ni.Vol.Corrected == 0.35, 6), Ni.Vol.Corrected2)) %>%
+  mutate(Ni.Vol.Corrected2 = if_else(Ni.Vol.Corrected == 0.40,
+                                    replace(Ni.Vol.Corrected, Ni.Vol.Corrected == 0.40, 7), Ni.Vol.Corrected2)) %>%
+  mutate(Ni.Vol.Corrected2 = if_else(Ni.Vol.Corrected == 0.50,
+                                    replace(Ni.Vol.Corrected, Ni.Vol.Corrected == 0.50, 8), Ni.Vol.Corrected2)) %>%
+  filter(Label != "WH13A") %>% #weird outlier
+  filter(Label != "WH15B") %>%
+  filter(Labelfine != "WH06A/1000-5-35A0006.tiff") %>%
+  filter(Labelfine != "WH06C/1000-5-35C0004.tiff") %>%
+  filter(Label != "WH19A") %>%
+  #filter(Average.Branch.Length > 0) %>%
+  filter(Branches > 1) %>%
+  #
+  filter(Temp == 700 | Temp == 900) %>%
+  # filter(Temp >= 700) %>%
+  # filter(Temp != 800) %>%
+  # filter(Temp <= 900) %>%
+  filter(hrs == 5) %>%
+  #
+  ggplot() +
+  geom_boxplot(position = "identity", aes(group = substr(Label,1,4), color = as.factor(Temp),
+                                          x = Ni.Vol.Corrected, y = ave.branches)) +
+  geom_point(size = 2, aes(y = ave.branches, x = Ni.Vol.Corrected, 
+                 #size = as.factor(hrs),
+                 shape = as.factor(hrs),
+                 color = as.factor(Temp))) +
+  xlab("Nickel Volume Fraction") +
+  ylab(expression(Average~Number~of~Branches)) +
+  scale_y_continuous(limits = c(0,8), 
+                     sec.axis = sec_axis(~., labels = NULL)) +
+  scale_x_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  scale_color_manual(values=c("#F8766D", "#00BF7D")) +
+  guides(color = guide_legend(reverse = TRUE, title = expression(Temp~'['*degree*C*']'), 
+                               #override.aes = list(size=4), 
+                               title.theme = element_text(colour = "black",
+                                                          #face = "bold",
+                                                          size = 12))) +
+  guides(shape = FALSE) +
+  theme_classic() +
+  theme(axis.text.x = element_text(colour = "black", size = 16),
+        axis.text.y = element_text(colour = "black", size = 16),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 16),
+        axis.title.y = element_text(colour = "black", size = 16),
+        legend.text = element_text(colour="black", size = 12))
+
+print(branches_ni_700_900)
+ggsave(filename = "./skeletonexports/branches_ni_700_900.png", plot = branches_ni_700_900, 
+       device = "png", width = 6,height = 4, units = "in")
+rm(branches_ni_700_900)
+
+branches_temp_24_35 <- skeleton.data %>%
+  filter(Label != "WH13A") %>% #weird outlier
+  filter(Label != "WH15B") %>%
+  filter(Labelfine != "WH06A/1000-5-35A0006.tiff") %>%
+  filter(Labelfine != "WH06C/1000-5-35C0004.tiff") %>%
+  filter(Label != "WH19A") %>%
+  #filter(Average.Branch.Length > 0) %>%
+  filter(Branches > 1) %>%
+  #
+  filter(Ni.Vol.Corrected == 0.35 | Ni.Vol.Corrected == 0.24) %>%
+  # filter(Ni.Vol.Corrected <= 0.35) %>%
+  # filter(Ni.Vol.Corrected >= 0.24) %>%
+  # filter(Ni.Vol.Corrected != 0.28) %>%
+  filter(hrs == 5) %>%
+  #
+  ggplot() +
+  geom_boxplot(position = "identity", aes(group = substr(Label,1,4),color = as.factor(Ni.Vol.Corrected),
+                                          x = Temp, y = ave.branches)) +
+  geom_point(size = 2, aes(y = ave.branches, x = Temp, 
+                 #size = as.factor(hrs),
+                 #shape = as.factor(Temp),
+                 color = as.factor(Ni.Vol.Corrected))) +
+  xlab(expression(Temp~'['*degree*C*']')) +
+  ylab(expression(Average~Number~of~Branches)) +
+  scale_y_continuous(limits = c(0,8), sec.axis = sec_axis(~., labels = NULL)) +
+  scale_x_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  scale_color_manual(values=c("#00BE67", "#00A9FF")) +
+  guides(colour = guide_legend(reverse = TRUE, title = "Ni Vol.", 
+                               #override.aes = list(size=4), 
+                               title.theme = element_text(colour = "black",
+                                                          #face = "bold",
+                                                          size = 12))) +
+  theme_classic() +
+  theme(axis.text.x = element_text(colour = "black", size = 16),
+        axis.text.y = element_text(colour = "black", size = 16),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 16),
+        axis.title.y = element_text(colour = "black", size = 16),
+        legend.text = element_text(colour="black", size = 12))
+
+print(branches_temp_24_35)
+ggsave(filename = "./skeletonexports/branches_temp_24_35.png", plot = branches_temp_24_35, 
+       device = "png", width = 6,height = 4, units = "in")
+rm(branches_temp_24_35)
+```
+
+
 <!--
 ```{r}
 skeleton.data %>%
@@ -677,7 +938,7 @@ skeleton.data %>%
 -->
 
 ```{r}
-skeleton.data %>%
+branches_maxbranches <- skeleton.data %>%
   filter(Ni.Vol.Corrected == 0.35) %>%
   filter(Branches > 0) %>%
   ggplot() +
@@ -706,6 +967,11 @@ skeleton.data %>%
         axis.title.x = element_text(colour = "black", size = 16),
         axis.title.y = element_text(colour = "black", size = 16),
         legend.text = element_text(colour="black", size = 12))
+
+print(branches_maxbranches)
+ggsave(filename = "./skeletonexports/branches_maxbranches.png", plot = branches_maxbranches, 
+       device = "png", width = 6,height = 4, units = "in")
+rm(branches_maxbranches)
 ```
 
 
@@ -713,7 +979,7 @@ skeleton.data %>%
 
 ```{r}
 
-skelematch %>%
+area_branches <- skelematch %>%
   ggplot() +
   geom_point(aes(x = Area, y = Branches,
                  shape = as.factor(hrs),
@@ -745,6 +1011,10 @@ skelematch %>%
         axis.title.y = element_text(colour = "black", size = 16),
         legend.text = element_text(colour="black", size = 12))
 
+print(area_branches)
+ggsave(filename = "./skeletonexports/area_branches.png", plot = area_branches, 
+       device = "png", width = 6,height = 4, units = "in")
+rm(area_branches)
 ```
 
 
@@ -766,7 +1036,7 @@ skelematch %>%
 ```
 
 ```{r}
-skelematch %>%
+area_maxbranches <- skelematch %>%
   ggplot() +
   geom_point(#alpha = 0.5, 
              aes(x = Area, y = Maximum.Branch.Length, 
@@ -798,6 +1068,11 @@ skelematch %>%
         axis.title.x = element_text(colour = "black", size = 16),
         axis.title.y = element_text(colour = "black", size = 16),
         legend.text = element_text(colour="black", size = 12))
+
+print(area_maxbranches)
+ggsave(filename = "./skeletonexports/area_maxbranches.png", plot = area_maxbranches, 
+       device = "png", width = 6,height = 4, units = "in")
+rm(area_maxbranches)
 ```
 
 
