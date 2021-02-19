@@ -19,22 +19,22 @@ voronoidens %>%
   filter(Label != "WH03A") %>%
   group_by(Labelfine) %>%
   ggplot() +
-  geom_ridgeline(aes(x = x, y = -Temp, 
+  geom_ridgeline(aes(x = x, y = Temp, 
                      fill = as.factor(Temp),
                      #height = count/200, 
                      height = density*100, #height is either density or count
                      group = Labelfine)) + 
 
   geom_rect(color = "black", aes(xmin = avevoronoix-0.01,
-                ymin = -Temp,
+                ymin = Temp,
                 xmax = avevoronoix+0.01,
-                ymax = -Temp+100,
+                ymax = Temp+100,
                 fill = as.factor(Temp))) +
 
   scale_x_log10(sec.axis = sec_axis(~., labels = NULL)) +
-  scale_y_continuous(breaks = c(-700,-800,-900,-1000,-1100),
+  scale_y_continuous(breaks = c(700,800,900,1000,1100),
                      labels = c(700,800,900,1000,1100),
-                     sec.axis = sec_axis(~., breaks = c(-700,-800,-900,-1000), labels = NULL)) +
+                     sec.axis = sec_axis(~., breaks = c(700,800,900,1000), labels = NULL)) +
   xlab(expression(Voronoi~Distance~'['*mu*m*']')) +
   ylab(expression(Sintering~Temperature~'['*degree*C*']')) +
   #

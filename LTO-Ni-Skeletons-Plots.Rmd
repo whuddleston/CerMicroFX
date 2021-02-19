@@ -109,7 +109,7 @@ skeleton.data %>%
         axis.title.y = element_text(colour = "black", size = 16),
         legend.text = element_text(colour="black", size = 12))
 
-skeleton.data %>%
+branches_dist_temp <- skeleton.data %>%
   filter(Label != "WH13A") %>% #weird outlier
   filter(Label != "WH15B") %>%
   filter(Labelfine != "WH06A/1000-5-35A0006.tiff") %>%
@@ -148,6 +148,12 @@ skeleton.data %>%
         axis.title.x = element_text(colour = "black", size = 16),
         axis.title.y = element_text(colour = "black", size = 16),
         legend.text = element_text(colour="black", size = 12))
+
+print(branches_dist_temp)
+ggsave(filename = "./skeletonexports/branches_dist_temp.png", plot = branches_dist_temp, 
+       device = "png", width = 6,height = 4, units = "in")
+rm(branches_dist_temp)
+
 
 skeleton.data %>%
   filter(Label != "WH13A") %>% #weird outlier
@@ -286,7 +292,7 @@ skeleton.data %>%
         axis.title.y = element_text(colour = "black", size = 16),
         legend.text = element_text(colour="black", size = 12))
 
-skeleton.data %>%
+branches_dist_ni <- skeleton.data %>%
   mutate(Ni.Vol.Corrected2 = Ni.Vol.Corrected) %>%
   mutate(Ni.Vol.Corrected2 = if_else(Ni.Vol.Corrected == 0.05,
                                     replace(Ni.Vol.Corrected, Ni.Vol.Corrected == 0.05, 1), Ni.Vol.Corrected2)) %>%
@@ -343,6 +349,11 @@ skeleton.data %>%
         axis.title.x = element_text(colour = "black", size = 16),
         axis.title.y = element_text(colour = "black", size = 16),
         legend.text = element_text(colour="black", size = 12))
+
+print(branches_dist_ni)
+ggsave(filename = "./skeletonexports/branches_dist_ni.png", plot = branches_dist_ni, 
+       device = "png", width = 6,height = 4, units = "in")
+rm(branches_dist_ni)
 
 skeleton.data %>%
   mutate(Ni.Vol.Corrected2 = Ni.Vol.Corrected) %>%
@@ -507,7 +518,7 @@ skeleton.data %>%
         axis.title.y = element_text(colour = "black", size = 16),
         legend.text = element_text(colour="black", size = 12))
 
-skeleton.data %>%
+branches_dist_hrs <- skeleton.data %>%
   mutate(hrs = as.double(hrs)) %>%
   mutate(hrs2 = hrs) %>%
   mutate(hrs2 = if_else(hrs == 5, replace(hrs, hrs == 5, 1), hrs2)) %>%
@@ -553,6 +564,63 @@ skeleton.data %>%
         axis.title.x = element_text(colour = "black", size = 16),
         axis.title.y = element_text(colour = "black", size = 16),
         legend.text = element_text(colour="black", size = 12))
+
+print(branches_dist_hrs)
+ggsave(filename = "./skeletonexports/branches_dist_hrs.png", plot = branches_dist_hrs, 
+       device = "png", width = 6,height = 4, units = "in")
+rm(branches_dist_hrs)
+
+branches_dist_hrs2 <- skeleton.data %>%
+  mutate(hrs = as.double(hrs)) %>%
+  mutate(hrs2 = hrs) %>%
+  mutate(hrs2 = if_else(hrs == 5, replace(hrs, hrs == 5, 1), hrs2)) %>%
+  mutate(hrs2 = if_else(hrs == 10, replace(hrs, hrs == 10, 2), hrs2)) %>%
+  mutate(hrs2 = if_else(hrs == 50, replace(hrs, hrs == 50, 3), hrs2)) %>%
+  mutate(hrs2 = if_else(hrs == 150, replace(hrs, hrs == 150, 4), hrs2)) %>%
+  filter(Label != "WH13A") %>% #weird outlier
+  filter(Label != "WH15B") %>%
+  filter(Labelfine != "WH06A/1000-5-35A0006.tiff") %>%
+  filter(Labelfine != "WH06C/1000-5-35C0004.tiff") %>%
+  filter(Label != "WH19A") %>%
+  #
+  filter(Temp == 900) %>%
+  filter(Ni.Vol.Corrected == 0.35) %>%
+  #filter(Average.Branch.Length > 0) %>%
+  filter(Branches > 0) %>%
+  ggplot() +
+  geom_density_ridges(size = 1, aes(x = Branches, y = hrs2, group = Labelfine, 
+                                    #color = black,
+                                    fill = as.factor(hrs))) +
+  geom_rect(color = "black", aes(xmin = ave.branches-0.01, 
+                ymin = hrs2, 
+                xmax = ave.branches+0.01, 
+                ymax = hrs2 + 1,
+                fill = as.factor(hrs))) +
+  scale_x_log10(sec.axis = sec_axis(~., labels = NULL)) +
+  scale_y_continuous(breaks = c(1:4),
+                     labels = c("5","10","50","150"),
+                     sec.axis = sec_axis(~., breaks = c(1:4), labels = NULL)) +
+  annotation_logticks(sides = "b") +
+  guides(color = FALSE, fill = guide_legend(reverse = TRUE, title = "Time [hrs]", 
+                               #override.aes = list(size=4), 
+                               title.theme = element_text(colour = "black",
+                                                          #face = "bold",
+                                                          size = 12))) +
+  ylab("Time [hrs]") +
+  scale_fill_manual(values=c("#00BF7D", "#BF7D00", "#7C00BF", "#BF0041")) +
+  theme_classic() +
+  theme(axis.text.x = element_text(colour = "black", size = 16),
+        axis.text.y = element_text(colour = "black", size = 16),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 16),
+        axis.title.y = element_text(colour = "black", size = 16),
+        legend.text = element_text(colour="black", size = 12))
+
+print(branches_dist_hrs2)
+ggsave(filename = "./skeletonexports/branches_dist_hrs2.png", plot = branches_dist_hrs2, 
+       device = "png", width = 6,height = 4, units = "in")
+rm(branches_dist_hrs2)
 
 skeleton.data %>%
   mutate(hrs = as.double(hrs)) %>%
