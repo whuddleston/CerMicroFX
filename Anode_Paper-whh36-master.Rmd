@@ -132,23 +132,32 @@ intredsize <- intredsize %>%
   mutate(Tempk = Temp + 273.15) %>%
   mutate(z = 1/Tempk) %>%
   mutate(zz = log(Tempk*R3/hrs))
+```
 
+```{r}
 tempPow <- rbind(one,
-                 intredsize,
+                 #intredsize,
                  powsize) %>%
   #filter(Label != "WH39P") %>%
   #filter(Label != "WH45P") %>%
   filter(Label != "WH03A") %>%
   filter(Ni.Vol.Corrected > 0) %>%
   ggplot() +
-  geom_point(aes(x = Temp, y = R3, size = 1,
+  geom_point(size = 3, stroke = 1.5, aes(x = Temp, y = R3,
+                 shape = as.factor(hrs),
                  color = as.factor(Ni.Vol.Corrected))) +
   xlab(expression(Temp~'['*degree*C*']')) +
   ylab(expression(R^3~'['*mu*m^3*']')) +
   theme_classic() +
-  scale_y_log10(limits = c(0.002,25), sec.axis = sec_axis(~.^(1/3)*2, name = expression(D~'['*mu*m*']'))) +
+  scale_y_log10(limits = c(0.002,40), sec.axis = sec_axis(~.^(1/3)*2, name = expression(D~'['*mu*m*']'))) +
   scale_x_continuous(sec.axis = sec_axis(~., labels = NULL)) +
-  guides(colour = guide_legend(reverse = TRUE, title = "Ni Vol.", override.aes = list(size=4), title.theme = element_text(colour="black", size = 12))) +
+  scale_shape_manual(values=c(1,16, 17, 0, 2)) + #hrs
+  guides(colour = guide_legend(reverse = TRUE, title = "Ni Vol.", 
+                               override.aes = list(size=1.5), 
+                               title.theme = element_text(colour="black", size = 10))) +
+  guides(shape = guide_legend(reverse = TRUE, title = "Time [hrs]",
+                              override.aes = list(size=1.5, stroke = 1),
+                              title.theme = element_text(colour="black", size = 10))) +
   annotation_logticks(sides = "l") +
   guides(size = FALSE) +
   theme(axis.text.x = element_text(colour = "black", size = 16),
@@ -157,7 +166,8 @@ tempPow <- rbind(one,
         axis.line = element_line(colour = 'black', size = 1),
         axis.title.x = element_text(colour = "black", size = 16),
         axis.title.y = element_text(colour = "black", size = 16),
-        legend.text = element_text(colour="black", size = 12))
+        legend.spacing.y = unit(0.0001,'cm'),
+        legend.text = element_text(colour="black", size = 10))
 
 print(tempPow)
 ggsave(filename = "./plotexports/plotexportpow.png", plot = tempPow, 
@@ -283,7 +293,6 @@ one <- merge(one, three, by = "Ni.Vol.Corrected")
 one <- mutate(one, zzz = log(Tempk*R3*nu/(hrs*rhom)))
 
 rm(gammafun)
-rm(three)
 ```
 
 
@@ -340,6 +349,7 @@ ab <- condLTO/condNi
 ```{r}
 df_particles_fine <- read.csv("./data-files/df_particles_fine.csv", header = TRUE)
 
+
 nnddensities <- read.csv("./data-files/nnddensities.csv", header = TRUE)
 ```
 
@@ -353,6 +363,26 @@ df_particles_fine <- df_particles_fine %>%
   select(-Round) %>%
   left_join(., rename(fractSum, aveR3 = R3), by = "Label") #%>%
   #select(-mkeydiam, -mkeythick)
+  #
+df_particles_fine <- df_particles_fine %>%
+  group_by(Labelfine) %>%
+  summarise(aveR3fine = mean(R3)) %>%
+  left_join(df_particles_fine, ., by = "Labelfine")
+
+df_particles_fine <- mutate(df_particles_fine, zzfine = log(Tempk*aveR3fine/hrs))
+
+df_particles_fine <- merge(df_particles_fine, three, by = "Ni.Vol.Corrected")
+df_particles_fine <- mutate(df_particles_fine, zzzfine = log(Tempk*aveR3fine*nu/(hrs*rhom)))
+rm(three)
+
+regmodfine <- df_particles_fine %>%
+  filter(Temp >= 800) %>%
+  dplyr::select(zzfine,z,Ni.Vol.Corrected) %>%
+  lm(zzfine ~ ., data = .)
+
+coef(regmodfine,2)[3]
+
+summary(regmodfine)
 ```
 
 ```{r}

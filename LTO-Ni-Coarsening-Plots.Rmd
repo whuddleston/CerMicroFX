@@ -153,7 +153,109 @@ print(tempy)
 ggsave(filename = "./plotexports/plotexporty.png", plot = tempy, 
        device = "png", width = 6,height = 4, units = "in")
 rm(tempy)
+
+tempyfine <- df_particles_fine %>%
+  filter(Ni.Vol.Corrected != 0) %>%
+  #filter(Ni.Vol.Corrected < 0.5) %>%
+  #filter(Ni.Vol.Corrected > 0.05) %>%
+  #filter(Ni.Vol.Corrected == 0.35) %>%
+  filter(Label != "WH15B") %>%
+  filter(Temp == 900) %>%
+  ggplot(aes(x = hrs, y = aveR3fine, color = as.factor(Ni.Vol.Corrected))) +
+  scale_x_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  scale_y_log10(sec.axis = sec_axis(~.^(1/3)*2, name = expression(D~'['*mu*m*']'))) +
+  ylab(expression(R^3)) +
+  geom_point(size = 3) +
+  geom_smooth(size = 1.25, method = lm, formula = y ~ log(x), se = FALSE) +
+  theme_classic() +
+  annotation_logticks(sides = "l") +
+  xlab("Time [hrs]") +
+  ylab(expression(R^3~'['*mu*m^3*']')) +
+  guides(colour = guide_legend(reverse = TRUE, title = "Ni Vol.", 
+                               #override.aes = list(size=4), 
+                               title.theme = element_text(colour="black",
+                                                          size = 12))) +
+  theme(axis.text.x = element_text(colour = "black", size = 16),
+        axis.text.y = element_text(colour = "black", size = 16),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 16),
+        axis.title.y = element_text(colour = "black", size = 16),
+        legend.text = element_text(colour="black", size = 12))
+
+print(tempyfine)
+ggsave(filename = "./plotexports/plotexportyfine.png", plot = tempyfine, 
+       device = "png", width = 6,height = 4, units = "in")
+rm(tempyfine)
 ```
+
+```{r}
+powsize <- read.csv("./data-files/LTO_Ni_550.csv") %>%
+  dplyr::select(2,3) %>%
+  filter(Area >= 0.005) %>%
+  group_by(Label) %>%
+  mutate(R3 = 1.5*sqrt(Area)^3) %>%
+  summarise(R3 = mean(R3)) %>%
+  mutate(Temp = 550) %>%
+  mutate(hrs = 4) %>%
+  cbind(c(0.05,0.1,0.2,0.24,0.28,0.35,0.5))
+
+colnames(powsize)[5] <- "Ni.Vol.Corrected"
+
+powsize <- powsize %>%
+  mutate(Th.Density = NA) %>%
+  select(Label, Temp, hrs, Ni.Vol.Corrected, Th.Density, R3) %>%
+  mutate(Tempk = Temp + 273.15) %>%
+  mutate(z = 1/Tempk) %>%
+  mutate(zz = log(Tempk*R3/hrs))
+
+powsize %>%
+  pull(R3) %>%
+  mean() %>% "^" (1/3) %>% "*"(2)
+
+tempPowfine <- df_particles_fine %>%
+  #filter(Label != "WH39P") %>%
+  #filter(Label != "WH45P") %>%
+  filter(Label != "WH03A") %>%
+  filter(Labelfine != "WH15B/900-5-50B0008.tiff") %>%
+  filter(Ni.Vol.Corrected > 0) %>%
+  ggplot() +
+  geom_point(size = 3, stroke = 1, aes(x = Temp, y = aveR3fine,
+                 shape = as.factor(hrs),
+                 color = as.factor(Ni.Vol.Corrected))) +
+  geom_point(data = powsize, size = 3, stroke = 1.5,shape = 1, aes(x = Temp, y = R3,
+                 color = as.factor(Ni.Vol.Corrected))) +
+  xlab(expression(Temp~'['*degree*C*']')) +
+  ylab(expression(R^3~'['*mu*m^3*']')) +
+  theme_classic() +
+  scale_y_log10(limits = c(0.002,40), sec.axis = sec_axis(~.^(1/3)*2, name = expression(D~'['*mu*m*']'))) +
+  scale_x_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  scale_shape_manual(values=c(16, 17, 0, 2)) + #hrs
+  guides(colour = guide_legend(reverse = TRUE, title = "Ni Vol.", 
+                               override.aes = list(size=1.5), 
+                               title.theme = element_text(colour="black", size = 12))) +
+  guides(shape = guide_legend(reverse = TRUE, title = "Time [hrs]",
+                              override.aes = list(size=1.5, stroke = 1),
+                              title.theme = element_text(colour="black", size = 12))) +
+  annotation_logticks(sides = "l") +
+  guides(size = FALSE) +
+  theme(axis.text.x = element_text(colour = "black", size = 16),
+        axis.text.y = element_text(colour = "black", size = 16),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 16),
+        axis.title.y = element_text(colour = "black", size = 16),
+        legend.spacing.y = unit(0.0001,'cm'),
+        legend.text = element_text(colour="black", size = 12))
+
+print(tempPowfine)
+ggsave(filename = "./plotexports/plotexportpowfine.png", plot = tempPowfine, 
+    device = "png", width = 6,height = 4, units = "in")
+rm(tempPowfine)
+
+rm(powsize)
+```
+
 
 ```{r}
 #used
@@ -219,6 +321,70 @@ rm(temp4)
 rm(modost)
 ```
 
+<!--
+```{r}
+#pure ostwald model (no composition fitting using regsubsets)
+modostfine <- df_particles_fine %>%
+  filter(Temp >= 800) %>%
+  lm(zzfine~z,.) %>%
+  coef()
+
+df_particles_fine %>%
+  filter(Temp >= 800) %>%
+  lm(zzfine~z,.) %>%
+  summary()
+
+modostfine[2]*-8.617E-5
+
+
+#pure ostwald model (LSW) (no composition fitting using regsubsets) plotting
+temp4fine <- df_particles_fine %>%
+  filter(Temp >= 800) %>%
+  ggplot() +
+  geom_point(size = 2, aes(x = z*1000, y = zzfine, 
+                 shape = as.factor(hrs))) +
+                 #size = Temp,
+                 #color = Ni.Vol.Corrected)) +
+  ylab(expression(ln~(T*R^'3'*'/'~t))) +
+  xlab(expression('1000'*'/'*T~~'['*K*']'^-'1')) +
+  theme_classic() +
+  scale_y_continuous(limits = c(-2,10), 
+                     sec.axis = sec_axis(~., labels = NULL)) +
+  scale_x_continuous(sec.axis = sec_axis(~(1000/.)-273, 
+                                         breaks = scales::pretty_breaks(n = 4),
+                                         name = expression(Temp~'['*degree*C*']'))) +
+  scale_shape_manual(values=c(16, 17, 0, 2)) +
+  guides(shape = guide_legend(title = "Time [hrs]", title.theme = element_text(colour="black", size = 12))) +
+  theme(axis.text.x = element_text(colour = "black", size = 16),
+        axis.text.y = element_text(colour = "black", size = 16),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 16),
+        axis.title.y = element_text(colour = "black", size = 16),
+        legend.text = element_text(colour="black", size = 12)) +
+  geom_abline(slope = as.numeric(modostfine[2])/1000, 
+              intercept = as.numeric(modostfine[1])) +
+  geom_abline(slope = as.numeric(modostfine[2])/1000, 
+              intercept = as.numeric(modostfine[1])+1.015,
+              color = "red",linetype = "dashed") +
+  geom_abline(slope = as.numeric(modostfine[2])/1000, 
+              intercept = as.numeric(modostfine[1])-1.015,
+              color = "red",linetype = "dashed") +
+  annotate("text", x = 0.76, y = 0, fontface = 1,
+           label = paste("Ea =", round(modostfine[2]*-8.617E-5,3),"eV")) +
+  annotate("text", x = 0.76, y = 1, fontface = 1,
+           label = paste("Adj. Rsq =", 0.154))
+
+print(temp4fine)
+
+ggsave(filename = "./plotexports/plotexport4fine.png", plot = temp4fine, 
+       device = "png", width = 6,height = 4, units = "in")
+
+rm(temp4fine)
+rm(modostfine)
+```
+-->
+
 
 ```{r}
 #Ardell MLSW Theory 1972 plotting #used
@@ -282,6 +448,70 @@ rm(tempzzz)
 rm(mlswmod)
 ```
 
+<!--
+```{r}
+#Ardell MLSW Theory 1972 plotting
+
+mlswmodfine <- df_particles_fine %>%
+  filter(Temp >= 800) %>%
+  lm(zzzfine~z,.) %>%
+  summary()
+
+#mlswmod$coefficients[1]
+#mlswmod$coefficients[2]
+#mlswmod$adj.r.squared
+#mlswmod$sigma
+
+tempzzzfine <- df_particles_fine %>%
+  filter(Temp >= 800) %>%
+  ggplot() +
+  geom_point(size = 2, aes(x = z*1000, y = zzzfine, 
+                 shape = as.factor(hrs))) +
+                 #size = Temp,
+                 #color = Ni.Vol.Corrected)) +
+  ylab(expression(ln~(T*R^3*nu/t*rho))) +
+  #xlab("1000/T") +
+  xlab(expression('1000'*'/'*T~~'['*K*']'^-'1')) +
+  theme_classic() +
+  scale_y_continuous(limits = c(-2,10), 
+                     sec.axis = sec_axis(~., labels = NULL)) +
+  scale_x_continuous(sec.axis = sec_axis(~(1000/.)-273, 
+                                         breaks = scales::pretty_breaks(n = 4),
+                                         name = expression(Temp~'['*degree*C*']'))) +
+  scale_shape_manual(values=c(16, 17, 0, 2)) +
+  guides(shape = guide_legend(title = "Time [hrs]", title.theme = element_text(colour="black", size = 12))) +
+  theme(axis.text.x = element_text(colour = "black", size = 16),
+        axis.text.y = element_text(colour = "black", size = 16),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 16),
+        axis.title.y = element_text(colour = "black", size = 16),
+        legend.text = element_text(colour="black", size = 12)) +
+  geom_abline(slope = as.numeric(mlswmodfine$coefficients[2])/1000, 
+              intercept = as.numeric(mlswmodfine$coefficients[1])) +
+  geom_abline(slope = as.numeric(mlswmodfine$coefficients[2])/1000, 
+              intercept = as.numeric(mlswmodfine$coefficients[1])+mlswmodfine$sigma,
+              color = "red",linetype = "dashed") +
+  geom_abline(slope = as.numeric(mlswmodfine$coefficients[2])/1000, 
+              intercept = as.numeric(mlswmodfine$coefficients[1])-mlswmodfine$sigma,
+              color = "red",linetype = "dashed") +
+  annotate("text", x = 0.76, y = 0, fontface = 1,
+           label = paste("Ea =", round(mlswmodfine$coefficients[2]*-8.617E-5,3),"eV")) +
+  annotate("text", x = 0.76, y = 1, fontface = 1,
+           label = paste("Adj. Rsq =", round(mlswmodfine$adj.r.squared,2)))
+
+
+print(tempzzzfine)
+ggsave(filename = "./plotexports/plotexportzzzfine.png", plot = tempzzzfine, 
+       device = "png", width = 6,height = 4, units = "in")
+rm(tempzzzfine)
+
+#paste('\u03b2')
+
+rm(mlswmodfine)
+
+```
+-->
 
 
 ```{r}
@@ -338,6 +568,7 @@ rm(temp6)
 #rm(regmod)
 ```
 
+
 ```{r}
 #used
 
@@ -358,9 +589,9 @@ temp3d <- df_particles_fine %>%
                                     #color = black,
                                     fill = as.factor(Temp))) +
   #
-  geom_rect(color = "black", aes(xmin = aveR3-0.01,
+  geom_rect(color = "black", aes(xmin = aveR3fine-(0.0001),
                 ymin = Temp,
-                xmax = aveR3+0.01,
+                xmax = aveR3fine+(0.0001),
                 ymax = Temp+100,
                 fill = as.factor(Temp))) +
   #
@@ -426,9 +657,9 @@ time3d <- df_particles_fine %>%
   ggplot() +
   geom_density_ridges(size = 1, aes(x = R3, y = hrs2, group = Labelfine, fill = as.factor(hrs))) + 
   #
-  geom_rect(color = "black", aes(xmin = aveR3-0.1,
+  geom_rect(color = "black", aes(xmin = aveR3fine-0.1,
                 ymin = hrs2,
-                xmax = aveR3+0.1,
+                xmax = aveR3fine+0.1,
                 ymax = hrs2+50,
                 fill = as.factor(hrs))) +
   #
@@ -483,6 +714,7 @@ ni3d <- df_particles_fine %>%
   mutate(ni2 = nifix(Ni.Vol.Corrected)) %>%
   #
   filter(Label != "WH15B") %>%
+  filter(Labelfine != "WH15B/900-5-50B0008.tiff") %>%
   filter(Area >= 0.005) %>%
   filter(Label != "WH19") %>%
   filter(Temp == 900) %>%
@@ -491,9 +723,9 @@ ni3d <- df_particles_fine %>%
   geom_density_ridges(size = 1, aes(x = R3, y = ni2-1, group = Labelfine, 
                    fill = as.factor(Ni.Vol.Corrected))) + 
   #
-  geom_rect(color = "black", aes(xmin = aveR3-0.01, 
+  geom_rect(color = "black", aes(xmin = aveR3fine-0.01, 
                 ymin = ni2-1, 
-                xmax = aveR3+0.01, 
+                xmax = aveR3fine+0.01, 
                 ymax = ni2,
                 fill = as.factor(Ni.Vol.Corrected))) +
   #
@@ -532,7 +764,7 @@ rm(nifix)
 
 ```{r}
 ave_r3_Ni <- df_particles_fine %>%
-  select(Label, Labelfine, aveR3,
+  select(Label, Labelfine, aveR3, aveR3fine,
          finecount,countperarea,
          Ni.Vol.Corrected, Temp, hrs, Th.Density,
          stressf, condAve) %>%
@@ -544,8 +776,8 @@ ave_r3_Ni <- df_particles_fine %>%
   filter(hrs == 5) %>%
   #
   ggplot() +
-  geom_boxplot(aes(group = Ni.Vol.Corrected, x = Ni.Vol.Corrected, y = aveR3)) +
-  geom_point(size = 2, aes(y = aveR3, x = Ni.Vol.Corrected, 
+  geom_boxplot(aes(group = Ni.Vol.Corrected, x = Ni.Vol.Corrected, y = aveR3fine)) +
+  geom_point(size = 2, aes(y = aveR3fine, x = Ni.Vol.Corrected, 
                  #size = as.factor(hrs),
                  #shape = as.factor(Temp),
                  color = as.factor(Ni.Vol.Corrected))) +
@@ -573,7 +805,7 @@ ggsave(filename = "./plotexports/plotexportave_r3_Ni.png", plot = ave_r3_Ni,
 rm(ave_r3_Ni)
 
 ave_r3_Temp <- df_particles_fine %>%
-  select(Label, Labelfine, aveR3,
+  select(Label, Labelfine, aveR3, aveR3fine,
          finecount,countperarea,
          Ni.Vol.Corrected, Temp, hrs, Th.Density,
          stressf, condAve) %>%
@@ -586,8 +818,8 @@ ave_r3_Temp <- df_particles_fine %>%
   filter(Ni.Vol.Corrected == 0.35) %>%
   #
   ggplot() +
-  geom_boxplot(aes(group = Temp, x = Temp, y = aveR3)) +
-  geom_point(size = 2, aes(y = aveR3, x = Temp, 
+  geom_boxplot(aes(group = Temp, x = Temp, y = aveR3fine)) +
+  geom_point(size = 2, aes(y = aveR3fine, x = Temp, 
                  #size = as.factor(hrs),
                  #shape = as.factor(Temp),
                  color = as.factor(Temp))) +
@@ -615,7 +847,7 @@ ggsave(filename = "./plotexports/plotexportave_r3_Temp.png", plot = ave_r3_Temp,
 rm(ave_r3_Temp)
 
 ave_r3_hrs <- df_particles_fine %>%
-  select(Label, Labelfine, aveR3,
+  select(Label, Labelfine, aveR3, aveR3fine,
          finecount,countperarea,
          Ni.Vol.Corrected, Temp, hrs, Th.Density,
          stressf, condAve) %>%
@@ -626,8 +858,8 @@ ave_r3_hrs <- df_particles_fine %>%
   filter(Ni.Vol.Corrected == 0.35) %>%
   #
   ggplot() +
-  geom_boxplot(aes(group = hrs, x = hrs, y = aveR3)) +
-  geom_point(size = 2, aes(y = aveR3, x = hrs, 
+  geom_boxplot(aes(group = hrs, x = hrs, y = aveR3fine)) +
+  geom_point(size = 2, aes(y = aveR3fine, x = hrs, 
                  #size = as.factor(hrs),
                  #shape = as.factor(Temp),
                  color = as.factor(hrs))) +
