@@ -11,7 +11,7 @@ knitr::opts_chunk$set(echo = FALSE, warning=TRUE, message=FALSE) #set echo to FA
 ```
 
 ```{r}
-voronoidens %>%
+voronoiTemp <- voronoidens %>%
   filter(Ni.Vol.Corrected == 0.35) %>%
   #filter(Temp == 900) %>%
   filter(hrs == 5) %>%
@@ -39,7 +39,7 @@ voronoidens %>%
   ylab(expression(Sintering~Temperature~'['*degree*C*']')) +
   #
   theme_classic() +
-  guides(fill = guide_legend(reverse = FALSE, title = expression(Temp~'['*degree*C*']'), 
+  guides(fill = guide_legend(reverse = TRUE, title = expression(Temp~'['*degree*C*']'), 
                                #override.aes = list(size=4), 
                                title.theme = element_text(colour = "black",
                                                           #face = "bold",
@@ -51,10 +51,15 @@ voronoidens %>%
         axis.title.x = element_text(colour = "black", size = 16),
         axis.title.y = element_text(colour = "black", size = 16),
         legend.text = element_text(colour="black", size = 12))
+
+print(voronoiTemp)
+ggsave(filename = "./edgeexports/voronoiTemp.png", plot = voronoiTemp, 
+    device = "png", width = 6,height = 4, units = "in")
+rm(voronoiTemp)
 ```
 
 ```{r}
-voronoidens %>%
+voronoiTempave <- voronoidens %>%
   select(Label, Ni.Vol.Corrected, Temp, hrs, Th.Density,
          stressf, condAve,
          avevoronoix, voronoicount) %>%
@@ -86,10 +91,15 @@ voronoidens %>%
         axis.title.x = element_text(colour = "black", size = 16),
         axis.title.y = element_text(colour = "black", size = 16),
         legend.text = element_text(colour="black", size = 12))
+
+print(voronoiTempave)
+ggsave(filename = "./edgeexports/voronoiTempave.png", plot = voronoiTempave, 
+    device = "png", width = 6,height = 4, units = "in")
+rm(voronoiTempave)
 ```
 
 ```{r}
-voronoidens %>%
+voronoiTempcts <- voronoidens %>%
   select(Label, Ni.Vol.Corrected, Temp, hrs, Th.Density,
          stressf, condAve,
          avevoronoix, voronoicount) %>%
@@ -123,10 +133,15 @@ voronoidens %>%
         axis.title.x = element_text(colour = "black", size = 16),
         axis.title.y = element_text(colour = "black", size = 16),
         legend.text = element_text(colour="black", size = 12))
+
+print(voronoiTempcts)
+ggsave(filename = "./edgeexports/voronoiTempcts.png", plot = voronoiTempcts, 
+    device = "png", width = 6,height = 4, units = "in")
+rm(voronoiTempcts)
 ```
 
 ```{r}
-voronoidens %>%
+voronoiNi <- voronoidens %>%
   mutate(Ni.Vol.Corrected2 = Ni.Vol.Corrected) %>%
   mutate(Ni.Vol.Corrected2 = if_else(Ni.Vol.Corrected == 0.05,
                                     replace(Ni.Vol.Corrected, Ni.Vol.Corrected == 0.05, 1), Ni.Vol.Corrected2)) %>%
@@ -185,10 +200,15 @@ voronoidens %>%
         axis.title.x = element_text(colour = "black", size = 16),
         axis.title.y = element_text(colour = "black", size = 16),
         legend.text = element_text(colour="black", size = 12))
+
+print(voronoiNi)
+ggsave(filename = "./edgeexports/voronoiNi.png", plot = voronoiNi, 
+    device = "png", width = 6,height = 4, units = "in")
+rm(voronoiNi)
 ```
 
 ```{r}
-voronoidens %>%
+voronoiNiave <- voronoidens %>%
   select(Label, Labelfine, Ni.Vol.Corrected, Temp, hrs, Th.Density,
          stressf, condAve,
          avevoronoix, voronoicount) %>%
@@ -222,10 +242,15 @@ voronoidens %>%
         axis.title.x = element_text(colour = "black", size = 16),
         axis.title.y = element_text(colour = "black", size = 16),
         legend.text = element_text(colour="black", size = 12))
+
+print(voronoiNiave)
+ggsave(filename = "./edgeexports/voronoiNiave.png", plot = voronoiNiave, 
+    device = "png", width = 6,height = 4, units = "in")
+rm(voronoiNiave)
 ```
 
 ```{r}
-voronoidens %>%
+voronoiNicts <- voronoidens %>%
   select(Label, Labelfine, Ni.Vol.Corrected, Temp, hrs, Th.Density,
          stressf, condAve,
          avevoronoix, voronoicount) %>%
@@ -261,6 +286,11 @@ voronoidens %>%
         axis.title.x = element_text(colour = "black", size = 16),
         axis.title.y = element_text(colour = "black", size = 16),
         legend.text = element_text(colour="black", size = 12))
+
+print(voronoiNicts)
+ggsave(filename = "./edgeexports/voronoiNicts.png", plot = voronoiNicts, 
+    device = "png", width = 6,height = 4, units = "in")
+rm(voronoiNicts)
 ```
 
 ```{r}
@@ -415,7 +445,7 @@ voronoidens %>%
 
 
 ```{r}
-voronoidens %>%
+voronoihrs <- voronoidens %>%
   mutate(hrs = as.double(hrs)) %>%
   mutate(hrs2 = hrs) %>%
   mutate(hrs2 = if_else(hrs == 5, replace(hrs, hrs == 5, 1), hrs2)) %>%
@@ -465,10 +495,15 @@ voronoidens %>%
         axis.title.x = element_text(colour = "black", size = 16),
         axis.title.y = element_text(colour = "black", size = 16),
         legend.text = element_text(colour="black", size = 12))
+
+print(voronoihrs)
+ggsave(filename = "./edgeexports/voronoihrs.png", plot = voronoihrs, 
+    device = "png", width = 6,height = 4, units = "in")
+rm(voronoihrs)
 ```
 
 ```{r}
-voronoidens %>%
+voronoihrsave <- voronoidens %>%
   select(Label, Labelfine, Ni.Vol.Corrected, Temp, hrs, Th.Density,
          stressf, condAve,
          avevoronoix, voronoicount) %>%
@@ -506,10 +541,15 @@ voronoidens %>%
         axis.title.x = element_text(colour = "black", size = 16),
         axis.title.y = element_text(colour = "black", size = 16),
         legend.text = element_text(colour="black", size = 12))
+
+print(voronoihrsave)
+ggsave(filename = "./edgeexports/voronoihrsave.png", plot = voronoihrsave, 
+    device = "png", width = 6,height = 4, units = "in")
+rm(voronoihrsave)
 ```
 
 ```{r}
-voronoidens %>%
+voronoihrscts <- voronoidens %>%
   select(Label, Labelfine, Ni.Vol.Corrected, Temp, hrs, Th.Density,
          stressf, condAve,
          avevoronoix, voronoicount) %>%
@@ -549,6 +589,11 @@ voronoidens %>%
         axis.title.x = element_text(colour = "black", size = 16),
         axis.title.y = element_text(colour = "black", size = 16),
         legend.text = element_text(colour="black", size = 12))
+
+print(voronoihrscts)
+ggsave(filename = "./edgeexports/voronoihrscts.png", plot = voronoihrscts, 
+    device = "png", width = 6,height = 4, units = "in")
+rm(voronoihrscts)
 ```
 
 ```{r}
@@ -788,7 +833,7 @@ voronoidens %>%
 ```
 
 ```{r}
-voronoidens %>%
+voronoinnd <- voronoidens %>%
   select(-x, -count, -density, -Labelfineshort) %>%
   unique() %>%
   #
@@ -834,6 +879,11 @@ voronoidens %>%
         axis.title.x = element_text(colour = "black", size = 16),
         axis.title.y = element_text(colour = "black", size = 16),
         legend.text = element_text(colour="black", size = 12))
+
+print(voronoinnd)
+ggsave(filename = "./edgeexports/voronoinnd.png", plot = voronoinnd, 
+    device = "png", width = 6,height = 4, units = "in")
+rm(voronoinnd)
 ```
 
 ```{r}
@@ -878,7 +928,7 @@ voronoidens %>%
 ```
 
 ```{r}
-voronoidens %>%
+voronoicts <- voronoidens %>%
   select(-x, -count, -density, -Labelfineshort) %>%
   unique() %>%
   #
@@ -925,7 +975,12 @@ voronoidens %>%
         axis.title.y = element_text(colour = "black", size = 16),
         legend.text = element_text(colour="black", size = 12))
 
-voronoidens %>%
+print(voronoicts)
+ggsave(filename = "./edgeexports/voronoicts.png", plot = voronoicts, 
+    device = "png", width = 6,height = 4, units = "in")
+rm(voronoicts)
+
+voronoisize <- voronoidens %>%
   select(-x, -count, -density, -Labelfineshort) %>%
   unique() %>%
   #
@@ -970,6 +1025,11 @@ voronoidens %>%
         axis.title.x = element_text(colour = "black", size = 16),
         axis.title.y = element_text(colour = "black", size = 16),
         legend.text = element_text(colour="black", size = 12))
+
+print(voronoisize)
+ggsave(filename = "./edgeexports/voronoisize.png", plot = voronoisize, 
+    device = "png", width = 6,height = 4, units = "in")
+rm(voronoisize)
 
 voronoidens %>%
   select(-x, -count, -density, -Labelfineshort) %>%
