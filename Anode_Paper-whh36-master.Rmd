@@ -16,7 +16,7 @@ urlcolor: blue
 
 ```{r setup, include=FALSE}
 #SETUP OF LIBRARIES
-knitr::opts_chunk$set(echo = FALSE, warning=FALSE, message=FALSE) #set echo to FALSE to hide code
+knitr::opts_chunk$set(echo = FALSE, warning=TRUE, message=TRUE) #set echo to FALSE to hide code
 #knitr::opts_chunk$set(fig.pos = 'H')
 library(tidyverse)
 library(ggplot2)
@@ -363,26 +363,7 @@ df_particles_fine <- df_particles_fine %>%
   select(-Round) %>%
   left_join(., rename(fractSum, aveR3 = R3), by = "Label") #%>%
   #select(-mkeydiam, -mkeythick)
-  #
-df_particles_fine <- df_particles_fine %>%
-  group_by(Labelfine) %>%
-  summarise(aveR3fine = mean(R3)) %>%
-  left_join(df_particles_fine, ., by = "Labelfine")
 
-df_particles_fine <- mutate(df_particles_fine, zzfine = log(Tempk*aveR3fine/hrs))
-
-df_particles_fine <- merge(df_particles_fine, three, by = "Ni.Vol.Corrected")
-df_particles_fine <- mutate(df_particles_fine, zzzfine = log(Tempk*aveR3fine*nu/(hrs*rhom)))
-rm(three)
-
-regmodfine <- df_particles_fine %>%
-  filter(Temp >= 800) %>%
-  dplyr::select(zzfine,z,Ni.Vol.Corrected) %>%
-  lm(zzfine ~ ., data = .)
-
-coef(regmodfine,2)[3]
-
-summary(regmodfine)
 ```
 
 ```{r}
