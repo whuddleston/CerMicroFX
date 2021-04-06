@@ -1109,7 +1109,7 @@ rm(normstresscond)
 ```
 
 ```{r}
-read.csv("./data-files/cracklengthdata.csv") %>%
+mechhard <- read.csv("./data-files/cracklengthdata.csv") %>%
   mutate(Ni.Vol.Corrected = Ni.Vol.Corrected/100) %>%
   ggplot() +
   geom_boxplot(aes(group = Ni.Vol.Corrected, x = Ni.Vol.Corrected, y = Kccurved)) +
@@ -1139,4 +1139,8 @@ read.csv("./data-files/cracklengthdata.csv") %>%
         axis.title.x = element_text(colour = "black", size = 16),
         axis.title.y = element_text(colour = "black", size = 16),
         legend.text = element_text(colour="black", size = 12))
+
+print(mechhard)
+ggsave(filename = "./plotexports/plotexportmechhard.png", plot = mechhard, device = "png", width = 8, height = 6, units = "in")
+rm(mechhard)
 ```
