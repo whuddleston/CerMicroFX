@@ -540,7 +540,7 @@ fractSum %>%
 ```
 
 ```{r}
-fractSum %>%
+conex <- fractSum %>%
   filter(Temp == 900) %>%
   #
   ggplot() +
@@ -585,4 +585,8 @@ fractSum %>%
   geom_line(data = filter(condModels, Ni.Vol.Corrected > nc100 & condMod100 > 0.1), 
             linetype = "twodash", color = "blue", size = 0.75,
             aes(x = Ni.Vol.Corrected, y = condMod100))
+
+print(conex)
+ggsave(filename = "./plotexports/plotexportconex.png", plot = conex, device = "png", width = 8, height = 6, units = "in")
+rm(conex)
 ```
