@@ -155,7 +155,7 @@ ggsave(filename = "./skeletonexports/branches_dist_temp.png", plot = branches_di
 rm(branches_dist_temp)
 
 
-skeleton.data %>%
+max_branches_temp3d <- skeleton.data %>%
   filter(Label != "WH13A") %>% #weird outlier
   filter(Label != "WH15B") %>%
   filter(Labelfine != "WH06A/1000-5-35A0006.tiff") %>%
@@ -194,6 +194,11 @@ skeleton.data %>%
         axis.title.x = element_text(colour = "black", size = 16),
         axis.title.y = element_text(colour = "black", size = 16),
         legend.text = element_text(colour="black", size = 12))
+
+print(max_branches_temp3d)
+ggsave(filename = "./skeletonexports/max_branches_temp3d.png", plot = max_branches_temp3d, 
+       device = "png", width = 6,height = 4, units = "in")
+rm(max_branches_temp3d)
 
 skeleton.data %>%
   filter(Label != "WH13A") %>% #weird outlier
@@ -355,7 +360,7 @@ ggsave(filename = "./skeletonexports/branches_dist_ni.png", plot = branches_dist
        device = "png", width = 6,height = 4, units = "in")
 rm(branches_dist_ni)
 
-skeleton.data %>%
+max_branches_ni3d <- skeleton.data %>%
   mutate(Ni.Vol.Corrected2 = Ni.Vol.Corrected) %>%
   mutate(Ni.Vol.Corrected2 = if_else(Ni.Vol.Corrected == 0.05,
                                     replace(Ni.Vol.Corrected, Ni.Vol.Corrected == 0.05, 1), Ni.Vol.Corrected2)) %>%
@@ -412,6 +417,12 @@ skeleton.data %>%
         axis.title.x = element_text(colour = "black", size = 16),
         axis.title.y = element_text(colour = "black", size = 16),
         legend.text = element_text(colour="black", size = 12))
+
+print(max_branches_ni3d)
+ggsave(filename = "./skeletonexports/max_branches_ni3d.png", plot = max_branches_ni3d, 
+       device = "png", width = 6,height = 4, units = "in")
+rm(max_branches_ni3d)
+
 
 skeleton.data %>%
   mutate(Ni.Vol.Corrected2 = Ni.Vol.Corrected) %>%
@@ -622,7 +633,7 @@ ggsave(filename = "./skeletonexports/branches_dist_hrs2.png", plot = branches_di
        device = "png", width = 6,height = 4, units = "in")
 rm(branches_dist_hrs2)
 
-skeleton.data %>%
+max_branches_hrs3d <- skeleton.data %>%
   mutate(hrs = as.double(hrs)) %>%
   mutate(hrs2 = hrs) %>%
   mutate(hrs2 = if_else(hrs == 5, replace(hrs, hrs == 5, 1), hrs2)) %>%
@@ -668,6 +679,11 @@ skeleton.data %>%
         axis.title.x = element_text(colour = "black", size = 16),
         axis.title.y = element_text(colour = "black", size = 16),
         legend.text = element_text(colour="black", size = 12))
+
+print(max_branches_hrs3d)
+ggsave(filename = "./skeletonexports/max_branches_hrs3d.png", plot = max_branches_hrs3d, 
+       device = "png", width = 6,height = 4, units = "in")
+rm(max_branches_hrs3d)
 
 skeleton.data %>%
   mutate(hrs = as.double(hrs)) %>%
