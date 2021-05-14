@@ -103,7 +103,7 @@ condhrs <- fractSum %>%
 
 
 print(condhrs)
-ggsave(filename = "./plotexports/plotexportcondhrs.png", plot = condhrs, device = "png", width = 8, height = 6, units = "in")
+ggsave(filename = "./condexports/plotexportcondhrs.png", plot = condhrs, device = "png", width = 8, height = 6, units = "in")
 rm(condhrs)
 
 condtemp <- fractSum %>%
@@ -147,7 +147,7 @@ condtemp <- fractSum %>%
             aes(x = Ni.Vol.Corrected, y = condMod80))
 
 print(condtemp)
-ggsave(filename = "./plotexports/plotexportcondtemp.png", plot = condtemp, device = "png", width = 8, height = 6, units = "in")
+ggsave(filename = "./condexports/plotexportcondtemp.png", plot = condtemp, device = "png", width = 8, height = 6, units = "in")
 rm(condtemp)
 
 
@@ -193,7 +193,7 @@ condhrs2 <- fractSum %>%
         legend.text = element_text(colour="black", size = 12))
 
 print(condhrs2)
-ggsave(filename = "./plotexports/plotexportcondhrs2.png", plot = condhrs2, device = "png", width = 8, height = 6, units = "in")
+ggsave(filename = "./condexports/plotexportcondhrs2.png", plot = condhrs2, device = "png", width = 8, height = 6, units = "in")
 rm(condhrs2)
 ```
 
@@ -285,7 +285,7 @@ condnorm <- fractSum %>%
 
 
 print(condnorm)
-ggsave(filename = "./plotexports/plotexportcondnorm.png", plot = condnorm, device = "png", width = 8, height = 6, units = "in")
+ggsave(filename = "./condexports/plotexportcondnorm.png", plot = condnorm, device = "png", width = 8, height = 6, units = "in")
 rm(condnorm)
 ```
 
@@ -332,7 +332,7 @@ condavemod <- fractSum %>%
         legend.text = element_text(colour="black", size = 12))
 
 print(condavemod)
-ggsave(filename = "./plotexports/plotexportcondavemod.png", plot = condavemod, device = "png", width = 8, height = 6, units = "in")
+ggsave(filename = "./condexports/plotexportcondavemod.png", plot = condavemod, device = "png", width = 8, height = 6, units = "in")
 rm(condavemod)
 ```
 
@@ -376,7 +376,7 @@ condnorm2 <- fractSum %>%
         legend.text = element_text(colour="black", size = 12))
 
 print(condnorm2)
-ggsave(filename = "./plotexports/plotexportcondnorm2.png", plot = condnorm2, device = "png", width = 8, height = 6, units = "in")
+ggsave(filename = "./condexports/plotexportcondnorm2.png", plot = condnorm2, device = "png", width = 8, height = 6, units = "in")
 rm(condnorm2)
 ```
 
@@ -420,7 +420,7 @@ condcal <- fractSum %>%
         legend.text = element_text(colour="black", size = 12))
 
 print(condcal)
-ggsave(filename = "./plotexports/plotexportcondcal.png", plot = condcal, device = "png", width = 8, height = 6, units = "in")
+ggsave(filename = "./condexports/plotexportcondcal.png", plot = condcal, device = "png", width = 8, height = 6, units = "in")
 rm(condcal)
 ```
 
@@ -515,7 +515,7 @@ conzz <- fractSum %>%
         legend.text = element_text(colour="black", size = 12))
 
 print(conzz)
-ggsave(filename = "./plotexports/plotexportconzz.png", plot = conzz, device = "png", width = 8, height = 6, units = "in")
+ggsave(filename = "./condexports/plotexportconzz.png", plot = conzz, device = "png", width = 8, height = 6, units = "in")
 rm(conzz)
 
 fractSum %>%
@@ -587,6 +587,6 @@ conex <- fractSum %>%
             aes(x = Ni.Vol.Corrected, y = condMod100))
 
 print(conex)
-ggsave(filename = "./plotexports/plotexportconex.png", plot = conex, device = "png", width = 8, height = 6, units = "in")
+ggsave(filename = "./condexports/plotexportconex.png", plot = conex, device = "png", width = 8, height = 6, units = "in")
 rm(conex)
 ```
