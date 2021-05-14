@@ -669,48 +669,6 @@ skelematch <- voronoidens %>%
 
 
 ```{r}
-
-#check of nickel composition labels by comparing Ni.Vol.Corrected with totNifrace(total nickel fraction including edges)
-
-voronoidens %>%
-  select(Temp, hrs, Ni.Vol.Corrected, Label, Labelfine, totNifrace) %>%
-  unique() %>%
-  filter(Temp == 800) %>%
-  filter(hrs == 10) %>%
-  #filter(Ni.Vol.Corrected < 0.35) %>%
-  #filter(Ni.Vol.Corrected > 0.15) %>%
-  ggplot() +
-  geom_point(aes(x = Ni.Vol.Corrected, y = totNifrace, color = as.factor(Label)))
-
-voronoidens %>%
-  select(Temp, hrs, Ni.Vol.Corrected, Label, Labelfine, totNifrace) %>%
-  unique() %>%
-  #filter(Temp == 800) %>%
-  #filter(hrs == 5) %>%
-  #filter(Ni.Vol.Corrected < 0.35) %>%
-  #filter(Ni.Vol.Corrected > 0.15) %>%
-  ggplot() +
-  geom_point(aes(x = Ni.Vol.Corrected, y = totNifrace, shape = as.factor(hrs),
-                 color = as.factor(Temp))) +
-  coord_fixed() +
-  geom_abline(slope = 1, intercept = 0)
-
-voronoidens %>%
-  select(Temp, hrs, Ni.Vol.Corrected, Label, Labelfine, totNifrace) %>%
-  unique() %>%
-  filter(Temp == 900) %>%
-  filter(hrs == 5) %>%
-  filter(Ni.Vol.Corrected < 0.35) %>%
-  filter(Ni.Vol.Corrected > 0.24) %>%
-  filter(totNifrace < 0.5) %>%
-  ggplot() +
-  geom_label_repel(aes(x = Ni.Vol.Corrected, y = totNifrace, label = Labelfine)) +
-  geom_point(aes(x = Ni.Vol.Corrected, y = totNifrace, color = as.factor(Temp))) +
-  #coord_fixed() +
-  geom_abline(slope = 1, intercept = 0)
-#error in sample labeling WH10C and WH10D should be labeled WH09C and WH09D
-#Area actually Ni = 0.10 samples, not Ni = 0.20
-#
 #master file finished
 ```
 
