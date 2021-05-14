@@ -48,7 +48,7 @@ ggvmap <- list.files("./data-files/voronoi-txt-files-10k/", full.names = TRUE)[1
   #guides(fill = FALSE)
 
 print(ggvmap)
-ggsave(filename = "./plotexports/plotexportggvmap.png", plot = ggvmap, device = "png", width = 8, height = 6, units = "in")
+ggsave(filename = "./edgeexports/plotexportggvmap.png", plot = ggvmap, device = "png", width = 8, height = 6, units = "in")
 rm(ggvmap)
 ```
 
@@ -89,7 +89,7 @@ ggvmap2 <- list.files("./data-files/voronoi-txt-files-10k/", full.names = TRUE)[
   guides(fill = FALSE, size = FALSE)
 
 print(ggvmap2)
-ggsave(filename = "./plotexports/plotexportggvmap2.png", plot = ggvmap2, device = "png", width = 5, height = 5, units = "in")
+ggsave(filename = "./edgeexports/plotexportggvmap2.png", plot = ggvmap2, device = "png", width = 5, height = 5, units = "in")
 rm(ggvmap2)
 ```
 
