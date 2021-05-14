@@ -102,6 +102,8 @@ df_particles_fine_loop_compile <- data.frame()
 
 nnddensities <- data.frame()
 
+#dir.create("./nndmaps/") #uncomment this line to generate nndmaps for viewing (see below)
+
 for (i in labellist[,1]){
 
 #particle location
@@ -168,6 +170,7 @@ df_particles_fine_loop_compile <- rbind(df_particles_fine_loop_compile,
                                         cbind(i, partloc, partnnd, partnndID, nndR, partnnd2, partnndID2))
 
 
+#ball and stick plot to show nnd connectivity and particle size for nndmaps
 
 # ballandstick <- cbind(partloc, partnnd, partnndID, nndR, partnnd2, partnndID2) %>%
 #   mutate(part2X = partX[nndID]) %>%
@@ -210,6 +213,7 @@ nnddensities <- ggplot_build(nnddist)$data[[1]] %>%
   cbind(., i) %>%
   rbind(nnddensities, .)
 
+#r3 distribution plot for nndmaps
 
 # r3dist <- df_particles_fine %>%
 #   mutate(R3 = 1.5*sqrt(Area)^3) %>%
@@ -237,7 +241,11 @@ nnddensities <- ggplot_build(nnddist)$data[[1]] %>%
 #         legend.text = element_text(colour="black", size = 12))
 #   
 # 
-#   filename1 <- paste("./nndmaps/",substr(i,1,5),"-",which(labellist[,1] == i),".png", sep = "")
+#   filename1 <- paste("./nndmaps/",
+#                       substr(i,1,5),"-",
+#                       substr(i,7,nchar(i)),"-",
+#                       #which(labellist[,1] == i),
+#                       ".png", sep = "")
 #   
 #   temp <- arrangeGrob(ballandstick, nnddist, r3dist, ncol = 1)
 #                       #layout_matrix = rbind(c(1,2), c(1,3)))
