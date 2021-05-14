@@ -66,11 +66,13 @@ rm(r3densities)
 ```
 
 
-
+<!--
 ```{r}
-#peak fit export
+#this code chunk exports the r3 density curve data to txt files for external peak fitting in python
 
-labellist <- df_particles_fine %>%
+dir.create("./peakfitdata/") #creates folder for r3 density curve data files
+
+labellist <- df_particles_fine %>% #creates list of images
   filter(Label != "WH15B") %>%
   #filter out outliers here
   #
@@ -81,7 +83,7 @@ labellist <- df_particles_fine %>%
   unique()
 
 
-nR3 <- 512 #number of points in each estimate, defaule is 512
+nR3 <- 512 #number of points in each density estimate, default is 512
 
 for (i in labellist[,1]){
   tempLOOP <- df_particles_fine %>%
@@ -90,7 +92,8 @@ for (i in labellist[,1]){
     ggplot() +
     geom_density(size = 1, n = nR3, aes(x = R3, y = ..density..)) +
     scale_x_log10(sec.axis = sec_axis(~., labels = NULL),
-                limits = c(0.00001, 1000000),
+                limits = c(0.00001, 1000000), 
+                #critical to set wide limits to include all data and set consistent data range
                 breaks = scales::trans_breaks("log10", function(x) 10^x),
                 labels = trans_format("log10", math_format(10^.x))) +
     theme_classic() +
@@ -117,13 +120,7 @@ rm(nR3)
 rm(tempLOOP)
 rm(labellist)
 rm(i)
-
-
-
-
-
-
 ```
-
+-->
 
 
