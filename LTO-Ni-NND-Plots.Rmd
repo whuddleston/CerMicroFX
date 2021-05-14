@@ -78,7 +78,7 @@ ballandstick <- cbind(partloc, partnnd, partnndID, nndR, partnnd2, partnndID2) %
   guides(color = FALSE)
 
 print(ballandstick)
-ggsave(filename = "./plotexports/plotexportballandstick.png", plot = ballandstick, 
+ggsave(filename = "./nndexports/plotexportballandstick.png", plot = ballandstick, 
        device = "png", width = 3.414,height = 3.414, units = "in")
 ```
 
@@ -175,7 +175,7 @@ nnd_ni <- df_particles_fine %>%
         legend.text = element_text(colour="black", size = 12))
 
 print(nnd_ni)
-ggsave(filename = "./plotexports/plotexportnnd_ni.png", plot = nnd_ni, 
+ggsave(filename = "./nndexports/plotexportnnd_ni.png", plot = nnd_ni, 
        device = "png", width = 6,height = 4, units = "in")
 rm(nnd_ni)
 
@@ -206,7 +206,7 @@ nnd_Temp <- df_particles_fine %>%
         legend.text = element_text(colour="black", size = 12))
 
 print(nnd_Temp)
-ggsave(filename = "./plotexports/plotexportnnd_Temp.png", plot = nnd_Temp, 
+ggsave(filename = "./nndexports/plotexportnnd_Temp.png", plot = nnd_Temp, 
        device = "png", width = 6,height = 4, units = "in")
 rm(nnd_Temp)
 
@@ -239,7 +239,7 @@ nnd_hrs <- df_particles_fine %>%
         legend.text = element_text(colour="black", size = 12))
 
 print(nnd_hrs)
-ggsave(filename = "./plotexports/plotexportnnd_hrs.png", plot = nnd_hrs, 
+ggsave(filename = "./nndexports/plotexportnnd_hrs.png", plot = nnd_hrs, 
        device = "png", width = 6,height = 4, units = "in")
 rm(nnd_hrs)
 ```
@@ -310,7 +310,7 @@ nnd_ni_700_900 <- df_particles_fine %>%
         legend.text = element_text(colour="black", size = 12))
 
 print(nnd_ni_700_900)
-ggsave(filename = "./plotexports/plotexportnnd_ni_700_900.png", plot = nnd_ni_700_900, 
+ggsave(filename = "./nndexports/plotexportnnd_ni_700_900.png", plot = nnd_ni_700_900, 
        device = "png", width = 6,height = 4, units = "in")
 rm(nnd_ni_700_900)
 
@@ -349,7 +349,7 @@ nnd_Temp_24_35 <- df_particles_fine %>%
         legend.text = element_text(colour="black", size = 12))
 
 print(nnd_Temp_24_35)
-ggsave(filename = "./plotexports/plotexportnnd_Temp_24_35.png", plot = nnd_Temp_24_35, 
+ggsave(filename = "./nndexports/plotexportnnd_Temp_24_35.png", plot = nnd_Temp_24_35, 
        device = "png", width = 6,height = 4, units = "in")
 rm(nnd_Temp_24_35)
 ```
@@ -384,7 +384,7 @@ nnd_ni_700 <- df_particles_fine %>%
         legend.text = element_text(colour="black", size = 12))
 
 print(nnd_ni_700)
-ggsave(filename = "./plotexports/plotexportnnd_ni_700.png", plot = nnd_ni_700, 
+ggsave(filename = "./nndexports/plotexportnnd_ni_700.png", plot = nnd_ni_700, 
        device = "png", width = 6,height = 4, units = "in")
 rm(nnd_ni_700)
 
@@ -418,7 +418,7 @@ nnd_Temp_24 <- df_particles_fine %>%
         legend.text = element_text(colour="black", size = 12))
 
 print(nnd_Temp_24)
-ggsave(filename = "./plotexports/plotexportnnd_Temp_24.png", plot = nnd_Temp_24, 
+ggsave(filename = "./nndexports/plotexportnnd_Temp_24.png", plot = nnd_Temp_24, 
        device = "png", width = 6,height = 4, units = "in")
 rm(nnd_Temp_24)
 
@@ -484,7 +484,7 @@ nnd_ni3D_700 <- df_particles_fine %>%
         legend.text = element_text(colour="black", size = 12))
 
 print(nnd_ni3D_700)
-ggsave(filename = "./plotexports/plotexportnnd_ni3D_700.png", plot = nnd_ni3D_700, 
+ggsave(filename = "./nndexports/plotexportnnd_ni3D_700.png", plot = nnd_ni3D_700, 
        device = "png", width = 6,height = 4, units = "in")
 rm(nnd_ni3D_700)
 
@@ -532,7 +532,7 @@ nnd_Temp3D_24 <- df_particles_fine %>%
         legend.text = element_text(colour="black", size = 12))
 
 print(nnd_Temp3D_24)
-ggsave(filename = "./plotexports/plotexportnnd_Temp3D_24.png", plot = nnd_Temp3D_24, 
+ggsave(filename = "./nndexports/plotexportnnd_Temp3D_24.png", plot = nnd_Temp3D_24, 
        device = "png", width = 6,height = 4, units = "in")
 rm(nnd_Temp3D_24)
 ```
@@ -748,7 +748,7 @@ nndtemp3d <- df_particles_fine %>%
 
 
 print(nndtemp3d)
-ggsave(filename = "./plotexports/plotexportnndtemp3d.png", plot = nndtemp3d, 
+ggsave(filename = "./nndexports/plotexportnndtemp3d.png", plot = nndtemp3d, 
        device = "png", width = 6,height = 4, units = "in")
 rm(nndtemp3d)
 ```
@@ -799,7 +799,7 @@ nndtime3d <- df_particles_fine %>%
         legend.text = element_text(colour = "black", size = 12))
 
 print(nndtime3d)
-ggsave(filename = "./plotexports/plotexportnndtime3d.png", plot = nndtime3d, 
+ggsave(filename = "./nndexports/plotexportnndtime3d.png", plot = nndtime3d, 
        device = "png", width = 6,height = 4, units = "in")
 rm(nndtime3d)
 
@@ -855,7 +855,7 @@ nndni3d <- df_particles_fine %>%
         legend.text = element_text(colour="black", size = 12))
 
 print(nndni3d)
-ggsave(filename = "./plotexports/plotexportnndni3d.png", plot = nndni3d, 
+ggsave(filename = "./nndexports/plotexportnndni3d.png", plot = nndni3d, 
        device = "png", width = 6,height = 4, units = "in")
 rm(nndni3d)
 
@@ -894,7 +894,7 @@ nnddistEDA <- df_particles_fine %>%
   theme_classic()
 
 print(nnddistEDA)
-ggsave(filename = "./plotexports/plotexportnnddistEDA.png", plot = nnddistEDA, 
+ggsave(filename = "./nndexports/plotexportnnddistEDA.png", plot = nnddistEDA, 
        device = "png", width = 10,height = 8, units = "in")
 rm(nnddistEDA)
 ```
@@ -925,7 +925,7 @@ aveR3nnddist <- df_particles_fine %>%
   theme_classic()
 
 print(aveR3nnddist)
-ggsave(filename = "./plotexports/plotexportaveR3nnddist.png", plot = aveR3nnddist, 
+ggsave(filename = "./nndexports/plotexportaveR3nnddist.png", plot = aveR3nnddist, 
        device = "png", width = 10,height = 8, units = "in")
 rm(aveR3nnddist)
 ```
@@ -948,7 +948,7 @@ fcpairs <- df_particles_fine %>%
 
 print(fcpairs)
 
-ggsave(filename = "./plotexports/plotexportpairs.png", plot = fcpairs, 
+ggsave(filename = "./nndexports/plotexportpairs.png", plot = fcpairs, 
        device = "png", width = 10,height = 8, units = "in") #ggsave has a dpi setting
 rm(fcpairs)
 ```
@@ -1366,7 +1366,7 @@ counts_ni <- df_particles_fine %>%
         legend.text = element_text(colour="black", size = 12))
 
 print(counts_ni)
-ggsave(filename = "./plotexports/plotexportcounts_ni.png", plot = counts_ni, 
+ggsave(filename = "./nndexports/plotexportcounts_ni.png", plot = counts_ni, 
        device = "png", width = 6,height = 4, units = "in")
 rm(counts_ni)
 
@@ -1405,7 +1405,7 @@ counts_Temp <- df_particles_fine %>%
         legend.text = element_text(colour="black", size = 12))
 
 print(counts_Temp)
-ggsave(filename = "./plotexports/plotexportcounts_Temp.png", plot = counts_Temp, 
+ggsave(filename = "./nndexports/plotexportcounts_Temp.png", plot = counts_Temp, 
        device = "png", width = 6,height = 4, units = "in")
 rm(counts_Temp)
 
@@ -1450,7 +1450,7 @@ counts_hrs <- df_particles_fine %>%
         legend.text = element_text(colour="black", size = 12))
 
 print(counts_hrs)
-ggsave(filename = "./plotexports/plotexportcounts_hrs.png", plot = counts_hrs, 
+ggsave(filename = "./nndexports/plotexportcounts_hrs.png", plot = counts_hrs, 
        device = "png", width = 6,height = 4, units = "in")
 rm(counts_hrs)
 ```
@@ -1500,7 +1500,7 @@ counts_24_35_temp <- df_particles_fine %>%
         legend.text = element_text(colour="black", size = 12))
 
 print(counts_24_35_temp)
-ggsave(filename = "./plotexports/plotexportcounts_24_35_temp.png", plot = counts_24_35_temp, 
+ggsave(filename = "./nndexports/plotexportcounts_24_35_temp.png", plot = counts_24_35_temp, 
        device = "png", width = 6,height = 4, units = "in")
 rm(counts_24_35_temp)
 
@@ -1598,7 +1598,7 @@ counts_700_900 <- df_particles_fine %>%
         legend.text = element_text(colour="black", size = 12))
 
 print(counts_700_900)
-ggsave(filename = "./plotexports/plotexportcounts_700_900_ni.png", plot = counts_700_900, 
+ggsave(filename = "./nndexports/plotexportcounts_700_900_ni.png", plot = counts_700_900, 
        device = "png", width = 6,height = 4, units = "in")
 rm(counts_700_900)
 ```
