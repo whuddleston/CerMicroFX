@@ -72,7 +72,7 @@ ggplot() +
         legend.text = element_text(colour="black", size = 12, face = "bold"))
 
 print(temp00)
-ggsave(filename = "./plotexports/plotexport00.png", plot = temp00, device = "png", width = 8, height = 5.5, units = "in")
+ggsave(filename = "./coarsenexports/plotexport00.png", plot = temp00, device = "png", width = 8, height = 5.5, units = "in")
 rm(temp00)
 ```
 
@@ -133,9 +133,9 @@ temp2 <- one %>%
 
 print(temp1)
 print(temp2)
-ggsave(filename = "./plotexports/plotexport1.png", plot = temp1, 
+ggsave(filename = "./coarsenexports/plotexport1.png", plot = temp1, 
        device = "png", width = 6,height = 4, units = "in")
-ggsave(filename = "./plotexports/plotexport2.png", plot = temp2, 
+ggsave(filename = "./coarsenexports/plotexport2.png", plot = temp2, 
        device = "png", width = 6,height = 4, units = "in")
 rm(temp1)
 rm(temp2)
@@ -173,7 +173,7 @@ tempy <- one %>%
         legend.text = element_text(colour="black", size = 12))
 print(tempy)
 
-ggsave(filename = "./plotexports/plotexporty.png", plot = tempy, 
+ggsave(filename = "./coarsenexports/plotexporty.png", plot = tempy, 
        device = "png", width = 6,height = 4, units = "in")
 rm(tempy)
 
@@ -207,7 +207,7 @@ tempyfine <- df_particles_fine %>%
         legend.text = element_text(colour="black", size = 12))
 
 print(tempyfine)
-ggsave(filename = "./plotexports/plotexportyfine.png", plot = tempyfine, 
+ggsave(filename = "./coarsenexports/plotexportyfine.png", plot = tempyfine, 
        device = "png", width = 6,height = 4, units = "in")
 rm(tempyfine)
 ```
@@ -272,7 +272,7 @@ tempPowfine <- df_particles_fine %>%
         legend.text = element_text(colour="black", size = 12))
 
 print(tempPowfine)
-ggsave(filename = "./plotexports/plotexportpowfine.png", plot = tempPowfine, 
+ggsave(filename = "./coarsenexports/plotexportpowfine.png", plot = tempPowfine, 
     device = "png", width = 6,height = 4, units = "in")
 rm(tempPowfine)
 
@@ -337,7 +337,7 @@ temp4 <- one %>%
 
 print(temp4)
 
-ggsave(filename = "./plotexports/plotexport4.png", plot = temp4, 
+ggsave(filename = "./coarsenexports/plotexport4.png", plot = temp4, 
        device = "png", width = 6,height = 4, units = "in")
 
 rm(temp4)
@@ -400,7 +400,7 @@ temp4fine <- df_particles_fine %>%
 
 print(temp4fine)
 
-ggsave(filename = "./plotexports/plotexport4fine.png", plot = temp4fine, 
+ggsave(filename = "./coarsenexports/plotexport4fine.png", plot = temp4fine, 
        device = "png", width = 6,height = 4, units = "in")
 
 rm(temp4fine)
@@ -462,7 +462,7 @@ tempzzz <- one %>%
 
 
 print(tempzzz)
-ggsave(filename = "./plotexports/plotexportzzz.png", plot = tempzzz, 
+ggsave(filename = "./coarsenexports/plotexportzzz.png", plot = tempzzz, 
        device = "png", width = 6,height = 4, units = "in")
 rm(tempzzz)
 
@@ -525,7 +525,7 @@ tempzzzfine <- df_particles_fine %>%
 
 
 print(tempzzzfine)
-ggsave(filename = "./plotexports/plotexportzzzfine.png", plot = tempzzzfine, 
+ggsave(filename = "./coarsenexports/plotexportzzzfine.png", plot = tempzzzfine, 
        device = "png", width = 6,height = 4, units = "in")
 rm(tempzzzfine)
 
@@ -585,7 +585,7 @@ temp6 <- one %>%
            label = paste("Adj. Rsq =", round(summary(regmod)$adjr2[2],2)))
 
 print(temp6)
-ggsave(filename = "./plotexports/plotexport6.png", plot = temp6, 
+ggsave(filename = "./coarsenexports/plotexport6.png", plot = temp6, 
        device = "png", width = 6,height = 4, units = "in")
 rm(temp6)
 #rm(regmod)
@@ -647,7 +647,7 @@ temp3d <- df_particles_fine %>%
         legend.text = element_text(colour="black", size = 12))
 
 print(temp3d)
-ggsave(filename = "./plotexports/plotexporttemp3d.png", plot = temp3d, 
+ggsave(filename = "./coarsenexports/plotexporttemp3d.png", plot = temp3d, 
        device = "png", width = 6,height = 4, units = "in")
 rm(temp3d)
 ```
@@ -713,7 +713,7 @@ time3d <- df_particles_fine %>%
         legend.text = element_text(colour="black", size = 12))
 
 print(time3d)
-ggsave(filename = "./plotexports/plotexporttime3d.png", plot = time3d, 
+ggsave(filename = "./coarsenexports/plotexporttime3d.png", plot = time3d, 
        device = "png", width = 6,height = 4, units = "in")
 rm(time3d)
 rm(timefix)
@@ -778,7 +778,7 @@ ni3d <- df_particles_fine %>%
         legend.text = element_text(colour="black", size = 12))
 
 print(ni3d)
-ggsave(filename = "./plotexports/plotexportni3d.png", plot = ni3d, 
+ggsave(filename = "./coarsenexports/plotexportni3d.png", plot = ni3d, 
        device = "png", width = 6,height = 4, units = "in")
 rm(ni3d)
 rm(nifix)
@@ -823,7 +823,7 @@ ave_r3_Ni <- df_particles_fine %>%
         legend.text = element_text(colour="black", size = 12))
 
 print(ave_r3_Ni)
-ggsave(filename = "./plotexports/plotexportave_r3_Ni.png", plot = ave_r3_Ni, 
+ggsave(filename = "./coarsenexports/plotexportave_r3_Ni.png", plot = ave_r3_Ni, 
        device = "png", width = 6,height = 4, units = "in")
 rm(ave_r3_Ni)
 
@@ -865,7 +865,7 @@ ave_r3_Temp <- df_particles_fine %>%
         legend.text = element_text(colour="black", size = 12))
 
 print(ave_r3_Temp)
-ggsave(filename = "./plotexports/plotexportave_r3_Temp.png", plot = ave_r3_Temp, 
+ggsave(filename = "./coarsenexports/plotexportave_r3_Temp.png", plot = ave_r3_Temp, 
        device = "png", width = 6,height = 4, units = "in")
 rm(ave_r3_Temp)
 
@@ -906,7 +906,7 @@ ave_r3_hrs <- df_particles_fine %>%
         legend.text = element_text(colour="black", size = 12))
 
 print(ave_r3_hrs)
-ggsave(filename = "./plotexports/plotexportave_r3_hrs.png", plot = ave_r3_hrs, 
+ggsave(filename = "./coarsenexports/plotexportave_r3_hrs.png", plot = ave_r3_hrs, 
        device = "png", width = 6,height = 4, units = "in")
 rm(ave_r3_hrs)
 ```
