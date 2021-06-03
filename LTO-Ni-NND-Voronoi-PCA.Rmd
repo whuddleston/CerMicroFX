@@ -23,6 +23,24 @@ prcomp.NND <- nnddensities %>%
   select(-Labelfine) %>%
   prcomp(scale = TRUE)
 
+prcomp.NND.meta <- nnddensities %>%
+  mutate(Label = substr(Labelfine, 1, 5)) %>%
+  left_join(., fractSum, by = "Label") %>%
+  #
+  #same filters below as R3 PCA
+  filter(Label != "WH13A") %>% #weird outlier
+  filter(Label != "WH15B") %>%
+  filter(Label != "WH21B") %>%
+  filter(Labelfine != "WH06A/1000-5-35A0006.tiff") %>%
+  filter(Labelfine != "WH06C/1000-5-35C0004.tiff") %>%
+  #
+  select(-nndx, -nnddens) %>%
+  unique()
+
+prcomp.NND.meta$Temp <- as.factor(prcomp.NND.meta$Temp)
+prcomp.NND.meta$hrs <- as.factor(prcomp.NND.meta$hrs)
+prcomp.NND.meta$Ni.Vol.Corrected <- as.factor(prcomp.NND.meta$Ni.Vol.Corrected)
+
 
 fviz_eig(prcomp.NND, addlabels = TRUE)
 
@@ -32,7 +50,7 @@ loadingplot(prcomp.NND, comps = 1:5, legendpos = "right", labels = 'numbers', pr
 ```
 
 ```{r}
-autoplot(prcomp.NND, data = prcomp.R3.fractSum,
+autoplot(prcomp.NND, data = prcomp.NND.meta,
          x = 1,
          y = 2,
          colour = "Temp",
@@ -47,7 +65,7 @@ autoplot(prcomp.NND, data = prcomp.R3.fractSum,
   {if(cb == 1)scale_color_scico_d(palette = "batlow", direction = 1, begin = 0, end = 0.7)} +
   theme_classic()
 
-autoplot(prcomp.NND, data = prcomp.R3.fractSum,
+autoplot(prcomp.NND, data = prcomp.NND.meta,
          x = 1,
          y = 2,
          colour = "hrs",
@@ -60,7 +78,7 @@ autoplot(prcomp.NND, data = prcomp.R3.fractSum,
   {if(cb == 1)scale_color_scico_d(palette = "lajolla", direction = 1, begin = 0.4, end = 1)} +
   theme_classic()
 
-autoplot(prcomp.NND, data = prcomp.R3.fractSum,
+autoplot(prcomp.NND, data = prcomp.NND.meta,
          x = 1,
          y = 2,
          colour = "Ni.Vol.Corrected",
@@ -82,7 +100,7 @@ autoplot(prcomp.NND, data = prcomp.R3.fractSum,
 autoplot(prcomp.NND, 
          x = 1,
          y = 2,
-         data = prcomp.R3.fractSum,
+         data = prcomp.NND.meta,
          colour = "Temp",
          shape = "hrs",
          label = FALSE, frame = TRUE) +
@@ -102,25 +120,16 @@ prcomp.NND.rot <- prcomp.NND$rotation %>%
   #filter(r3x >= -4) %>%
   #filter(r3x <= 4) %>%
   select(1:11)
-```
-
-```{r}
-prcomp.NND.rot %>%
-  select(-1) %>%
-  max()
-prcomp.NND.rot %>%
-  select(-1) %>%
-  min()
 
 prcomp.NND.rot %>%
   mutate(nndx = 10^nndx) %>% #log scale fix
   #
   ggplot() +
-  geom_tile(aes(x = nndx, y = 1, height = 0.1, fill = PC1)) +
-  geom_tile(aes(x = nndx, y = 2, height = 0.1, fill = PC2)) +
-  geom_tile(aes(x = nndx, y = 3, height = 0.1, fill = PC3)) +
-  geom_tile(aes(x = nndx, y = 4, height = 0.1, fill = PC4)) +
-  geom_tile(aes(x = nndx, y = 5, height = 0.1, fill = PC5)) +
+  geom_tile(aes(x = nndx, y = 1, width = 0.025, height = 0.1, fill = PC1)) +
+  geom_tile(aes(x = nndx, y = 2, width = 0.025, height = 0.1, fill = PC2)) +
+  geom_tile(aes(x = nndx, y = 3, width = 0.025, height = 0.1, fill = PC3)) +
+  geom_tile(aes(x = nndx, y = 4, width = 0.025, height = 0.1, fill = PC4)) +
+  geom_tile(aes(x = nndx, y = 5, width = 0.025, height = 0.1, fill = PC5)) +
   #
   scale_fill_scico(palette = "roma", limits = c(-0.2,0.2), 
                    direction = -1) +
@@ -142,7 +151,31 @@ prcomp.NND.rot %>%
 
 ```
 
+```{r}
+prcomp.NND.Var = get_pca_ind(prcomp.NND)
 
+#prcomp.NND.Contrib = prcomp.NND.Var$contrib
+
+prcomp.NND.Coord = as.data.frame(prcomp.NND.Var$coord)[1:10]
+
+rm(prcomp.NND.Var)
+
+
+prcomp.NND.results <- prcomp.NND.meta %>%
+  select(Labelfine) %>%
+  cbind(., prcomp.NND.Coord) %>%
+  rename(NND.PC1 = Dim.1,
+         NND.PC2 = Dim.2,
+         NND.PC3 = Dim.3,
+         NND.PC4 = Dim.4,
+         NND.PC5 = Dim.5,
+         NND.PC6 = Dim.6,
+         NND.PC7 = Dim.7,
+         NND.PC8 = Dim.8,
+         NND.PC9 = Dim.9,
+         NND.PC10 = Dim.10)
+
+```
 
 ```{r}
 prcomp.v <- voronoidens %>%
