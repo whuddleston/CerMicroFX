@@ -192,5 +192,149 @@ prcomp.v <- voronoidens %>%
   select(-Labelfine) %>%
   prcomp(scale = TRUE)
   
+prcomp.v.meta <- voronoidens %>%
+  #same filters below as R3 PCA
+  filter(Label != "WH13A") %>% #weird outlier
+  filter(Label != "WH15B") %>%
+  filter(Label != "WH21B") %>%
+  filter(Labelfine != "WH06A/1000-5-35A0006.tiff") %>%
+  filter(Labelfine != "WH06C/1000-5-35C0004.tiff") %>%
+  select(-x,-density,-count) %>%
+  unique()
+
+prcomp.v.meta$Temp <- as.factor(prcomp.v.meta$Temp)
+prcomp.v.meta$hrs <- as.factor(prcomp.v.meta$hrs)
+prcomp.v.meta$Ni.Vol.Corrected <- as.factor(prcomp.v.meta$Ni.Vol.Corrected)
+
+fviz_eig(prcomp.v, addlabels = TRUE)
+
+loadingplot(prcomp.v, comps = 1:5, legendpos = "right", labels = 'numbers', pretty.xlabels = TRUE, #xlab = 'Time (s)',
+            ylab = 'Loading Value')
 ```
 
+```{r}
+autoplot(prcomp.v, data = prcomp.v.meta,
+         x = 1,
+         y = 2,
+         colour = "Temp",
+         #shape = "hrs",
+         label = FALSE, frame = TRUE) +
+  scale_x_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  scale_y_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  geom_hline(yintercept = 0, color = "black", size = 0.5, linetype = "dashed") +
+  geom_vline(xintercept = 0, color = "black", size = 0.5, linetype = "dashed") +
+  scale_shape_manual(values=c(16, 17, 0, 2)) + #hrs
+  {if(cb == 1)scale_fill_scico_d(palette = "batlow", direction = 1, begin = 0, end = 0.7)} +
+  {if(cb == 1)scale_color_scico_d(palette = "batlow", direction = 1, begin = 0, end = 0.7)} +
+  theme_classic()
+
+autoplot(prcomp.v, data = prcomp.v.meta,
+         x = 1,
+         y = 2,
+         colour = "hrs",
+         label = FALSE, frame = TRUE) +
+  scale_x_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  scale_y_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  geom_hline(yintercept = 0, color = "black", size = 0.5, linetype = "dashed") +
+  geom_vline(xintercept = 0, color = "black", size = 0.5, linetype = "dashed") +
+  {if(cb == 1)scale_fill_scico_d(palette = "lajolla", direction = 1, begin = 0.4, end = 1)} +
+  {if(cb == 1)scale_color_scico_d(palette = "lajolla", direction = 1, begin = 0.4, end = 1)} +
+  theme_classic()
+
+autoplot(prcomp.v, data = prcomp.v.meta,
+         x = 1,
+         y = 2,
+         colour = "Ni.Vol.Corrected",
+         #shape = "hrs",
+         label = FALSE, frame = TRUE) +
+  scale_x_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  scale_y_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  geom_hline(yintercept = 0, color = "black", size = 0.5, linetype = "dashed") +
+  geom_vline(xintercept = 0, color = "black", size = 0.5, linetype = "dashed") +
+  {if(cb == 1)scale_fill_scico_d(palette = "roma", direction = 1)} +
+  {if(cb == 1)scale_color_scico_d(palette = "roma", direction = 1)} +
+  labs(colour = "Ni [%]") +
+  labs(fill = "Ni [%]") +
+  scale_shape_manual(values=c(16, 17, 0, 2)) + #hrs
+  theme_classic()
+
+
+
+autoplot(prcomp.v, 
+         x = 1,
+         y = 2,
+         data = prcomp.v.meta,
+         colour = "Temp",
+         shape = "hrs",
+         label = FALSE, frame = TRUE) +
+  scale_x_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  scale_y_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  scale_shape_manual(values=c(16, 17, 0, 2)) + #hrs
+  {if(cb == 1)scale_fill_scico_d(palette = "batlow", direction = 1, begin = 0, end = 0.7)} +
+  {if(cb == 1)scale_color_scico_d(palette = "batlow", direction = 1, begin = 0, end = 0.7)} +
+  theme_classic()
+```
+
+```{r}
+prcomp.v.rot <- prcomp.v$rotation %>%
+  as.data.frame() %>%
+  rownames_to_column(var = "vx") %>%
+  mutate(vx = as.numeric(vx)) %>%
+  #filter(r3x >= -4) %>%
+  #filter(r3x <= 4) %>%
+  select(1:11)
+
+prcomp.v.rot %>%
+  mutate(vx = 10^vx) %>% #log scale fix
+  #
+  ggplot() +
+  geom_tile(aes(x = vx, y = 1, width = 0.025, height = 0.1, fill = PC1)) +
+  geom_tile(aes(x = vx, y = 2, width = 0.025, height = 0.1, fill = PC2)) +
+  geom_tile(aes(x = vx, y = 3, width = 0.025, height = 0.1, fill = PC3)) +
+  geom_tile(aes(x = vx, y = 4, width = 0.025, height = 0.1, fill = PC4)) +
+  geom_tile(aes(x = vx, y = 5, width = 0.025, height = 0.1, fill = PC5)) +
+  #
+  scale_fill_scico(palette = "roma", limits = c(-0.2,0.2), 
+                   direction = -1) +
+  #scale_fill_gradientn(colors = brewer_pal(palette = "RdBu")(5), limits = c(-0.15,0.15)) +
+  scale_x_log10(sec.axis = sec_axis(~., labels = NULL)) +
+  scale_y_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  ylab("PC") +
+  xlab(expression(Nearest~Neighbor~Distance~'['*mu*m*']')) +
+  labs(fill = "PC") +
+  theme_classic() +
+  theme(axis.text.x = element_text(colour = "black", size = 16),
+        axis.text.y = element_text(colour = "black", size = 16),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 16),
+        axis.title.y = element_text(colour = "black", size = 16),
+        legend.text = element_text(colour="black", size = 12))
+
+```
+
+```{r}
+prcomp.v.Var = get_pca_ind(prcomp.v)
+
+#prcomp.NND.Contrib = prcomp.NND.Var$contrib
+
+prcomp.v.Coord = as.data.frame(prcomp.v.Var$coord)[1:10]
+
+rm(prcomp.v.Var)
+
+
+prcomp.v.results <- prcomp.v.meta %>%
+  select(Labelfine) %>%
+  cbind(., prcomp.v.Coord) %>%
+  rename(v.PC1 = Dim.1,
+         v.PC2 = Dim.2,
+         v.PC3 = Dim.3,
+         v.PC4 = Dim.4,
+         v.PC5 = Dim.5,
+         v.PC6 = Dim.6,
+         v.PC7 = Dim.7,
+         v.PC8 = Dim.8,
+         v.PC9 = Dim.9,
+         v.PC10 = Dim.10)
+
+```
