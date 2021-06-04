@@ -456,24 +456,16 @@ voronoidens <- df_particles_fine %>%
 #   unique() %>%
 #   count()
 
-colnames(avevoronoi)[3] <- "Labelfineshort"
-colnames(avevoronoi)[2] <- "voronoicount"
-
 voronoidens <- avevoronoi %>%
-  mutate(Labelfineshort = as.character(Labelfineshort)) %>%
-  mutate(LabelLength = nchar(Labelfineshort)) %>%
-  mutate(Labelfineshort = substr(Labelfineshort, 36, LabelLength-4)) %>%
-  select(-LabelLength) %>%
   left_join(voronoidens, ., by = "Labelfineshort")
 
 rm(avevoronoi)
+
 
 voronoidens <- voronoidens %>%
   group_by(Label) %>%
   summarise(avevcoarse = mean(avevoronoix)) %>%
   left_join(voronoidens, ., by = "Label")
-
-
 
 temp1 <- nine %>%
   select(Labelfine, totNifrac) %>%

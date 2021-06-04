@@ -7,6 +7,7 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
 ```
 
 ```{r}
@@ -67,6 +68,92 @@ voronoidens <- voronoidens %>%
   mutate(Labelfineshort = substr(Labelfineshort, 36, LabelLength-4)) %>%
   select(-LabelLength)
 ```
+
+```{r}
+#5k mag data import
+
+voronoilist5k <- list.files("./data-files/voronoi-txt-files-05k/", full.names = TRUE)
+
+voronoidens5k <- data.frame()
+
+avevoronoi5k <- data.frame()
+
+nR3 <- 512 #number of points in each estimate, defaule is 512
+
+for (i in voronoilist5k){
+  
+  #read in voronoi map data
+  voronoidata5k <- read.table(i, header = FALSE) %>%
+  rownames_to_column() %>%
+  pivot_longer(., cols = starts_with("v"), names_to = "colx", values_to = "intensz") %>%
+  mutate(colx = substr(colx, 2, 6)) %>%
+  mutate(colx = as.numeric(colx)) %>%
+  mutate(rowname = as.numeric(rowname)) %>%
+  mutate(intensz = if_else(intensz != 0, intensz, as.integer(NA))) %>%
+  filter(is.na(intensz) == FALSE) %>%
+  mutate(intensz = intensz*0.1052632) 
+  #raw pixel intensity is half of particle seperation (e.g. multiply * 2)
+  #and convert pixels to micron (e.g multiple * 10um/190)
+  #2*10/190 = 0.1052632
+  
+  #create the density curve
+  voronoidist5k <- voronoidata5k %>%
+  ggplot() +
+  geom_density(n = nR3, aes(x = intensz)) +
+    scale_x_continuous(limits = c(0.05,7.25))
+  
+  #save the density curve to a dataframe
+  voronoidens5k <- ggplot_build(voronoidist5k)$data[[1]] %>%
+  dplyr::select(2,3,6) %>% #second number is 3 for density or 6 for stat(count)
+  cbind(., i) %>%
+  rbind(voronoidens5k, .)
+  
+  #calculate mean in the for loop
+  avevoronoi5k <- voronoidata5k %>%
+  summarise(avevoronoix = mean(intensz)) %>%
+  cbind(., nrow(voronoidata5k), i) %>%
+  rbind(avevoronoi5k, .)
+
+}
+
+rm(voronoidist5k)
+rm(i)
+rm(voronoilist5k)
+rm(voronoidata5k)
+
+colnames(voronoidens5k)[4] <- "Labelfineshort"
+
+voronoidens5k <- voronoidens5k %>%
+  mutate(Labelfineshort = as.character(Labelfineshort)) %>%
+  mutate(LabelLength = nchar(Labelfineshort)) %>%
+  mutate(Labelfineshort = substr(Labelfineshort, 36, LabelLength-4)) %>%
+  select(-LabelLength)
+
+```
+
+
+
+```{r}
+colnames(avevoronoi)[3] <- "Labelfineshort"
+colnames(avevoronoi)[2] <- "voronoicount"
+
+colnames(avevoronoi5k)[3] <- "Labelfineshort"
+colnames(avevoronoi5k)[2] <- "voronoicount"
+
+avevoronoi <- rbind(avevoronoi, avevoronoi5k)
+rm(avevoronoi5k)
+
+voronoidens <- rbind(voronoidens, voronoidens5k)
+rm(voronoidens5k)
+
+avevoronoi <- avevoronoi %>%
+  mutate(Labelfineshort = as.character(Labelfineshort)) %>%
+  mutate(LabelLength = nchar(Labelfineshort)) %>%
+  mutate(Labelfineshort = substr(Labelfineshort, 36, LabelLength-4)) %>%
+  select(-LabelLength)
+```
+
+
 
 ```{r}
 write.table(avevoronoi, file = "./data-files/avevoronoi.csv", row.names = FALSE, sep = ",")
