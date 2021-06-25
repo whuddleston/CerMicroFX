@@ -337,4 +337,10 @@ prcomp.v.results <- prcomp.v.meta %>%
          v.PC9 = Dim.9,
          v.PC10 = Dim.10)
 
+
+
+# merge(prcomp.NND.results, prcomp.v.results, by = "Labelfine") %>%
+#   merge(., select(prcomp.R3.Results, 1:12, stressf, condAve), by = "Labelfine") %>%
+#   write.table(., file = "./PCA-compiled.csv", row.names = FALSE, sep = ",")
+  
 ```
