@@ -112,7 +112,8 @@ rm(split)
 ```{r}
 
 rfmodel <- trainset %>%
-  #select(-Dim.1,-Dim.2,-Dim.3,-Dim.4,-Dim.5,-Dim.6) %>%
+  select(-Dim.1,-Dim.2,-Dim.3,-Dim.4,-Dim.5,-Dim.6) %>%
+  select(-Temp, -hrs) %>%
   select(-Ni.Vol.Corrected) %>%
   randomForest(x = ., y = trainset$condAve, ntree = 300)
 
@@ -491,7 +492,7 @@ print(consvm)
 ```
 -->
 
-
+<!--
 
 ```{r}
 svmctrl <- trainControl(method = "LOOCV", #repeatedcv vs Leave one out cross validation
@@ -606,6 +607,8 @@ ggsave(filename = "./MLexports/consvmpredmeas.png", plot = consvmpredmeas,
          device = "png", width = 6,height = 4, units = "in")
 rm(consvmpredmeas)
 ```
+
+-->
 
 <!--
 ```{r}
@@ -818,8 +821,8 @@ testset2 <- as.data.frame(scale(testset2))
 
 ```{r}
 rfmodels <- trainset2 %>%
-  #select(-Dim.1,-Dim.2,-Dim.3,-Dim.4,-Dim.5,-Dim.6,) %>%
-  select(-Ni.Vol.Corrected) %>%
+  select(-Dim.1,-Dim.2,-Dim.3,-Dim.4,-Dim.5,-Dim.6,) %>%
+  select(-Temp, -hrs, -Ni.Vol.Corrected) %>%
   randomForest(x = ., y = trainset2$stressf, ntree = 300)
 
 #remove Ni.Vol.Corrected from RF model
@@ -1129,7 +1132,7 @@ paste(round(summary(rflm.us)$adj.r.squared,3), "Adj. R^2")
 -->
 
 
-
+<!--
 
 ```{r}
 svmctrl <- trainControl(method = "LOOCV", #repeatedcv vs Leave one out cross validation
@@ -1246,7 +1249,7 @@ ggsave(filename = "./MLexports/stresssvmpredmeas.png", plot = stress.svmpredmeas
 rm(stress.svmpredmeas)
 ```
 
-
+-->
 
 
 
