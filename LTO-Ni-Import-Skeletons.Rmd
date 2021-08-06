@@ -13,7 +13,9 @@ library(tidyverse)
 ```{r}
 skeleton.list <- list.files("./data-files/skeletons/", full.names = TRUE)
 
-#skeleton.dens <- data.frame()
+skel.dens.branch <- data.frame()
+skel.dens.avebranch <- data.frame()
+skel.dens.maxbranch <- data.frame()
 
 skeleton.data <- data.frame()
 
@@ -39,16 +41,36 @@ for (i in skeleton.list){
   skeleton.data <- rbind(skeleton.data, skeleton.temp)
   
   #create the density curves
-  # skeleton.dist <- skeleton.data %>%
-  # ggplot() +
-  # geom_density(n = nR3, aes(x = METRIC)) +
-  #   scale_x_continuous(limits = c(LIM1,LIM2))
+  skeleton.dist.branch <- skeleton.data %>%
+  ggplot() +
+  geom_density(n = nR3, aes(x = Branches)) +
+    scale_x_log10(limits = c(0.01,1000))
+  
+  skeleton.dist.avebranch <- skeleton.data %>%
+  ggplot() +
+  geom_density(n = nR3, aes(x = Average.Branch.Length)) +
+    scale_x_log10(limits = c(0.01,10))
+  
+  skeleton.dist.maxbranch <- skeleton.data %>%
+  ggplot() +
+  geom_density(n = nR3, aes(x = Maximum.Branch.Length)) +
+    scale_x_log10(limits = c(0.01,10))
   
   #save the density curves to a dataframe
-  # skeleton.dens <- ggplot_build(skeleton.dist)$data[[1]] %>%
-  # dplyr::select(2, COLS) %>% #second number is 3 for density or 6 for stat(count)
-  # cbind(., i) %>%
-  # rbind(skeleton.dens, .)
+  skel.dens.branch <- ggplot_build(skeleton.dist.branch)$data[[1]] %>%
+  dplyr::select(2, 3) %>% #second number is 3 for density or 6 for stat(count)
+  cbind(., i) %>%
+  rbind(skel.dens.branch, .)
+  
+  skel.dens.avebranch <- ggplot_build(skeleton.dist.avebranch)$data[[1]] %>%
+  dplyr::select(2, 3) %>% #second number is 3 for density or 6 for stat(count)
+  cbind(., i) %>%
+  rbind(skel.dens.avebranch, .)
+  
+  skel.dens.maxbranch <- ggplot_build(skeleton.dist.maxbranch)$data[[1]] %>%
+  dplyr::select(2, 3) %>% #second number is 3 for density or 6 for stat(count)
+  cbind(., i) %>%
+  rbind(skel.dens.maxbranch, .)
   
   #calculate means in the for loop
   # skeleton.data <- skeleton.temp %>%
@@ -70,6 +92,11 @@ rm(nR3)
 #write.table(skeleton.dens, file = "./data-files/skeleton.dens.csv", row.names = FALSE, sep = ",")
 
 write.table(skeleton.data, file = "./data-files/skeleton.data.csv", row.names = FALSE, sep = ",")
+
+write.table(skel.dens.branch, file = "./data-files/skel.dens.branch.csv", row.names = FALSE, sep = ",")
+write.table(skel.dens.avebranch, file = "./data-files/skel.dens.avebranch.csv", row.names = FALSE, sep = ",")
+write.table(skel.dens.maxbranch, file = "./data-files/skel.dens.maxbranch.csv", row.names = FALSE, sep = ",")
+
 ```
 
 
