@@ -41,17 +41,17 @@ for (i in skeleton.list){
   skeleton.data <- rbind(skeleton.data, skeleton.temp)
   
   #create the density curves
-  skeleton.dist.branch <- skeleton.data %>%
+  skeleton.dist.branch <- skeleton.temp %>%
   ggplot() +
   geom_density(n = nR3, aes(x = Branches)) +
     scale_x_log10(limits = c(0.01,1000))
   
-  skeleton.dist.avebranch <- skeleton.data %>%
+  skeleton.dist.avebranch <- skeleton.temp %>%
   ggplot() +
   geom_density(n = nR3, aes(x = Average.Branch.Length)) +
     scale_x_log10(limits = c(0.01,10))
   
-  skeleton.dist.maxbranch <- skeleton.data %>%
+  skeleton.dist.maxbranch <- skeleton.temp %>%
   ggplot() +
   geom_density(n = nR3, aes(x = Maximum.Branch.Length)) +
     scale_x_log10(limits = c(0.01,10))
@@ -90,6 +90,7 @@ rm(nR3)
 
 ```{r}
 #write.table(skeleton.dens, file = "./data-files/skeleton.dens.csv", row.names = FALSE, sep = ",")
+
 
 write.table(skeleton.data, file = "./data-files/skeleton.data.csv", row.names = FALSE, sep = ",")
 
