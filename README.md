@@ -1,6 +1,6 @@
 # CerMicroFX
 
-Welcome to **CerMicroFX**: **C**eramic-matrix-composite **M**icrostructure **F**eature e**X**traction. 
+Welcome to **CerMicroFX**: **Cer**amic-matrix-composite **Micro**structure **F**eature e**X**traction. 
 
 All parts of this project were written for a specific dataset of Li4Ti5O12 - nickel anode composites that I studied for my Ph.D. dissertation on multifunctional all-solid-state lithium-ion batteries.
 
@@ -10,7 +10,7 @@ The abstract and full text of my dissertation are available from [this link](htt
 
 # Setup
 
-`the possibility of successfully navigating an asteroid field is approximately 3,720 to 1 - C-3PO`
+`. . . the possibility of successfully navigating an asteroid field is approximately 3,720 to 1 - C-3PO`
 
 First, clone this bitbucket repo to set up your own local working copy.
 
@@ -29,15 +29,15 @@ You can then run the imports files, master file, and plot generation Rmd files. 
 
 This project has multiple sections.
 
-## Import Rmd Files
+* Import Rmd Files
 
 These Rmd files take the data generated from ImageJ and modify or create new data files, usually saved as csv files in the data-files folder for quick import in the master file.
 
-## Master File
+* Master File
 
 This is the file you will run the most. It imports the data saved from the import Rmd files, modifies the data for use in the plot generation files.
 
-## Plot Generation Rmd Files
+* Plot Generation Rmd Files
 
 These Rmd files take the modified data that was imported in the master file, and make nice plots.
 
@@ -45,7 +45,7 @@ For example, the Coarsening-Plots.Rmd file contains plots that pertain to coarse
 These files can generally be run in any order with one exception.
 **The R3-PCA.Rmd file must be run in order to run the Machine-Learning.Rmd file**
 
-## Export Folders
+* Export Folders
 
 These folders contain the saved plot exports from specific plot generation files, e.g. Machine-Learning.Rmd exports to MLexports.
 
