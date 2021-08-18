@@ -1,4 +1,4 @@
-![Figure 1: Center-to-center nearest neighbor distances are displayed as red line segments. The Voronoi spacing map displays the edge-to-edge distance between particles, quantified for the continuous matrix. The Skeleton map overlay shows skeletons and branches generated from particle shapes.](montage.png)
+![Author: William Huddleston](montage.png)
 
 # CerMicroFX
 
