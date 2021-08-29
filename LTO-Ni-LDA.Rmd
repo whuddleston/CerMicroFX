@@ -344,16 +344,22 @@ perc.lda.prediction$x %>%
 names(tempscaled)
 
 tempscaled %>%
-  select(-condAve) %>%
+  select(-Dim.1,-Dim.2,-Dim.3,-Dim.4,-Dim.5,-Dim.6) %>%
+  select(-Temp, -hrs) %>%
+  select(-Ni.Vol.Corrected) %>%
   fviz_nbclust(FUNcluster = kmeans)
 
 tempscaled %>%
-  select(-condAve) %>%
+  select(-Dim.1,-Dim.2,-Dim.3,-Dim.4,-Dim.5,-Dim.6) %>%
+  select(-Temp, -hrs) %>%
+  select(-Ni.Vol.Corrected) %>%
   fviz_nbclust(FUNcluster = kmeans, method = "wss")
 
 cond.kmean <- tempscaled %>%
-  select(-condAve) %>%
-  kmeans(., centers = 2)
+  select(-Dim.1,-Dim.2,-Dim.3,-Dim.4,-Dim.5,-Dim.6) %>%
+  select(-Temp, -hrs) %>%
+  select(-Ni.Vol.Corrected) %>%
+  kmeans(., centers = 3)
 
 
 data.frame("clustid" = cond.kmean$cluster) %>%
