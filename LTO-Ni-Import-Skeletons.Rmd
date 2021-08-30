@@ -11,7 +11,11 @@ library(tidyverse)
 ```
 
 ```{r}
-skeleton.list <- list.files("./data-files/skeletons/", full.names = TRUE)
+skeleton.list <- list.files("./data-files/skeletons10k/", full.names = TRUE)
+skeleton.list5k <- list.files("./data-files/skeletons05k/", full.names = TRUE)
+
+skeleton.list <- c(skeleton.list,skeleton.list5k)
+rm(skeleton.list5k)
 
 skel.dens.branch <- data.frame()
 skel.dens.avebranch <- data.frame()
@@ -20,6 +24,7 @@ skel.dens.maxbranch <- data.frame()
 skeleton.data <- data.frame()
 
 nR3 <- 512 #number of points in each estimate, defaule is 512
+
 
 for (i in skeleton.list){
   
@@ -36,7 +41,7 @@ for (i in skeleton.list){
     rename(Quadruple.points = X..Quadruple.points) %>%
     cbind(., i) %>%
     rename(Labelfine = i) %>%
-    mutate(Labelfine = substr(Labelfine,24,nchar(i)-4))
+    mutate(Labelfine = substr(Labelfine,27,nchar(i)-4))
   
   skeleton.data <- rbind(skeleton.data, skeleton.temp)
   
@@ -107,7 +112,11 @@ write.table(skel.dens.maxbranch, file = "./data-files/skel.dens.maxbranch.csv", 
 
 
 ```{r}
-skeleton.branches.list <- list.files("./data-files/skeleton.branch.info/", full.names = TRUE)
+skeleton.branches.list <- list.files("./data-files/skeleton.branch.info10k/", full.names = TRUE)
+skeleton.branches.list5k <- list.files("./data-files/skeleton.branch.info05k/", full.names = TRUE)
+
+skeleton.branches.list <- c(skeleton.branches.list,skeleton.branches.list5k)
+rm(skeleton.branches.list5k)
 
 skeleton.branches.data <- data.frame()
 
