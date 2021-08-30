@@ -1,0 +1,131 @@
+---
+title: "FIJI"
+author: "whh36"
+date: "5/6/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+#this chunk checks to see if you downloaded the images correctly
+
+dir.exists("./WHX_05k_HC")
+
+dir.exists("./WHX_10k_HC")
+
+list.files("./WHX_05k_HC", full.names = TRUE) %>%
+   length()
+
+list.files("./WHX_10k_HC", full.names = TRUE) %>%
+   length()
+```
+
+```{r}
+#README
+#This file uses ImageJ/FIJI macros to generate the datasets used in the master file
+#You need to define the below path so R studio can find your ImageJ program
+
+#Path to your ImageJ-win64.exe application file (CHANGE BASED ON OS/FILES)
+Path0 <- "C:/Users/William/Documents/fiji-win64/Fiji.app/ImageJ-win64.exe"
+```
+
+
+
+```{r}
+#Path to ImageJ-macros (DO NOT CHANGE)
+
+#Particle Size analyzer run on 10k images exclude edge particles
+Path1 <- "./cxz416_whh36_PSD_script_fine_excludeEdge-RELPATH.ijm"
+
+#Particle Size analyzer run on 10k images include edge particles
+Path2 <- "./cxz416_whh36_PSD_script_fine_includeEdge-RELPATH.ijm"
+
+#Particle Size analyzer run on 5k images exclude edge particles
+Path3 <- "./cxz416_whh36_PSD_script_5k_fine_excludeEdge-RELPATH.ijm"
+
+#Particle Size analyzer run on 5k images include edge particles
+Path4 <- "./cxz416_whh36_PSD_script_5k_fine_includeEdge-RELPATH.ijm"
+
+#Voronoi map data generator run on 10k images include edge particles
+Path5 <- "./cxz416_whh36_mmh174_PSD_script_fine_includeEdge_voronoi-RELPATH.ijm"
+
+#Voronoi map data generator run on 05k images include edge particles
+Path5.5 <- "./cxz416_whh36_mmh174_PSD_script_5k_fine_includeEdge_voronoi-RELPATH.ijm"
+
+#Skeleton data generator run on 10k images exclude edge particles
+Path6 <- "./cxz416_whh36_mmh174_PSD_script_fine_excludeEdge_skeleton-RELPATH.ijm"
+
+#Skeleton data generator run on 5k images exclude edge particles
+Path6.5 <- "./cxz416_whh36_mmh174_PSD_script_5k_fine_excludeEdge_skeleton-RELPATH.ijm"
+```
+
+<!--
+The Below code chunks run each ImageJ macro in a headless (no GUI) mode
+-->
+
+```{r}
+shell(paste(Path0, "--headless --console -macro", Path1), 
+      ignore.stderr = TRUE) #If things break, set to FALSE to view console output
+print("PSD.Data.Verbose-edge.csv created in data-files")
+```
+
+```{r}
+shell(paste(Path0, "--headless --console -macro", Path2), 
+      ignore.stderr = TRUE)
+print("PSD.Data.Verbose+edge.csv created in data-files")
+```
+
+```{r}
+shell(paste(Path0, "--headless --console -macro", Path3), 
+      ignore.stderr = TRUE)
+print("PSD.Data.Verbose.5k-edge.csv created in data-files")
+```
+
+```{r}
+shell(paste(Path0, "--headless --console -macro", Path4), 
+      ignore.stderr = TRUE)
+print("PSD.Data.Verbose.5k+edge.csv created in data-files")
+```
+
+```{r}
+dir.create("./data-files/voronoi-txt-files-10k")
+
+shell(paste(Path0, "--headless --console -macro", Path5), 
+      ignore.stderr = TRUE)
+print("Voronoi-txt-files created in data-files")
+```
+
+```{r}
+dir.create("./data-files/voronoi-txt-files-05k")
+
+shell(paste(Path0, "--headless --console -macro", Path5.5), 
+      ignore.stderr = TRUE)
+print("Voronoi-txt-files created in data-files")
+```
+
+
+```{r}
+dir.create("./data-files/skeletons")
+dir.create("./data-files/skeleton.branch.info")
+
+
+#NOTE: Skeleton macro must be run with GUI enabled (not headless)
+#multiple windows of results must be created for each image to be saved
+#you will see ImageJ open, data generated, and windows closed for each image
+
+shell(paste(Path0, "--console -macro", Path6), 
+      ignore.stderr = TRUE)
+print("Skeleton data 10k created in data-files")
+```
+
+```{r}
+dir.create("./data-files/skeletons5k")
+dir.create("./data-files/skeleton.branch.info5k")
+
+shell(paste(Path0, "--console -macro", Path6.5), 
+      ignore.stderr = TRUE)
+print("Skeleton data 5k created in data-files")
+```
