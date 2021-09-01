@@ -51,6 +51,9 @@ These files can generally be run in any order with one exception.
 
 These folders contain the saved plot exports from specific plot generation files, e.g. Machine-Learning.Rmd exports to MLexports.
 
+* ImageJ - FIJI Macros
+
+These .ijm files run on the raw SEM image files and save the data to data-files folder. The FIJI.rmd file is designed to auto-run all the image j macros to reduce the size of the repo in the future. Right now the repo should be good to go as-cloned, you should not need to run the FIJI.rmd file.
 
 ## Contributing
 
