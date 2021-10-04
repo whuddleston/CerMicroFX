@@ -300,7 +300,7 @@ prcomp.v.rot %>%
   scale_x_log10(sec.axis = sec_axis(~., labels = NULL)) +
   scale_y_continuous(sec.axis = sec_axis(~., labels = NULL)) +
   ylab("PC") +
-  xlab(expression(Nearest~Neighbor~Distance~'['*mu*m*']')) +
+  #xlab(expression(Nearest~Neighbor~Distance~'['*mu*m*']')) +
   labs(fill = "PC") +
   theme_classic() +
   theme(axis.text.x = element_text(colour = "black", size = 16),
@@ -344,3 +344,131 @@ prcomp.v.results <- prcomp.v.meta %>%
 #   write.table(., file = "./PCA-compiled.csv", row.names = FALSE, sep = ",")
   
 ```
+
+```{r}
+voronoidens %>%
+  #filter(Ni.Vol.Corrected == 0.35) %>%
+  #filter(Temp == 900) %>%
+  filter(hrs == 5) %>%
+  filter(Label != "WH13A") %>%
+  filter(Label != "WH03A") %>%
+  #group_by(Labelfine) %>%
+  #
+  mutate(x = round(x, digits = 3)) %>%
+  mutate(vx = x) %>%
+  select(-x) %>%
+  #filter(vx >= -4) %>%
+  #filter(vx <= 4) %>%
+  left_join(., prcomp.v.rot, by = "vx") %>%
+  #
+  #mutate(r3x = 10^r3x) %>%
+  #
+  ggplot(aes(fill = PC1)) +
+  geom_ridgeline_gradient(aes(x = vx, y = Temp, 
+                     #fill = PC1,
+                     #height = count/200, 
+                     height = density*100, #height is either density or count
+                     group = Labelfine)) + 
+
+  # geom_rect(color = "black", aes(xmin = avevoronoix-0.01,
+  #               ymin = Temp,
+  #               xmax = avevoronoix+0.01,
+  #               ymax = Temp+100,
+  #               fill = as.factor(Temp))) +
+
+  geom_tile(aes(x = vx, y = 1200, width = 0.025, height = 10)) +
+  scale_fill_scico(palette = "roma", limits = c(-0.15,0.15), direction = -1) +
+  scale_x_log10(sec.axis = sec_axis(~., labels = NULL)) +
+  scale_y_continuous(breaks = c(700,800,900,1000,1100),
+                     labels = c(700,800,900,1000,1100),
+                     sec.axis = sec_axis(~., breaks = c(700,800,900,1000), labels = NULL)) +
+  xlab(expression(Voronoi~Distance~'['*mu*m*']')) +
+  ylab(expression(Sintering~Temperature~'['*degree*C*']')) +
+  #
+  theme_classic() +
+  # guides(fill = guide_legend(reverse = TRUE, title = expression(Temp~'['*degree*C*']'), 
+  #                              #override.aes = list(size=4), 
+  #                              title.theme = element_text(colour = "black",
+  #                                                         #face = "bold",
+  #                                                         size = 12))) +
+  theme(axis.text.x = element_text(colour = "black", size = 16),
+        axis.text.y = element_text(colour = "black", size = 16),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 16),
+        axis.title.y = element_text(colour = "black", size = 16),
+        legend.text = element_text(colour="black", size = 12))
+```
+
+```{r}
+voronoidens %>%
+  mutate(Ni.Vol.Corrected2 = Ni.Vol.Corrected) %>%
+  mutate(Ni.Vol.Corrected2 = if_else(Ni.Vol.Corrected == 0.05,
+                                    replace(Ni.Vol.Corrected, Ni.Vol.Corrected == 0.05, 1), Ni.Vol.Corrected2)) %>%
+  mutate(Ni.Vol.Corrected2 = if_else(Ni.Vol.Corrected == 0.10,
+                                    replace(Ni.Vol.Corrected, Ni.Vol.Corrected == 0.10, 2), Ni.Vol.Corrected2)) %>%
+  mutate(Ni.Vol.Corrected2 = if_else(Ni.Vol.Corrected == 0.20,
+                                    replace(Ni.Vol.Corrected, Ni.Vol.Corrected == 0.20, 3), Ni.Vol.Corrected2)) %>%
+  mutate(Ni.Vol.Corrected2 = if_else(Ni.Vol.Corrected == 0.24,
+                                    replace(Ni.Vol.Corrected, Ni.Vol.Corrected == 0.24, 4), Ni.Vol.Corrected2)) %>%
+  mutate(Ni.Vol.Corrected2 = if_else(Ni.Vol.Corrected == 0.28,
+                                    replace(Ni.Vol.Corrected, Ni.Vol.Corrected == 0.28, 5), Ni.Vol.Corrected2)) %>%
+  mutate(Ni.Vol.Corrected2 = if_else(Ni.Vol.Corrected == 0.35,
+                                    replace(Ni.Vol.Corrected, Ni.Vol.Corrected == 0.35, 6), Ni.Vol.Corrected2)) %>%
+  mutate(Ni.Vol.Corrected2 = if_else(Ni.Vol.Corrected == 0.40,
+                                    replace(Ni.Vol.Corrected, Ni.Vol.Corrected == 0.40, 7), Ni.Vol.Corrected2)) %>%
+  mutate(Ni.Vol.Corrected2 = if_else(Ni.Vol.Corrected == 0.50,
+                                    replace(Ni.Vol.Corrected, Ni.Vol.Corrected == 0.50, 8), Ni.Vol.Corrected2)) %>%
+  
+  #filter(Temp == 900) %>%
+  #filter(Ni.Vol.Corrected == 0.35) %>%
+  filter(hrs == 5) %>%
+  filter(Label != "WH13A") %>%
+  filter(Labelfine != "WH15B/900-5-50B0008.tiff") %>%
+  #group_by(Labelfine) %>%
+  #
+  mutate(x = round(x, digits = 3)) %>%
+  mutate(vx = x) %>%
+  select(-x) %>%
+  #filter(vx >= -4) %>%
+  #filter(vx <= 4) %>%
+  left_join(., prcomp.v.rot, by = "vx") %>%
+  #
+  ggplot(aes(fill = PC1)) +
+  geom_ridgeline_gradient(aes(x = vx, y = Ni.Vol.Corrected2,
+                              color = as.factor(Temp),
+                     #fill = as.factor(Ni.Vol.Corrected),
+                     #height = count/20000, 
+                     height = density, #height is either density or count
+                     group = Labelfine)) + 
+  #geom_tile(aes(x = vx, y = 1200, width = 0.025, height = 10)) +
+  scale_fill_scico(palette = "roma", limits = c(-0.15,0.15), direction = -1) +
+  #
+  # geom_rect(color = "black", aes(xmin = avevoronoix-0.01, 
+  #               ymin = Ni.Vol.Corrected2, 
+  #               xmax = avevoronoix+0.01, 
+  #               ymax = Ni.Vol.Corrected2+1,
+  #               fill = as.factor(Ni.Vol.Corrected))) +
+  #
+  scale_x_log10(sec.axis = sec_axis(~., labels = NULL)) +
+  scale_y_continuous(breaks = c(1:8),
+                     labels = c("0.05", "0.10", "0.20", "0.24", "0.28", "0.35", "0.40", "0.50"),
+                     sec.axis = sec_axis(~., breaks = c(1:8), labels = NULL)) +
+  xlab(expression(Voronoi~Distance~'['*mu*m*']')) +
+  ylab("Nickel Volume Fraction") +
+  #
+  theme_classic() +
+  # guides(colour = FALSE, fill = guide_legend(reverse = TRUE, title = "PC", 
+  #                              #override.aes = list(size=4), 
+  #                              title.theme = element_text(colour = "black",
+  #                                                         #face = "bold",
+  #                                                         size = 12))) +
+  theme(axis.text.x = element_text(colour = "black", size = 16),
+        axis.text.y = element_text(colour = "black", size = 16),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 16),
+        axis.title.y = element_text(colour = "black", size = 16),
+        legend.text = element_text(colour="black", size = 12))
+```
+
