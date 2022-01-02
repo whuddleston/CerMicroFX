@@ -1,0 +1,234 @@
+---
+title: "LTO-Ni-Paper"
+author: "whh36"
+date: "12/22/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(ggpubr)
+
+save <- 1
+```
+
+```{r}
+
+line1 <- expression(Average~Voronoi~Distance~'['*mu*m*']')
+line2 <- expression(NND[Ave]~'['*mu*m*']')
+
+voronoiTempave <- voronoidens %>%
+  select(Label, Ni.Vol.Corrected, Temp, hrs, Th.Density,
+         stressf, condAve, fineavennd, countperarea,
+         avevoronoix, voronoicount) %>%
+  unique() %>%
+  #
+  filter(Ni.Vol.Corrected == 0.35) %>%
+  filter(hrs == 5) %>%
+  filter(Label != "WH13A") %>%
+  filter(Label != "WH03A") %>%
+  #
+  mutate(stresso = stressf*exp((1.05-Th.Density/100)*coef(fracmodel)[2]*-1)) %>%
+  #
+  ggplot() +
+  #
+  geom_boxplot(color = "purple", aes(group = Temp, x = Temp, y = avevoronoix)) +
+  geom_point(size = 2, color = "purple", aes(y = avevoronoix, x = Temp, 
+                 #size = as.factor(hrs),
+                 #shape = as.factor(Temp),
+                 #color = as.factor(Temp)
+                 )) +
+  #
+  geom_boxplot(color = "black", aes(group = Temp, x = Temp, y = countperarea)) +
+  geom_point(size = 2, color = "black", aes(y = countperarea, x = Temp, 
+                 #size = as.factor(hrs),
+                 #shape = as.factor(Temp),
+                 #color = as.factor(Temp)
+                 )) +
+  #
+  geom_boxplot(color = "red", aes(group = Temp, x = Temp, y = fineavennd)) +
+  geom_point(size = 2, color = "red", aes(x = Temp, y = fineavennd, color = as.factor(Temp))) +
+  #
+  xlab(expression(Temp~'['*degree*C*']')) +
+  #ylab(expression(Relative~Particle~Spacing~'['*mu*m*']')) +
+  ylab("") +
+  #scale_y_continuous(limits = c(0,2.5), sec.axis = sec_axis(~., labels = NULL)) +
+  scale_x_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  scale_y_continuous(limits = c(0,2.5), sec.axis = sec_axis(~., 
+                                                            name = expression(Counts~Per~Area~'['*cts*'/'*mu*m^2*']')
+                                                            )
+                     ) +
+  #guides(color = FALSE) +
+  theme_classic() +
+  
+  coord_cartesian(clip = "off") +
+  annotation_custom(text_grob(line1, color = "purple", rot = 90, face = "bold", size = 16), 
+                    xmin = 510, xmax = 510, ymin = 1.25, ymax = 1.25) +
+  annotation_custom(text_grob(line2, color = "red", rot = 90, face = "bold" , size = 16),
+                    xmin = 555, xmax = 555, ymin = 1.25, ymax = 1.25) +
+  
+  theme(axis.text.x = element_text(colour = "black", size = 16),
+        axis.text.y = element_text(colour = "black", size = 16),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 16),
+        axis.title.y = element_text(colour = "black", size = 16),
+        plot.margin = margin(10,10,10,45),
+        legend.text = element_text(colour="black", size = 12))
+
+print(voronoiTempave)
+{if(save == 1)ggsave(filename = "./paperexports/relspace-cts-Temp.png", plot = voronoiTempave, 
+    device = "png", width = 6,height = 4, units = "in")}
+rm(voronoiTempave)
+
+```
+
+
+```{r}
+
+line1 <- expression(Average~Voronoi~Distance~'['*mu*m*']')
+line2 <- expression(NND[Ave]~'['*mu*m*']')
+
+voronoiNiave <- voronoidens %>%
+  select(Label, Labelfine, Ni.Vol.Corrected, Temp, hrs, Th.Density,
+         stressf, condAve, fineavennd, countperarea,
+         avevoronoix, voronoicount) %>%
+  unique() %>%
+  #
+  filter(Temp == 900) %>%
+  #filter(Ni.Vol.Corrected == 0.35) %>%
+  filter(hrs == 5) %>%
+  filter(Label != "WH13A") %>%
+  filter(Labelfine != "WH15B/900-5-50B0008.tiff") %>%
+  #
+  mutate(stresso = stressf*exp((1.05-Th.Density/100)*coef(fracmodel)[2]*-1)) %>%
+  #
+  ggplot() +
+  #
+  geom_boxplot(color = "purple", aes(group = Ni.Vol.Corrected, x = Ni.Vol.Corrected, y = avevoronoix)) +
+  geom_point(size = 2, color = "purple", aes(y = avevoronoix, x = Ni.Vol.Corrected, 
+                 #size = as.factor(hrs),
+                 shape = as.factor(Temp),
+                 #color = as.factor(Ni.Vol.Corrected)
+                 )) +
+  #
+  geom_boxplot(color = "black", aes(group = Ni.Vol.Corrected, x = Ni.Vol.Corrected, y = countperarea)) +
+  geom_point(size = 2, color = "black", aes(y = countperarea, x = Ni.Vol.Corrected, 
+                 #size = as.factor(hrs),
+                 shape = as.factor(Temp),
+                 #color = as.factor(Ni.Vol.Corrected)
+                 )) +
+  #
+  geom_boxplot(color = "red", aes(group = Ni.Vol.Corrected, x = Ni.Vol.Corrected, y = fineavennd)) +
+  geom_point(size = 2, color = "red", aes(x = Ni.Vol.Corrected, y = fineavennd, #color = as.factor(Ni.Vol.Corrected)
+                                         )) +
+  #
+  xlab("Nickel Volume Fraction") +
+  #ylab(expression(Relative~Particle~Spacing~'['*mu*m*']')) +
+  ylab("") +
+  #scale_y_continuous(limits = c(0,2.5), sec.axis = sec_axis(~., labels = NULL)) +
+  scale_x_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  scale_y_continuous(limits = c(0,2.5), sec.axis = sec_axis(~., 
+                                                            name = expression(Counts~Per~Area~'['*cts*'/'*mu*m^2*']')
+                                                            )
+                     ) +
+  #guides(color = FALSE) +
+  guides(shape = FALSE) +
+  theme_classic() +
+  
+  coord_cartesian(clip = "off") +
+  annotation_custom(text_grob(line1, color = "purple", rot = 90, face = "bold", size = 16), 
+                    xmin = -0.12, xmax = -0.12, ymin = 1.25, ymax = 1.25) +
+  annotation_custom(text_grob(line2, color = "red", rot = 90, face = "bold" , size = 16),
+                    xmin = -0.075, xmax = -0.075, ymin = 1.25, ymax = 1.25) +
+  
+  theme(axis.text.x = element_text(colour = "black", size = 16),
+        axis.text.y = element_text(colour = "black", size = 16),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 16),
+        axis.title.y = element_text(colour = "black", size = 16),
+        plot.margin = margin(10,10,10,45),
+        legend.text = element_text(colour="black", size = 12))
+
+print(voronoiNiave)
+{if(save == 1)ggsave(filename = "./paperexports/relspace-cts-ni.png", plot = voronoiNiave, 
+    device = "png", width = 6,height = 4, units = "in")}
+rm(voronoiNiave)
+```
+
+```{r}
+
+line1 <- expression(Average~Voronoi~Distance~'['*mu*m*']')
+line2 <- expression(NND[Ave]~'['*mu*m*']')
+
+voronoihrsave <- voronoidens %>%
+  select(Label, Labelfine, Ni.Vol.Corrected, Temp, hrs, Th.Density,
+         stressf, condAve, fineavennd, countperarea,
+         avevoronoix, voronoicount) %>%
+  unique() %>%
+  #
+  filter(Temp == 900) %>%
+  filter(Ni.Vol.Corrected == 0.35) %>%
+  #filter(hrs == 5) %>%
+  filter(Label != "WH13A") %>%
+  filter(Labelfine != "WH15B/900-5-50B0008.tiff") %>%
+  #
+  mutate(stresso = stressf*exp((1.05-Th.Density/100)*coef(fracmodel)[2]*-1)) %>%
+  #
+  ggplot() +
+  #
+  geom_boxplot(color = "purple", aes(group = hrs, x = hrs, y = avevoronoix)) +
+  geom_point(size = 2, color = "purple", aes(y = avevoronoix, x = hrs, 
+                 #size = as.factor(hrs),
+                 shape = as.factor(Temp),
+                 #color = as.factor(Ni.Vol.Corrected)
+                 )) +
+  #
+  geom_boxplot(color = "black", aes(group = hrs, x = hrs, y = countperarea)) +
+  geom_point(size = 2, color = "black", aes(y = countperarea, x = hrs, 
+                 #size = as.factor(hrs),
+                 shape = as.factor(Temp),
+                 #color = as.factor(Ni.Vol.Corrected)
+                 )) +
+  #
+  geom_boxplot(color = "red", aes(group = hrs, x = hrs, y = fineavennd)) +
+  geom_point(size = 2, color = "red", aes(x = hrs, y = fineavennd, #color = as.factor(Ni.Vol.Corrected)
+                                         )) +
+  #
+  xlab("Time [hrs]") +
+  #ylab(expression(Relative~Particle~Spacing~'['*mu*m*']')) +
+  ylab("") +
+  #scale_y_continuous(limits = c(0,2.5), sec.axis = sec_axis(~., labels = NULL)) +
+  scale_x_log10(breaks = c(5,10,50,150),
+                sec.axis = sec_axis(~., labels = NULL)) +
+  scale_y_continuous(limits = c(0,2.5), sec.axis = sec_axis(~., 
+                                                            name = expression(Counts~Per~Area~'['*cts*'/'*mu*m^2*']')
+                                                            )
+                     ) +
+  #guides(color = FALSE) +
+  guides(shape = FALSE) +
+  theme_classic() +
+  
+  coord_cartesian(clip = "off") +
+  annotation_custom(text_grob(line1, color = "purple", rot = 90, face = "bold", size = 16), 
+                    xmin = 0.04, xmax = 0.04, ymin = 1.25, ymax = 1.25) +
+  annotation_custom(text_grob(line2, color = "red", rot = 90, face = "bold" , size = 16),
+                    xmin = 0.2, xmax = 0.2, ymin = 1.25, ymax = 1.25) +
+  
+  theme(axis.text.x = element_text(colour = "black", size = 16),
+        axis.text.y = element_text(colour = "black", size = 16),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 16),
+        axis.title.y = element_text(colour = "black", size = 16),
+        plot.margin = margin(10,10,10,45),
+        legend.text = element_text(colour="black", size = 12))
+
+print(voronoihrsave)
+{if(save == 1)ggsave(filename = "./paperexports/relspace-cts-hrs.png", plot = voronoihrsave, 
+    device = "png", width = 6,height = 4, units = "in")}
+rm(voronoihrsave)
+```
+
