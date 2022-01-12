@@ -34,21 +34,21 @@ voronoiTempave <- voronoidens %>%
   ggplot() +
   #
   geom_boxplot(color = "purple", aes(group = Temp, x = Temp, y = avevoronoix)) +
-  geom_point(size = 2, color = "purple", aes(y = avevoronoix, x = Temp, 
+  geom_point(size = 2, shape = 19, color = "purple", aes(y = avevoronoix, x = Temp, 
                  #size = as.factor(hrs),
                  #shape = as.factor(Temp),
                  #color = as.factor(Temp)
                  )) +
   #
   geom_boxplot(color = "black", aes(group = Temp, x = Temp, y = countperarea)) +
-  geom_point(size = 2, color = "black", aes(y = countperarea, x = Temp, 
+  geom_point(size = 2, shape = 17, color = "black", aes(y = countperarea, x = Temp, 
                  #size = as.factor(hrs),
                  #shape = as.factor(Temp),
                  #color = as.factor(Temp)
                  )) +
   #
   geom_boxplot(color = "red", aes(group = Temp, x = Temp, y = fineavennd)) +
-  geom_point(size = 2, color = "red", aes(x = Temp, y = fineavennd, color = as.factor(Temp))) +
+  geom_point(size = 2, shape = 15, color = "red", aes(x = Temp, y = fineavennd, color = as.factor(Temp))) +
   #
   xlab(expression(Temp~'['*degree*C*']')) +
   #ylab(expression(Relative~Particle~Spacing~'['*mu*m*']')) +
@@ -107,21 +107,21 @@ voronoiNiave <- voronoidens %>%
   ggplot() +
   #
   geom_boxplot(color = "purple", aes(group = Ni.Vol.Corrected, x = Ni.Vol.Corrected, y = avevoronoix)) +
-  geom_point(size = 2, color = "purple", aes(y = avevoronoix, x = Ni.Vol.Corrected, 
+  geom_point(size = 2, shape = 19, color = "purple", aes(y = avevoronoix, x = Ni.Vol.Corrected, 
                  #size = as.factor(hrs),
                  shape = as.factor(Temp),
                  #color = as.factor(Ni.Vol.Corrected)
                  )) +
   #
   geom_boxplot(color = "black", aes(group = Ni.Vol.Corrected, x = Ni.Vol.Corrected, y = countperarea)) +
-  geom_point(size = 2, color = "black", aes(y = countperarea, x = Ni.Vol.Corrected, 
+  geom_point(size = 2, shape = 17, color = "black", aes(y = countperarea, x = Ni.Vol.Corrected, 
                  #size = as.factor(hrs),
                  shape = as.factor(Temp),
                  #color = as.factor(Ni.Vol.Corrected)
                  )) +
   #
   geom_boxplot(color = "red", aes(group = Ni.Vol.Corrected, x = Ni.Vol.Corrected, y = fineavennd)) +
-  geom_point(size = 2, color = "red", aes(x = Ni.Vol.Corrected, y = fineavennd, #color = as.factor(Ni.Vol.Corrected)
+  geom_point(size = 2, shape = 15, color = "red", aes(x = Ni.Vol.Corrected, y = fineavennd, #color = as.factor(Ni.Vol.Corrected)
                                          )) +
   #
   xlab("Nickel Volume Fraction") +
@@ -179,24 +179,25 @@ voronoihrsave <- voronoidens %>%
   #
   ggplot() +
   #
+  geom_boxplot(color = "red", aes(group = hrs, x = hrs, y = fineavennd)) +
+  geom_point(size = 2, shape = 15, color = "red", aes(x = hrs, y = fineavennd, #color = as.factor(Ni.Vol.Corrected)
+                                         )) +
+  #
   geom_boxplot(color = "purple", aes(group = hrs, x = hrs, y = avevoronoix)) +
-  geom_point(size = 2, color = "purple", aes(y = avevoronoix, x = hrs, 
+  geom_point(size = 2, shape = 19, color = "purple", aes(y = avevoronoix, x = hrs, 
                  #size = as.factor(hrs),
                  shape = as.factor(Temp),
                  #color = as.factor(Ni.Vol.Corrected)
                  )) +
   #
   geom_boxplot(color = "black", aes(group = hrs, x = hrs, y = countperarea)) +
-  geom_point(size = 2, color = "black", aes(y = countperarea, x = hrs, 
+  geom_point(size = 2, shape = 17, color = "black", aes(y = countperarea, x = hrs, 
                  #size = as.factor(hrs),
                  shape = as.factor(Temp),
                  #color = as.factor(Ni.Vol.Corrected)
                  )) +
   #
-  geom_boxplot(color = "red", aes(group = hrs, x = hrs, y = fineavennd)) +
-  geom_point(size = 2, color = "red", aes(x = hrs, y = fineavennd, #color = as.factor(Ni.Vol.Corrected)
-                                         )) +
-  #
+  
   xlab("Time [hrs]") +
   #ylab(expression(Relative~Particle~Spacing~'['*mu*m*']')) +
   ylab("") +
