@@ -15,8 +15,8 @@ save <- 1
 
 ```{r}
 
-line1 <- expression(Average~Voronoi~Distance~'['*mu*m*']')
-line2 <- expression(NND[Ave]~'['*mu*m*']')
+line1 <- expression('Edge-to-Edge'~Distance~'['*mu*m*']')
+line2 <- expression('Center-to-Center'~Distance~'['*mu*m*']')
 
 voronoiTempave <- voronoidens %>%
   select(Label, Ni.Vol.Corrected, Temp, hrs, Th.Density,
@@ -56,7 +56,7 @@ voronoiTempave <- voronoidens %>%
   #scale_y_continuous(limits = c(0,2.5), sec.axis = sec_axis(~., labels = NULL)) +
   scale_x_continuous(sec.axis = sec_axis(~., labels = NULL)) +
   scale_y_continuous(limits = c(0,2.5), sec.axis = sec_axis(~., 
-                                                            name = expression(Counts~Per~Area~'['*cts*'/'*mu*m^2*']')
+                                                            name = expression('Counts-Per-Area'~'['*cts*'/'*mu*m^2*']')
                                                             )
                      ) +
   #guides(color = FALSE) +
@@ -87,8 +87,8 @@ rm(voronoiTempave)
 
 ```{r}
 
-line1 <- expression(Average~Voronoi~Distance~'['*mu*m*']')
-line2 <- expression(NND[Ave]~'['*mu*m*']')
+line1 <- expression('Edge-to-Edge'~Distance~'['*mu*m*']')
+line2 <- expression('Center-to-Center'~Distance~'['*mu*m*']')
 
 voronoiNiave <- voronoidens %>%
   select(Label, Labelfine, Ni.Vol.Corrected, Temp, hrs, Th.Density,
@@ -130,7 +130,7 @@ voronoiNiave <- voronoidens %>%
   #scale_y_continuous(limits = c(0,2.5), sec.axis = sec_axis(~., labels = NULL)) +
   scale_x_continuous(sec.axis = sec_axis(~., labels = NULL)) +
   scale_y_continuous(limits = c(0,2.5), sec.axis = sec_axis(~., 
-                                                            name = expression(Counts~Per~Area~'['*cts*'/'*mu*m^2*']')
+                                                            name = expression('Counts-Per-Area'~'['*cts*'/'*mu*m^2*']')
                                                             )
                      ) +
   #guides(color = FALSE) +
@@ -160,8 +160,8 @@ rm(voronoiNiave)
 
 ```{r}
 
-line1 <- expression(Average~Voronoi~Distance~'['*mu*m*']')
-line2 <- expression(NND[Ave]~'['*mu*m*']')
+line1 <- expression('Edge-to-Edge'~Distance~'['*mu*m*']')
+line2 <- expression('Center-to-Center'~Distance~'['*mu*m*']')
 
 voronoihrsave <- voronoidens %>%
   select(Label, Labelfine, Ni.Vol.Corrected, Temp, hrs, Th.Density,
@@ -205,7 +205,7 @@ voronoihrsave <- voronoidens %>%
   scale_x_log10(breaks = c(5,10,50,150),
                 sec.axis = sec_axis(~., labels = NULL)) +
   scale_y_continuous(limits = c(0,2.5), sec.axis = sec_axis(~., 
-                                                            name = expression(Counts~Per~Area~'['*cts*'/'*mu*m^2*']')
+                                                            name = expression('Counts-Per-Area'~'['*cts*'/'*mu*m^2*']')
                                                             )
                      ) +
   #guides(color = FALSE) +
