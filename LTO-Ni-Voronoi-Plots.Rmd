@@ -1005,6 +1005,7 @@ voronoinnd <- voronoidens %>%
   scale_y_continuous(limits = c(0.5, 2.0), sec.axis = sec_axis(~., labels = NULL)) +
   scale_x_continuous(limits = c(0.5, 2.0), sec.axis = sec_axis(~., labels = NULL)) +
   {if(cb == 1)scale_color_scico_d(palette = "roma", direction = 1)} + #nickel
+  #coord_cartesian(clip = "off") +
   ylab(expression(Average~Voronoi~Distance~'['*mu*m*']')) +
   xlab(expression(NND[Ave]~'['*mu*m*']')) +
   guides(colour = guide_legend(reverse = TRUE, title = "Ni Vol.", 
@@ -1028,7 +1029,7 @@ voronoinnd <- voronoidens %>%
 
 print(voronoinnd)
 ggsave(filename = "./edgeexports/voronoinnd.png", plot = voronoinnd, 
-    device = "png", width = 6,height = 4, units = "in")
+    device = "png", width = 6,height = 4.5, units = "in")
 rm(voronoinnd)
 ```
 
@@ -1124,7 +1125,7 @@ voronoicts <- voronoidens %>%
 
 print(voronoicts)
 ggsave(filename = "./edgeexports/voronoicts.png", plot = voronoicts, 
-    device = "png", width = 6,height = 4, units = "in")
+    device = "png", width = 6,height = 4.5, units = "in")
 rm(voronoicts)
 
 voronoisize <- voronoidens %>%
@@ -1176,7 +1177,7 @@ voronoisize <- voronoidens %>%
 
 print(voronoisize)
 ggsave(filename = "./edgeexports/voronoisize.png", plot = voronoisize, 
-    device = "png", width = 6,height = 4, units = "in")
+    device = "png", width = 6,height = 4.5, units = "in")
 rm(voronoisize)
 
 voronoidens %>%
