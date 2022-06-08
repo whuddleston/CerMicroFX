@@ -1006,8 +1006,8 @@ voronoinnd <- voronoidens %>%
   scale_x_continuous(limits = c(0.5, 2.0), sec.axis = sec_axis(~., labels = NULL)) +
   {if(cb == 1)scale_color_scico_d(palette = "roma", direction = 1)} + #nickel
   #coord_cartesian(clip = "off") +
-  ylab(expression(Average~Voronoi~Distance~'['*mu*m*']')) +
-  xlab(expression(NND[Ave]~'['*mu*m*']')) +
+  ylab(expression('Edge-to-Edge'~Distance~'['*mu*m*']')) +
+  xlab(expression('Center-to-Center'~Distance~'['*mu*m*']')) +
   guides(colour = guide_legend(reverse = TRUE, title = "Ni Vol.", 
                                #override.aes = list(size=4), 
                                title.theme = element_text(colour = "black",
@@ -1105,8 +1105,8 @@ voronoicts <- voronoidens %>%
                      sec.axis = sec_axis(~., labels = NULL)) +
   scale_shape_manual(values=c(16, 17, 0, 2)) + #hrs
   {if(cb == 1)scale_color_scico_d(palette = "roma", direction = 1)} + #nickel
-  ylab(expression(Average~Voronoi~Distance~'['*mu*m*']')) +
-  xlab(expression(Counts~Per~Area~'['*cts*'/'*mu*m^2*']')) +
+  ylab(expression('Edge-to-Edge'~Distance~'['*mu*m*']')) +
+  xlab(expression('Counts-Per-Area'~'['*cts*'/'*mu*m^2*']')) +
   theme_classic() +
   guides(shape = guide_legend(reverse = TRUE, title = "Time [hrs]", 
                               title.theme = element_text(colour="black", 
@@ -1157,7 +1157,7 @@ voronoisize <- voronoidens %>%
                      sec.axis = sec_axis(~., labels = NULL)) +
   scale_shape_manual(values=c(16, 17, 0, 2)) + #hrs
   {if(cb == 1)scale_color_scico_d(palette = "roma", direction = 1)} + #nickel
-  ylab(expression(Average~Voronoi~Distance~'['*mu*m*']')) +
+  ylab(expression('Edge-to-Edge'~Distance~'['*mu*m*']')) +
   xlab(expression(Average~Particle~Area~'['*mu*m^2*']')) +
   theme_classic() +
   guides(shape = guide_legend(reverse = TRUE, title = "Time [hrs]", 
