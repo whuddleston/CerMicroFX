@@ -1004,6 +1004,7 @@ voronoinnd <- voronoidens %>%
   #geom_abline(slope = 1, intercept = 0) +
   scale_y_continuous(limits = c(0.5, 2.0), sec.axis = sec_axis(~., labels = NULL)) +
   scale_x_continuous(limits = c(0.5, 2.0), sec.axis = sec_axis(~., labels = NULL)) +
+  {if(cb == 1)scale_color_scico_d(palette = "roma", direction = 1)} + #nickel
   ylab(expression(Average~Voronoi~Distance~'['*mu*m*']')) +
   xlab(expression(NND[Ave]~'['*mu*m*']')) +
   guides(colour = guide_legend(reverse = TRUE, title = "Ni Vol.", 
@@ -1102,6 +1103,7 @@ voronoicts <- voronoidens %>%
                      breaks = c(0,0.25,0.5,0.75,1,1.25),
                      sec.axis = sec_axis(~., labels = NULL)) +
   scale_shape_manual(values=c(16, 17, 0, 2)) + #hrs
+  {if(cb == 1)scale_color_scico_d(palette = "roma", direction = 1)} + #nickel
   ylab(expression(Average~Voronoi~Distance~'['*mu*m*']')) +
   xlab(expression(Counts~Per~Area~'['*cts*'/'*mu*m^2*']')) +
   theme_classic() +
@@ -1153,6 +1155,7 @@ voronoisize <- voronoidens %>%
   scale_x_continuous(limits = c(0, 3),
                      sec.axis = sec_axis(~., labels = NULL)) +
   scale_shape_manual(values=c(16, 17, 0, 2)) + #hrs
+  {if(cb == 1)scale_color_scico_d(palette = "roma", direction = 1)} + #nickel
   ylab(expression(Average~Voronoi~Distance~'['*mu*m*']')) +
   xlab(expression(Average~Particle~Area~'['*mu*m^2*']')) +
   theme_classic() +
@@ -1204,6 +1207,7 @@ voronoidens %>%
   scale_x_continuous(limits = c(0, 3),
                      sec.axis = sec_axis(~., labels = NULL)) +
   #scale_shape_manual(values=c(16, 17, 0, 2)) + #hrs
+  {if(cb == 1)scale_color_scico_d(palette = "roma", direction = 1)} + #nickel
   ylab(expression(Average~Voronoi~Distance~'['*mu*m*']')) +
   xlab(expression(Average~Particle~Area~'['*mu*m^2*']')) +
   theme_classic() +
