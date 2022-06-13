@@ -24,7 +24,7 @@ library(GGally)
 #library(gdata)
 library(leaps)
 library(MASS)
-#library(wesanderson)
+library(wesanderson)
 library(mclust)
 library(scales)
 library(ggridges) #ridgeline density plots
