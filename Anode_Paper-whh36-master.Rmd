@@ -209,10 +209,12 @@ rm(powsize)
 ```{r, results='hide'}
 #regsubsets model exploration for including compositional variable
 
-regmod <- one %>%
+regmoddata <- one %>%
   filter(Temp >= 800) %>%
-  dplyr::select(zz,z,Ni.Vol.Corrected) %>%
-  regsubsets(zz ~ ., data = .)
+  dplyr::select(zz,z,Ni.Vol.Corrected)
+  
+regmod <-regsubsets(zz ~ ., data = regmoddata)
+rm(regmoddata)
 
 #regmoderr <- summary(regmod)
 
