@@ -1030,13 +1030,13 @@ extra2 <- voronoidens %>%
   
   coord_cartesian(clip = "off") +
   annotation_custom(text_grob(line1, color = "purple", rot = 90, face = "bold", size = 12), 
-                    xmin = 510, xmax = 510, ymin = 1.25, ymax = 1.25) +
+                    xmin = 530, xmax = 530, ymin = 1.25, ymax = 1.25) +
   annotation_custom(text_grob(line2, color = "red", rot = 90, face = "bold" , size = 12),
-                    xmin = 550, xmax = 550, ymin = 1.25, ymax = 1.25) +
+                    xmin = 565, xmax = 565, ymin = 1.25, ymax = 1.25) +
   annotation_custom(text_grob(line3, color = "purple", rot = 90, face = "bold", size = 12), 
-                    xmin = 510, xmax = 510, ymin = 3.85, ymax = 3.85) +
+                    xmin = 530, xmax = 530, ymin = 3.85, ymax = 3.85) +
   annotation_custom(text_grob(line4, color = "red", rot = 90, face = "bold" , size = 12),
-                    xmin = 550, xmax = 550, ymin = 3.85, ymax = 3.85) +
+                    xmin = 565, xmax = 565, ymin = 3.85, ymax = 3.85) +
   
   theme(axis.text.x = element_text(colour = "black", size = 12),
         axis.text.y = element_text(colour = "black", size = 12),
@@ -1053,5 +1053,197 @@ extra2 <- voronoidens %>%
                     ymax = 5)
 
 ggsave(filename = "./paperexports/relspace-cts-Temp-extra2.png", plot = extra2, device = "png", width = 6,height = 6, units = "in")
+```
+
+
+```{r}
+
+tempdata.ni <- filter(df_particles_fine, Temp == 900 & Label != "WH13A" & Labelfine != "WH35A/WH35A0010.tiff" & Label != "WH15B" & hrs == 5 & Area >= 0.005) %>%
+  mutate(Ni.Vol.Corrected2 = Ni.Vol.Corrected) %>%
+  mutate(Ni.Vol.Corrected2 = if_else(Ni.Vol.Corrected == 0.05,
+                                    replace(Ni.Vol.Corrected, Ni.Vol.Corrected == 0.05, 1), Ni.Vol.Corrected2)) %>%
+  mutate(Ni.Vol.Corrected2 = if_else(Ni.Vol.Corrected == 0.10,
+                                    replace(Ni.Vol.Corrected, Ni.Vol.Corrected == 0.10, 2), Ni.Vol.Corrected2)) %>%
+  mutate(Ni.Vol.Corrected2 = if_else(Ni.Vol.Corrected == 0.20,
+                                    replace(Ni.Vol.Corrected, Ni.Vol.Corrected == 0.20, 3), Ni.Vol.Corrected2)) %>%
+  mutate(Ni.Vol.Corrected2 = if_else(Ni.Vol.Corrected == 0.24,
+                                    replace(Ni.Vol.Corrected, Ni.Vol.Corrected == 0.24, 4), Ni.Vol.Corrected2)) %>%
+  mutate(Ni.Vol.Corrected2 = if_else(Ni.Vol.Corrected == 0.28,
+                                    replace(Ni.Vol.Corrected, Ni.Vol.Corrected == 0.28, 5), Ni.Vol.Corrected2)) %>%
+  mutate(Ni.Vol.Corrected2 = if_else(Ni.Vol.Corrected == 0.35,
+                                    replace(Ni.Vol.Corrected, Ni.Vol.Corrected == 0.35, 6), Ni.Vol.Corrected2)) %>%
+  mutate(Ni.Vol.Corrected2 = if_else(Ni.Vol.Corrected == 0.40,
+                                    replace(Ni.Vol.Corrected, Ni.Vol.Corrected == 0.40, 7), Ni.Vol.Corrected2)) %>%
+  mutate(Ni.Vol.Corrected2 = if_else(Ni.Vol.Corrected == 0.50,
+                                    replace(Ni.Vol.Corrected, Ni.Vol.Corrected == 0.50, 8), Ni.Vol.Corrected2))
+
+line1 <- expression('Ave. Edge-to-Edge'~Distance~'['*mu*m*']')
+line2 <- expression('Ave. Center-to-Center'~Distance~'['*mu*m*']')
+line3 <- expression('Edge-to-Edge'~Distribution~'['*mu*m*']')
+line4 <- expression('Center-to-Center'~Distribution~'['*mu*m*']')
+
+inset.plot.ni <- voronoidens %>%
+  mutate(Ni.Vol.Corrected2 = Ni.Vol.Corrected) %>%
+  mutate(Ni.Vol.Corrected2 = if_else(Ni.Vol.Corrected == 0.05,
+                                    replace(Ni.Vol.Corrected, Ni.Vol.Corrected == 0.05, 1), Ni.Vol.Corrected2)) %>%
+  mutate(Ni.Vol.Corrected2 = if_else(Ni.Vol.Corrected == 0.10,
+                                    replace(Ni.Vol.Corrected, Ni.Vol.Corrected == 0.10, 2), Ni.Vol.Corrected2)) %>%
+  mutate(Ni.Vol.Corrected2 = if_else(Ni.Vol.Corrected == 0.20,
+                                    replace(Ni.Vol.Corrected, Ni.Vol.Corrected == 0.20, 3), Ni.Vol.Corrected2)) %>%
+  mutate(Ni.Vol.Corrected2 = if_else(Ni.Vol.Corrected == 0.24,
+                                    replace(Ni.Vol.Corrected, Ni.Vol.Corrected == 0.24, 4), Ni.Vol.Corrected2)) %>%
+  mutate(Ni.Vol.Corrected2 = if_else(Ni.Vol.Corrected == 0.28,
+                                    replace(Ni.Vol.Corrected, Ni.Vol.Corrected == 0.28, 5), Ni.Vol.Corrected2)) %>%
+  mutate(Ni.Vol.Corrected2 = if_else(Ni.Vol.Corrected == 0.35,
+                                    replace(Ni.Vol.Corrected, Ni.Vol.Corrected == 0.35, 6), Ni.Vol.Corrected2)) %>%
+  mutate(Ni.Vol.Corrected2 = if_else(Ni.Vol.Corrected == 0.40,
+                                    replace(Ni.Vol.Corrected, Ni.Vol.Corrected == 0.40, 7), Ni.Vol.Corrected2)) %>%
+  mutate(Ni.Vol.Corrected2 = if_else(Ni.Vol.Corrected == 0.50,
+                                    replace(Ni.Vol.Corrected, Ni.Vol.Corrected == 0.50, 8), Ni.Vol.Corrected2)) %>%
+  filter(Temp == 900) %>%
+  filter(hrs == 5) %>%
+  filter(Label != "WH13A") %>%
+  filter(Labelfine != "WH15B/900-5-50B0008.tiff") %>%
+  filter(Label != "WH03A") %>%
+  filter(magx == 10) %>%
+  filter(Labelfine != "WH35A/WH35A0010.tiff") %>%
+  group_by(Labelfine) %>%
+  ggplot() +
+  # geom_ridgeline(fill = "purple", aes(x = x, y = hrs2, 
+  #                    #fill = as.factor(hrs),
+  #                    #height = count/20000, 
+  #                    height = density*0.35, #height is either density or count
+  #                    group = Labelfine)) + 
+  geom_ridgeline(fill = "purple", aes(x = x, y = Ni.Vol.Corrected2,
+                     #fill = as.factor(hrs),
+                     #height = count/20000,
+                     min_height = -1000,
+                     height = -density*0.35, #height is either density or count
+                     group = Labelfine)) +
+  
+  geom_density_ridges(data = tempdata.ni, fill = "red", scale = 0.35, rel_min_height = 0.01,
+                      aes(x = nnd, y = Ni.Vol.Corrected2, group = Label)) +
+
+  scale_x_log10(sec.axis = sec_axis(~., labels = NULL)) +
+  scale_y_continuous(breaks = c(1:8),
+                     labels = c("0.05", "0.10", "0.20", "0.24", "0.28", "0.35", "0.40", "0.50"),
+                     sec.axis = sec_axis(~., breaks = c(1:8), labels = NULL)) +
+  #scale_fill_manual(values=c("#00BF7D", "#BF7D00", "#7C00BF", "#BF0041")) +
+  #
+  ylab("") +
+  xlab("") +
+  theme_classic() +
+  coord_flip(clip = "off") +
+  guides(color = FALSE, fill = guide_legend(reverse = TRUE, title = "Ni", 
+                               #override.aes = list(size=4), 
+                               title.theme = element_text(colour = "black",
+                                                          #face = "bold",
+                                                          size = 12))) +
+  theme(axis.text.x = element_text(colour = "black", size = 12),
+        axis.text.y = element_text(colour = "black", size = 12),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        #axis.line = element_line(colour='transparent'),
+        axis.title.x = element_text(colour = "black", size = 12),
+        axis.title.y = element_text(colour = "black", size = 12),
+        panel.background = element_rect(fill='transparent'),
+        plot.background = element_rect(fill='transparent', color=NA),
+        legend.text = element_text(colour="black", size = 12))
+
+extra.ni <- voronoidens %>%
+  select(Label, Labelfine, Ni.Vol.Corrected, Temp, hrs, Th.Density,
+         stressf, condAve, fineavennd, countperarea,
+         avevoronoix, voronoicount, magx) %>%
+  unique() %>%
+  #
+  mutate(Ni.Vol.Corrected2 = Ni.Vol.Corrected) %>%
+  mutate(Ni.Vol.Corrected2 = if_else(Ni.Vol.Corrected == 0.05,
+                                    replace(Ni.Vol.Corrected, Ni.Vol.Corrected == 0.05, 1), Ni.Vol.Corrected2)) %>%
+  mutate(Ni.Vol.Corrected2 = if_else(Ni.Vol.Corrected == 0.10,
+                                    replace(Ni.Vol.Corrected, Ni.Vol.Corrected == 0.10, 2), Ni.Vol.Corrected2)) %>%
+  mutate(Ni.Vol.Corrected2 = if_else(Ni.Vol.Corrected == 0.20,
+                                    replace(Ni.Vol.Corrected, Ni.Vol.Corrected == 0.20, 3), Ni.Vol.Corrected2)) %>%
+  mutate(Ni.Vol.Corrected2 = if_else(Ni.Vol.Corrected == 0.24,
+                                    replace(Ni.Vol.Corrected, Ni.Vol.Corrected == 0.24, 4), Ni.Vol.Corrected2)) %>%
+  mutate(Ni.Vol.Corrected2 = if_else(Ni.Vol.Corrected == 0.28,
+                                    replace(Ni.Vol.Corrected, Ni.Vol.Corrected == 0.28, 5), Ni.Vol.Corrected2)) %>%
+  mutate(Ni.Vol.Corrected2 = if_else(Ni.Vol.Corrected == 0.35,
+                                    replace(Ni.Vol.Corrected, Ni.Vol.Corrected == 0.35, 6), Ni.Vol.Corrected2)) %>%
+  mutate(Ni.Vol.Corrected2 = if_else(Ni.Vol.Corrected == 0.40,
+                                    replace(Ni.Vol.Corrected, Ni.Vol.Corrected == 0.40, 7), Ni.Vol.Corrected2)) %>%
+  mutate(Ni.Vol.Corrected2 = if_else(Ni.Vol.Corrected == 0.50,
+                                    replace(Ni.Vol.Corrected, Ni.Vol.Corrected == 0.50, 8), Ni.Vol.Corrected2)) %>%
+  #
+  filter(Temp == 900) %>%
+  filter(hrs == 5) %>%
+  filter(Label != "WH13A") %>%
+  filter(Labelfine != "WH15B/900-5-50B0008.tiff") %>%
+  filter(Label != "WH03A") %>%
+  filter(magx == 10) %>%
+  filter(Labelfine != "WH35A/WH35A0010.tiff") %>%
+  #
+  ggplot() +
+  #
+  geom_boxplot(color = "red", width = 0.25, aes(group = Ni.Vol.Corrected2, x = Ni.Vol.Corrected2, y = fineavennd)) +
+  geom_point(size = 2, shape = 15, color = "red", aes(x = Ni.Vol.Corrected2, y = fineavennd, #color = as.factor(Ni.Vol.Corrected)
+                                         )) +
+  #
+  geom_boxplot(color = "purple", width = 0.25, aes(group = Ni.Vol.Corrected2, x = Ni.Vol.Corrected2, y = avevoronoix)) +
+  geom_point(size = 2, shape = 19, color = "purple", aes(y = avevoronoix, x = Ni.Vol.Corrected2, 
+                 #size = as.factor(hrs),
+                 #shape = as.factor(Temp),
+                 #color = as.factor(Ni.Vol.Corrected)
+                 )) +
+  #
+  geom_boxplot(color = "transparent", aes(group = Ni.Vol.Corrected2, x = Ni.Vol.Corrected2, y = countperarea)) +
+  geom_boxplot(color = "black", width = 0.25, aes(group = Ni.Vol.Corrected2, x = Ni.Vol.Corrected2, y = countperarea)) +
+  geom_point(size = 2, shape = 17, color = "black", aes(y = countperarea, x = Ni.Vol.Corrected2, 
+                 #size = as.factor(hrs),
+                 #shape = as.factor(Temp),
+                 #color = as.factor(Ni.Vol.Corrected)
+                 )) +
+  #
+  
+  xlab(expression(Sintering~Temperature~'['*degree*C*']')) +
+  #ylab(expression(Relative~Particle~Spacing~'['*mu*m*']')) +
+  ylab("") +
+  #scale_y_continuous(limits = c(0,2.5), sec.axis = sec_axis(~., labels = NULL)) +
+  scale_x_continuous(breaks = c(1:8),
+                     labels = c("0.05", "0.10", "0.20", "0.24", "0.28", "0.35", "0.40", "0.50"),
+                     sec.axis = sec_axis(~., breaks = c(1:8), labels = NULL)) +
+  scale_y_continuous(limits = c(0,2.5), sec.axis = sec_axis(~., 
+                                                            name = expression('Counts-Per-Area'~'['*cts*'/'*mu*m^2*']')
+                                                            )
+                     ) +
+  #guides(color = FALSE) +
+  guides(shape = FALSE) +
+  theme_classic() +
+  
+  coord_cartesian(clip = "off") +
+  annotation_custom(text_grob(line1, color = "purple", rot = 90, face = "bold", size = 12), 
+                    xmin = -1.4, xmax = -1.4, ymin = 1.25, ymax = 1.25) +
+  annotation_custom(text_grob(line2, color = "red", rot = 90, face = "bold" , size = 12),
+                    xmin = -0.8, xmax = -0.8, ymin = 1.25, ymax = 1.25) +
+  annotation_custom(text_grob(line3, color = "purple", rot = 90, face = "bold", size = 12), 
+                    xmin = -1.4, xmax = -1.4, ymin = 3.85, ymax = 3.85) +
+  annotation_custom(text_grob(line4, color = "red", rot = 90, face = "bold" , size = 12),
+                    xmin = -0.8, xmax = -0.8, ymin = 3.85, ymax = 3.85) +
+  
+  theme(axis.text.x = element_text(colour = "black", size = 12),
+        axis.text.y = element_text(colour = "black", size = 12),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 12),
+        axis.title.y = element_text(colour = "black", size = 12),
+        plot.margin = margin(180,10,10,45),
+        legend.text = element_text(colour="black", size = 12)) +
+  annotation_custom(ggplotGrob(inset.plot.ni),
+                    xmin = -0.9,
+                    xmax = 8.9,
+                    ymin = 2.5,
+                    ymax = 5)
+
+#print(extra.ni)
+ggsave(filename = "./paperexports/relspace-cts-Ni-extra2.png", plot = extra.ni, device = "png", width = 6,height = 6, units = "in")
 ```
 
