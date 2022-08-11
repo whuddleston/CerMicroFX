@@ -894,6 +894,10 @@ extra2 <- voronoidens %>%
                     xmin = -0.45, xmax = -0.45, ymin = 1.25, ymax = 1.25) +
   annotation_custom(text_grob(line2, color = "red", rot = 90, face = "bold" , size = 12),
                     xmin = -0.15, xmax = -0.15, ymin = 1.25, ymax = 1.25) +
+  annotation_custom(text_grob(line3, color = "purple", rot = 90, face = "bold", size = 12), 
+                    xmin = -0.45, xmax = -0.45, ymin = 3.85, ymax = 3.85) +
+  annotation_custom(text_grob(line4, color = "red", rot = 90, face = "bold" , size = 12),
+                    xmin = -0.15, xmax = -0.15, ymin = 3.85, ymax = 3.85) +
   
   theme(axis.text.x = element_text(colour = "black", size = 12),
         axis.text.y = element_text(colour = "black", size = 12),
@@ -1204,7 +1208,7 @@ extra.ni <- voronoidens %>%
                  )) +
   #
   
-  xlab(expression(Sintering~Temperature~'['*degree*C*']')) +
+  xlab("Nickel Volume Fraction") +
   #ylab(expression(Relative~Particle~Spacing~'['*mu*m*']')) +
   ylab("") +
   #scale_y_continuous(limits = c(0,2.5), sec.axis = sec_axis(~., labels = NULL)) +

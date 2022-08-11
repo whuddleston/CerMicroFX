@@ -173,14 +173,14 @@ rfmodimp.verb <- rfmodimp %>%
   mutate(variable = if_else(variable == "ave.max.branches", "Maximum Branch Length", variable)) %>%
   mutate(variable = if_else(variable == "ave.branches", "Average Number of Branches", variable)) %>%
   mutate(variable = if_else(variable == "aveAreafine", "Average Particle Area", variable)) %>%
-  mutate(variable = if_else(variable == "avevoronoix", "Average Voronoi Spacing", variable)) %>%
-  mutate(variable = if_else(variable == "fineavennd", "Average NND", variable)) %>%
+  mutate(variable = if_else(variable == "avevoronoix", "Average Edge-to-Edge Spacing", variable)) %>%
+  mutate(variable = if_else(variable == "fineavennd", "Average Center-to-Center Spacing", variable)) %>%
   mutate(variable = if_else(variable == "finecount", "Counts Per Area", variable)) %>%
   mutate(variable = if_else(variable == "hrs", "Dwell Time", variable)) %>%
   mutate(variable = if_else(variable == "Temp", "Sintering Temperature", variable)) %>%
   mutate(variable = if_else(variable == "Th.Density", "Bulk Density", variable)) %>%
   mutate(variable = if_else(variable == "totNifrace", "Nickel Area Fraction", variable)) %>%
-  mutate(variable = if_else(variable == "voronoicount", "Voronoi Map Coverage", variable)) %>%
+  mutate(variable = if_else(variable == "voronoicount", "Edge-to-Edge Complexity", variable)) %>%
   mutate(variable = if_else(variable == "Dim.1", "Size-PC-1", variable)) %>%
   mutate(variable = if_else(variable == "Dim.2", "Size-PC-2", variable)) %>%
   mutate(variable = if_else(variable == "Dim.3", "Size-PC-3", variable)) %>%
@@ -223,24 +223,37 @@ rflm <- lm(rfresults$prediction ~ rfresults$actual)
 paste(round(summary(rflm)$r.squared,3), "R^2")
 
 paste(round(summary(rflm)$adj.r.squared,3), "Adj. R^2")
+```
 
+```{r}
+#plot of testing predicted vs measured
+tempPAL <- scico(8, palette = "roma", direction = 1)
+lim1 <- -1.5
+lim2 <-  2.25
 
+VALUETEMP <- paste(round(summary(rflm)$adj.r.squared,3)," ~ Adj. ~ R^2",sep = "")
 
 conrfpredmeas <- cbind(rfresults, testset) %>%
   ggplot() +
   geom_point(aes(y = prediction, x = condAve, color = as.factor(Ni.Vol.Corrected))) +
   geom_abline(slope = 1, intercept = 0) +
-  guides(color = FALSE) +
+  #guides(color = FALSE) +
+  scale_color_manual(values = tempPAL, labels = c(0.05,0.10,0.20,0.24,0.28,0.35,0.40,0.50)) +
   theme_classic() +
   scale_x_continuous(sec.axis = sec_axis(~., labels = NULL)) +
   scale_y_continuous(sec.axis = sec_axis(~., labels = NULL)) +
-  coord_fixed() +
+  coord_fixed(ratio = 1, xlim = c(lim1,lim2), ylim = c(lim1,lim2)) +
   xlab("Scaled Conductivity") +
   ylab("Conductivity Predicted") +
+  guides(colour = guide_legend(reverse = TRUE, title = "Ni Vol.", 
+                               #override.aes = list(size=4), 
+                               title.theme = element_text(colour = "black",
+                                                          #face = "bold",
+                                                          size = 10))) +
   geom_abline(slope = rflm$coefficients[2], 
               intercept = rflm$coefficients[1],
               color = "red",linetype = "dashed") +
-  annotate("text", label = paste(round(summary(rflm)$adj.r.squared,3), "Adj. R^2"), 
+  annotate("text", label = VALUETEMP, parse = T,
            x = 1, 
            y = -1)
 
@@ -252,6 +265,67 @@ rm(conrfpredmeas)
 ```
 
 ```{r}
+#plot of training predicted vs measured
+rfresults.training <- predict(rfmodel, trainset) %>%
+  as.data.frame() %>%
+  cbind(as.data.frame(trainset$condAve))
+
+colnames(rfresults.training)[1] <- "prediction"
+colnames(rfresults.training)[2] <- "actual"
+
+
+
+rflm.training <- lm(rfresults.training$prediction ~ rfresults.training$actual)
+
+paste(round(summary(rflm.training)$r.squared,3), "R^2")
+
+paste(round(summary(rflm.training)$adj.r.squared,3), "Adj. R^2")
+
+#
+#
+#
+
+tempPAL <- scico(8, palette = "roma", direction = 1)
+lim1 <- -1.5
+lim2 <-  2.25
+
+VALUETEMP <- paste(round(summary(rflm.training)$adj.r.squared,3)," ~ Adj. ~ R^2",sep = "")
+
+conrfpredmeas.training <- cbind(rfresults.training, trainset) %>%
+  ggplot() +
+  geom_point(aes(y = prediction, x = condAve, color = as.factor(Ni.Vol.Corrected))) +
+  geom_abline(slope = 1, intercept = 0) +
+  #guides(color = FALSE) +
+  scale_color_manual(values = tempPAL, labels = c(0.05,0.10,0.20,0.24,0.28,0.35,0.40,0.50)) +
+  theme_classic() +
+  scale_x_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  scale_y_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  coord_fixed(ratio = 1, xlim = c(lim1,lim2), ylim = c(lim1,lim2)) +
+  xlab("Scaled Conductivity") +
+  ylab("Conductivity Predicted") +
+  guides(colour = guide_legend(reverse = TRUE, title = "Ni Vol.", 
+                               #override.aes = list(size=4), 
+                               title.theme = element_text(colour = "black",
+                                                          #face = "bold",
+                                                          size = 10))) +
+  geom_abline(slope = rflm.training$coefficients[2], 
+              intercept = rflm.training$coefficients[1],
+              color = "red",linetype = "dashed") +
+  annotate("text", label = VALUETEMP, parse = T,
+           x = 1, 
+           y = -1)
+
+print(conrfpredmeas.training)
+ggsave(filename = "./MLexports/conrfpredmeastrain.png", plot = conrfpredmeas.training, 
+         device = "png", width = 6,height = 4, units = "in")
+rm(conrfpredmeas.training)
+
+
+```
+
+
+
+```{r}
 rfmodel.min.depth.df <- min_depth_distribution(rfmodel)
 
 rfmodel.min.depth.df <- rfmodel.min.depth.df %>%
@@ -260,14 +334,14 @@ rfmodel.min.depth.df <- rfmodel.min.depth.df %>%
   mutate(variable = if_else(variable == "ave.max.branches", "Maximum Branch Length", variable)) %>%
   mutate(variable = if_else(variable == "ave.branches", "Average Number of Branches", variable)) %>%
   mutate(variable = if_else(variable == "aveAreafine", "Average Particle Area", variable)) %>%
-  mutate(variable = if_else(variable == "avevoronoix", "Average Voronoi Spacing", variable)) %>%
-  mutate(variable = if_else(variable == "fineavennd", "Average NND", variable)) %>%
+  mutate(variable = if_else(variable == "avevoronoix", "Average Edge-to-Edge Spacing", variable)) %>%
+  mutate(variable = if_else(variable == "fineavennd", "Average Center-to-Center Spacing", variable)) %>%
   mutate(variable = if_else(variable == "finecount", "Counts Per Area", variable)) %>%
   mutate(variable = if_else(variable == "hrs", "Dwell Time", variable)) %>%
   mutate(variable = if_else(variable == "Temp", "Sintering Temperature", variable)) %>%
   mutate(variable = if_else(variable == "Th.Density", "Bulk Density", variable)) %>%
   mutate(variable = if_else(variable == "totNifrace", "Nickel Area Fraction", variable)) %>%
-  mutate(variable = if_else(variable == "voronoicount", "Voronoi Map Coverage", variable)) %>%
+  mutate(variable = if_else(variable == "voronoicount", "Edge-to-Edge Complexity", variable)) %>%
   mutate(variable = if_else(variable == "Dim.1", "Size-PC-1", variable)) %>%
   mutate(variable = if_else(variable == "Dim.2", "Size-PC-2", variable)) %>%
   mutate(variable = if_else(variable == "Dim.3", "Size-PC-3", variable)) %>%
@@ -923,14 +997,14 @@ rfmodimps.verb <- rfmodimps %>%
   mutate(variable = if_else(variable == "ave.max.branches", "Maximum Branch Length", variable)) %>%
   mutate(variable = if_else(variable == "ave.branches", "Average Number of Branches", variable)) %>%
   mutate(variable = if_else(variable == "aveAreafine", "Average Particle Area", variable)) %>%
-  mutate(variable = if_else(variable == "avevoronoix", "Average Voronoi Spacing", variable)) %>%
-  mutate(variable = if_else(variable == "fineavennd", "Average NND", variable)) %>%
+  mutate(variable = if_else(variable == "avevoronoix", "Average Edge-to-Edge Spacing", variable)) %>%
+  mutate(variable = if_else(variable == "fineavennd", "Average Center-to-Center Spacing", variable)) %>%
   mutate(variable = if_else(variable == "finecount", "Counts Per Area", variable)) %>%
   mutate(variable = if_else(variable == "hrs", "Dwell Time", variable)) %>%
   mutate(variable = if_else(variable == "Temp", "Sintering Temperature", variable)) %>%
   mutate(variable = if_else(variable == "Th.Density", "Bulk Density", variable)) %>%
   mutate(variable = if_else(variable == "totNifrace", "Nickel Area Fraction", variable)) %>%
-  mutate(variable = if_else(variable == "voronoicount", "Voronoi Map Coverage", variable)) %>%
+  mutate(variable = if_else(variable == "voronoicount", "Edge-to-Edge Complexity", variable)) %>%
   mutate(variable = if_else(variable == "Dim.1", "Size-PC-1", variable)) %>%
   mutate(variable = if_else(variable == "Dim.2", "Size-PC-2", variable)) %>%
   mutate(variable = if_else(variable == "Dim.3", "Size-PC-3", variable)) %>%
@@ -966,14 +1040,14 @@ rfmodels.min.depth.df <- rfmodels.min.depth.df %>%
   mutate(variable = if_else(variable == "ave.max.branches", "Maximum Branch Length", variable)) %>%
   mutate(variable = if_else(variable == "ave.branches", "Average Number of Branches", variable)) %>%
   mutate(variable = if_else(variable == "aveAreafine", "Average Particle Area", variable)) %>%
-  mutate(variable = if_else(variable == "avevoronoix", "Average Voronoi Spacing", variable)) %>%
-  mutate(variable = if_else(variable == "fineavennd", "Average NND", variable)) %>%
+  mutate(variable = if_else(variable == "avevoronoix", "Average Edge-to-Edge Spacing", variable)) %>%
+  mutate(variable = if_else(variable == "fineavennd", "Average Center-to-Center Spacing", variable)) %>%
   mutate(variable = if_else(variable == "finecount", "Counts Per Area", variable)) %>%
   mutate(variable = if_else(variable == "hrs", "Dwell Time", variable)) %>%
   mutate(variable = if_else(variable == "Temp", "Sintering Temperature", variable)) %>%
   mutate(variable = if_else(variable == "Th.Density", "Bulk Density", variable)) %>%
   mutate(variable = if_else(variable == "totNifrace", "Nickel Area Fraction", variable)) %>%
-  mutate(variable = if_else(variable == "voronoicount", "Voronoi Map Coverage", variable)) %>%
+  mutate(variable = if_else(variable == "voronoicount", "Edge-to-Edge Complexity", variable)) %>%
   mutate(variable = if_else(variable == "Dim.1", "Size-PC-1", variable)) %>%
   mutate(variable = if_else(variable == "Dim.2", "Size-PC-2", variable)) %>%
   mutate(variable = if_else(variable == "Dim.3", "Size-PC-3", variable)) %>%
@@ -1252,4 +1326,6 @@ rm(stress.svmpredmeas)
 -->
 
 
-
+```{r}
+#ML File Finished
+```
