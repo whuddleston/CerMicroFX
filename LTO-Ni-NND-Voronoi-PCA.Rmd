@@ -322,6 +322,8 @@ prcomp.v.Coord = as.data.frame(prcomp.v.Var$coord)[1:10]
 
 rm(prcomp.v.Var)
 
+prcomp.v.meta <- prcomp.v.meta %>%
+  arrange(Labelfine)
 
 prcomp.v.results <- prcomp.v.meta %>%
   select(Labelfine) %>%
