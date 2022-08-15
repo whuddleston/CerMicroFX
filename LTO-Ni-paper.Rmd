@@ -768,7 +768,7 @@ extra <- voronoihrsave2 +
                     ymin = 1.2,
                     ymax = 2.9)
 
-ggsave(filename = "./paperexports/relspace-cts-hrs-extra.png", plot = extra, device = "png", width = 6,height = 4, units = "in")
+{if(save == 1)ggsave(filename = "./paperexports/relspace-cts-hrs-extra.png", plot = extra, device = "png", width = 6,height = 4, units = "in")}
 
 ```
 
@@ -913,7 +913,7 @@ extra2 <- voronoidens %>%
                     ymin = 2.5,
                     ymax = 5)
 
-ggsave(filename = "./paperexports/relspace-cts-hrs-extra2.png", plot = extra2, device = "png", width = 6,height = 6, units = "in")
+{if(save == 1)ggsave(filename = "./paperexports/relspace-cts-hrs-extra2.png", plot = extra2, device = "png", width = 6,height = 6, units = "in")}
 ```
 
 ```{r}
@@ -1056,7 +1056,7 @@ extra2 <- voronoidens %>%
                     ymin = 2.5,
                     ymax = 5)
 
-ggsave(filename = "./paperexports/relspace-cts-Temp-extra2.png", plot = extra2, device = "png", width = 6,height = 6, units = "in")
+{if(save == 1)ggsave(filename = "./paperexports/relspace-cts-Temp-extra2.png", plot = extra2, device = "png", width = 6,height = 6, units = "in")}
 ```
 
 
@@ -1248,6 +1248,6 @@ extra.ni <- voronoidens %>%
                     ymax = 5)
 
 #print(extra.ni)
-ggsave(filename = "./paperexports/relspace-cts-Ni-extra2.png", plot = extra.ni, device = "png", width = 6,height = 6, units = "in")
+{if(save == 1)ggsave(filename = "./paperexports/relspace-cts-Ni-extra2.png", plot = extra.ni, device = "png", width = 6,height = 6, units = "in")}
 ```
 

@@ -12,6 +12,8 @@ library(viridis)
 library(wesanderson)
 library(scico)
 library(paletteer)
+
+save <- 0
 ```
 
 
@@ -693,8 +695,8 @@ PCAscree <- fviz_eig(prcomp.R3, addlabels = TRUE, barfill = "#00A9FF") +
   geom_hline(yintercept = 37, size = 1)
 
 print(PCAscree)
-ggsave(filename = "./PCAexports/PCAscree.png", plot = PCAscree, 
-         device = "png", width = 6,height = 4, units = "in")
+{if(save == 1)ggsave(filename = "./PCAexports/PCAscree.png", plot = PCAscree, 
+         device = "png", width = 6,height = 4, units = "in")}
 rm(PCAscree)
 
 
@@ -733,8 +735,8 @@ scoresTemp <- autoplot(prcomp.R3, data = prcomp.R3.fractSum,
                                                           size = 10)))
 
 print(scoresTemp)
-ggsave(filename = "./PCAexports/scoresTemp.png", plot = scoresTemp, 
-         device = "png", width = 6,height = 4, units = "in")
+{if(save == 1)ggsave(filename = "./PCAexports/scoresTemp.png", plot = scoresTemp, 
+         device = "png", width = 6,height = 4, units = "in")}
 rm(scoresTemp)
 
 scoreshrs <- autoplot(prcomp.R3, data = prcomp.R3.fractSum,
@@ -761,8 +763,8 @@ scoreshrs <- autoplot(prcomp.R3, data = prcomp.R3.fractSum,
                                                           size = 10)))
 
 print(scoreshrs)
-ggsave(filename = "./PCAexports/scoreshrs.png", plot = scoreshrs, 
-         device = "png", width = 6,height = 4, units = "in")
+{if(save == 1)ggsave(filename = "./PCAexports/scoreshrs.png", plot = scoreshrs, 
+         device = "png", width = 6,height = 4, units = "in")}
 rm(scoreshrs)
 
 
@@ -794,8 +796,8 @@ scoresNi <- autoplot(prcomp.R3, data = prcomp.R3.fractSum,
                                                           size = 10)))
 
 print(scoresNi)
-ggsave(filename = "./PCAexports/scoresNi.png", plot = scoresNi, 
-         device = "png", width = 6,height = 4, units = "in")
+{if(save == 1)ggsave(filename = "./PCAexports/scoresNi.png", plot = scoresNi, 
+         device = "png", width = 6,height = 4, units = "in")}
 rm(scoresNi)
 
 
@@ -830,8 +832,8 @@ scoresTemphrs <- autoplot(prcomp.R3,
                                                           #face = "bold",
                                                           size = 10)))
 print(scoresTemphrs)
-ggsave(filename = "./PCAexports/scoresTemphrs.png", plot = scoresTemphrs, 
-         device = "png", width = 6,height = 4, units = "in")
+{if(save == 1)ggsave(filename = "./PCAexports/scoresTemphrs.png", plot = scoresTemphrs, 
+         device = "png", width = 6,height = 4, units = "in")}
 rm(scoresTemphrs)
 ```
 
@@ -868,8 +870,8 @@ scoresTemp34 <- autoplot(prcomp.R3,
                                                           size = 10)))
 
 print(scoresTemp34)
-ggsave(filename = "./PCAexports/scoresTemp34.png", plot = scoresTemp34, 
-         device = "png", width = 6,height = 4, units = "in")
+{if(save == 1)ggsave(filename = "./PCAexports/scoresTemp34.png", plot = scoresTemp34, 
+         device = "png", width = 6,height = 4, units = "in")}
 rm(scoresTemp34)
 
 scoreshrs34 <- autoplot(prcomp.R3, data = prcomp.R3.fractSum,
@@ -896,8 +898,8 @@ scoreshrs34 <- autoplot(prcomp.R3, data = prcomp.R3.fractSum,
                                                           size = 10)))
 
 print(scoreshrs34)
-ggsave(filename = "./PCAexports/scoreshrs34.png", plot = scoreshrs34, 
-         device = "png", width = 6,height = 4, units = "in")
+{if(save == 1)ggsave(filename = "./PCAexports/scoreshrs34.png", plot = scoreshrs34, 
+         device = "png", width = 6,height = 4, units = "in")}
 rm(scoreshrs34)
 
 
@@ -929,8 +931,8 @@ scoresNi34 <- autoplot(prcomp.R3, data = prcomp.R3.fractSum,
                                                           size = 10)))
 
 print(scoresNi34)
-ggsave(filename = "./PCAexports/scoresNi34.png", plot = scoresNi34, 
-         device = "png", width = 6,height = 4, units = "in")
+{if(save == 1)ggsave(filename = "./PCAexports/scoresNi34.png", plot = scoresNi34, 
+         device = "png", width = 6,height = 4, units = "in")}
 rm(scoresNi34)
 ```
 
@@ -1233,8 +1235,8 @@ PCfilm <- prcomp.R3.rot %>%
         legend.text = element_text(colour="black", size = 12))
 
 print(PCfilm)
-ggsave(filename = "./PCAexports/PCfilm.png", plot = PCfilm, 
-         device = "png", width = 6,height = 4, units = "in")
+{if(save == 1)ggsave(filename = "./PCAexports/PCfilm.png", plot = PCfilm, 
+         device = "png", width = 6,height = 4, units = "in")}
 rm(PCfilm)
 
 #uncomment below code to generate and save PC loading - R3 Distribution Plots
@@ -1308,8 +1310,8 @@ PCANi <- r3densities %>%
         legend.text = element_text(colour="black", size = 12))
 
 print(PCANi)
-ggsave(filename = paste("./PCAexports/plotexport",i,"Ni",".png", sep = ""), plot = PCANi, 
-         device = "png", width = 6,height = 4, units = "in")
+{if(save == 1)ggsave(filename = paste("./PCAexports/plotexport",i,"Ni",".png", sep = ""), plot = PCANi, 
+         device = "png", width = 6,height = 4, units = "in")}
 rm(PCANi)
 }
 
@@ -1382,8 +1384,8 @@ PCAhrs <- r3densities %>%
         legend.text = element_text(colour="black", size = 12))
 
 print(PCAhrs)
-ggsave(filename = paste("./PCAexports/plotexport",i,"hrs",".png", sep = ""), plot = PCAhrs, 
-         device = "png", width = 6,height = 4, units = "in")
+{if(save == 1)ggsave(filename = paste("./PCAexports/plotexport",i,"hrs",".png", sep = ""), plot = PCAhrs, 
+         device = "png", width = 6,height = 4, units = "in")}
 rm(PCAhrs)
 }
 ```
@@ -1442,8 +1444,8 @@ for (i in c("PC1","PC2","PC3","PC4","PC5","PC6")) {
         legend.text = element_text(colour="black", size = 12))
   
   print(PCATemp)
-  ggsave(filename = paste("./PCAexports/plotexport",i,"Temp",".png", sep = ""), plot = PCATemp, 
-         device = "png", width = 6,height = 4, units = "in")
+  {if(save == 1)ggsave(filename = paste("./PCAexports/plotexport",i,"Temp",".png", sep = ""), plot = PCATemp, 
+         device = "png", width = 6,height = 4, units = "in")}
   rm(PCATemp)
 }
 ```
@@ -1552,8 +1554,8 @@ PCA_Ni_Temp <- r3densities %>%
                                                           size = 12)))
 
   print(PCA_Ni_Temp)
-  ggsave(filename = paste("./PCAexports/plotexport",i,"_Ni_Temp",".png", sep = ""), plot = PCA_Ni_Temp, 
-         device = "png", width = 6,height = 4, units = "in")
+  {if(save == 1)ggsave(filename = paste("./PCAexports/plotexport",i,"_Ni_Temp",".png", sep = ""), plot = PCA_Ni_Temp, 
+         device = "png", width = 6,height = 4, units = "in")}
   rm(PCA_Ni_Temp)
 
 PCA_Temp_Ni <- r3densities %>%
@@ -1609,8 +1611,8 @@ PCA_Temp_Ni <- r3densities %>%
                                                          size = 12)))
   
   print(PCA_Temp_Ni)
-  ggsave(filename = paste("./PCAexports/plotexport",i,"_Temp_Ni",".png", sep = ""), plot = PCA_Temp_Ni, 
-         device = "png", width = 6,height = 4, units = "in")
+  {if(save == 1)ggsave(filename = paste("./PCAexports/plotexport",i,"_Temp_Ni",".png", sep = ""), plot = PCA_Temp_Ni, 
+         device = "png", width = 6,height = 4, units = "in")}
   rm(PCA_Temp_Ni)
 }
 ```
