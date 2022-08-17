@@ -5,6 +5,10 @@ date: "11/19/2020"
 output: html_document
 ---
 
+#NND
+
+##scree
+
 ```{r}
 prcomp.NND <- nnddensities %>%
   mutate(Label = substr(Labelfine, 1, 5)) %>%
@@ -48,6 +52,8 @@ loadingplot(prcomp.NND, comps = 1:5, legendpos = "right", labels = 'numbers', pr
             ylab = 'Loading Value')
 
 ```
+
+##scores
 
 ```{r}
 autoplot(prcomp.NND, data = prcomp.NND.meta,
@@ -111,6 +117,8 @@ autoplot(prcomp.NND,
   {if(cb == 1)scale_color_scico_d(palette = "batlow", direction = 1, begin = 0, end = 0.7)} +
   theme_classic()
 ```
+
+##filmstrip
 
 ```{r}
 prcomp.NND.rot <- prcomp.NND$rotation %>%
@@ -177,6 +185,11 @@ prcomp.NND.results <- prcomp.NND.meta %>%
 
 ```
 
+
+#EDGE
+
+##scree
+
 ```{r}
 prcomp.v <- voronoidens %>%
   #same filters below as R3 PCA
@@ -211,6 +224,8 @@ fviz_eig(prcomp.v, addlabels = TRUE)
 loadingplot(prcomp.v, comps = 1:5, legendpos = "right", labels = 'numbers', pretty.xlabels = TRUE, #xlab = 'Time (s)',
             ylab = 'Loading Value')
 ```
+
+##scores
 
 ```{r}
 autoplot(prcomp.v, data = prcomp.v.meta,
@@ -274,6 +289,8 @@ autoplot(prcomp.v,
   {if(cb == 1)scale_color_scico_d(palette = "batlow", direction = 1, begin = 0, end = 0.7)} +
   theme_classic()
 ```
+
+##filmstrip
 
 ```{r}
 prcomp.v.rot <- prcomp.v$rotation %>%
