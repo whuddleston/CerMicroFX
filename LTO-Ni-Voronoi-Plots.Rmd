@@ -8,6 +8,8 @@ output: html_document
 ```{r setup, include=FALSE}
 #SETUP OF LIBRARIES
 knitr::opts_chunk$set(echo = FALSE, warning=TRUE, message=FALSE) #set echo to FALSE to hide code
+
+save <- 0
 ```
 
 ```{r}
@@ -48,7 +50,7 @@ ggvmap <- list.files("./data-files/voronoi-txt-files-10k/", full.names = TRUE)[1
   #guides(fill = FALSE)
 
 print(ggvmap)
-ggsave(filename = "./edgeexports/plotexportggvmap.png", plot = ggvmap, device = "png", width = 8, height = 6, units = "in")
+{if(save == 1)ggsave(filename = "./edgeexports/plotexportggvmap.png", plot = ggvmap, device = "png", width = 8, height = 6, units = "in")}
 rm(ggvmap)
 ```
 
@@ -89,7 +91,7 @@ ggvmap2 <- list.files("./data-files/voronoi-txt-files-10k/", full.names = TRUE)[
   guides(fill = FALSE, size = FALSE)
 
 print(ggvmap2)
-ggsave(filename = "./edgeexports/plotexportggvmap2.png", plot = ggvmap2, device = "png", width = 5, height = 5, units = "in")
+{if(save == 1)ggsave(filename = "./edgeexports/plotexportggvmap2.png", plot = ggvmap2, device = "png", width = 5, height = 5, units = "in")}
 rm(ggvmap2)
 ```
 
@@ -137,8 +139,8 @@ voronoiTemp <- voronoidens %>%
         legend.text = element_text(colour="black", size = 12))
 
 print(voronoiTemp)
-ggsave(filename = "./edgeexports/voronoiTemp.png", plot = voronoiTemp, 
-    device = "png", width = 6,height = 4, units = "in")
+{if(save == 1)ggsave(filename = "./edgeexports/voronoiTemp.png", plot = voronoiTemp, 
+    device = "png", width = 6,height = 4, units = "in")}
 rm(voronoiTemp)
 ```
 
@@ -177,8 +179,8 @@ voronoiTempave <- voronoidens %>%
         legend.text = element_text(colour="black", size = 12))
 
 print(voronoiTempave)
-ggsave(filename = "./edgeexports/voronoiTempave.png", plot = voronoiTempave, 
-    device = "png", width = 6,height = 4, units = "in")
+{if(save == 1)ggsave(filename = "./edgeexports/voronoiTempave.png", plot = voronoiTempave, 
+    device = "png", width = 6,height = 4, units = "in")}
 rm(voronoiTempave)
 ```
 
@@ -219,8 +221,8 @@ voronoiTempcts <- voronoidens %>%
         legend.text = element_text(colour="black", size = 12))
 
 print(voronoiTempcts)
-ggsave(filename = "./edgeexports/voronoiTempcts.png", plot = voronoiTempcts, 
-    device = "png", width = 6,height = 4, units = "in")
+{if(save == 1)ggsave(filename = "./edgeexports/voronoiTempcts.png", plot = voronoiTempcts, 
+    device = "png", width = 6,height = 4, units = "in")}
 rm(voronoiTempcts)
 ```
 
@@ -286,8 +288,8 @@ voronoiNi <- voronoidens %>%
         legend.text = element_text(colour="black", size = 12))
 
 print(voronoiNi)
-ggsave(filename = "./edgeexports/voronoiNi.png", plot = voronoiNi, 
-    device = "png", width = 6,height = 4, units = "in")
+{if(save == 1)ggsave(filename = "./edgeexports/voronoiNi.png", plot = voronoiNi, 
+    device = "png", width = 6,height = 4, units = "in")}
 rm(voronoiNi)
 ```
 
@@ -328,8 +330,8 @@ voronoiNiave <- voronoidens %>%
         legend.text = element_text(colour="black", size = 12))
 
 print(voronoiNiave)
-ggsave(filename = "./edgeexports/voronoiNiave.png", plot = voronoiNiave, 
-    device = "png", width = 6,height = 4, units = "in")
+{if(save == 1)ggsave(filename = "./edgeexports/voronoiNiave.png", plot = voronoiNiave, 
+    device = "png", width = 6,height = 4, units = "in")}
 rm(voronoiNiave)
 ```
 
@@ -372,8 +374,8 @@ voronoiNicts <- voronoidens %>%
         legend.text = element_text(colour="black", size = 12))
 
 print(voronoiNicts)
-ggsave(filename = "./edgeexports/voronoiNicts.png", plot = voronoiNicts, 
-    device = "png", width = 6,height = 4, units = "in")
+{if(save == 1)ggsave(filename = "./edgeexports/voronoiNicts.png", plot = voronoiNicts, 
+    device = "png", width = 6,height = 4, units = "in")}
 rm(voronoiNicts)
 ```
 
@@ -537,8 +539,8 @@ voronoi_Ni_700_900 <- voronoidens %>%
         legend.text = element_text(colour="black", size = 12))
 
 print(voronoi_Ni_700_900)
-ggsave(filename = "./edgeexports/voronoi_Ni_700_900.png", plot = voronoi_Ni_700_900, 
-    device = "png", width = 6,height = 4, units = "in")
+{if(save == 1)ggsave(filename = "./edgeexports/voronoi_Ni_700_900.png", plot = voronoi_Ni_700_900, 
+    device = "png", width = 6,height = 4, units = "in")}
 rm(voronoi_Ni_700_900)
 
 voronoi_Temp_24_35 <- voronoidens %>%
@@ -583,8 +585,8 @@ voronoi_Temp_24_35 <- voronoidens %>%
         legend.text = element_text(colour="black", size = 12))
 
 print(voronoi_Temp_24_35)
-ggsave(filename = "./edgeexports/voronoi_Temp_24_35.png", plot = voronoi_Temp_24_35, 
-    device = "png", width = 6,height = 4, units = "in")
+{if(save == 1)ggsave(filename = "./edgeexports/voronoi_Temp_24_35.png", plot = voronoi_Temp_24_35, 
+    device = "png", width = 6,height = 4, units = "in")}
 rm(voronoi_Temp_24_35)
 ```
 
@@ -642,8 +644,8 @@ voronoihrs <- voronoidens %>%
         legend.text = element_text(colour="black", size = 12))
 
 print(voronoihrs)
-ggsave(filename = "./edgeexports/voronoihrs.png", plot = voronoihrs, 
-    device = "png", width = 6,height = 4, units = "in")
+{if(save == 1)ggsave(filename = "./edgeexports/voronoihrs.png", plot = voronoihrs, 
+    device = "png", width = 6,height = 4, units = "in")}
 rm(voronoihrs)
 ```
 
@@ -688,8 +690,8 @@ voronoihrsave <- voronoidens %>%
         legend.text = element_text(colour="black", size = 12))
 
 print(voronoihrsave)
-ggsave(filename = "./edgeexports/voronoihrsave.png", plot = voronoihrsave, 
-    device = "png", width = 6,height = 4, units = "in")
+{if(save == 1)ggsave(filename = "./edgeexports/voronoihrsave.png", plot = voronoihrsave, 
+    device = "png", width = 6,height = 4, units = "in")}
 rm(voronoihrsave)
 ```
 
@@ -736,8 +738,8 @@ voronoihrscts <- voronoidens %>%
         legend.text = element_text(colour="black", size = 12))
 
 print(voronoihrscts)
-ggsave(filename = "./edgeexports/voronoihrscts.png", plot = voronoihrscts, 
-    device = "png", width = 6,height = 4, units = "in")
+{if(save == 1)ggsave(filename = "./edgeexports/voronoihrscts.png", plot = voronoihrscts, 
+    device = "png", width = 6,height = 4, units = "in")}
 rm(voronoihrscts)
 ```
 
@@ -1028,8 +1030,8 @@ voronoinnd <- voronoidens %>%
         legend.text = element_text(colour="black", size = 12))
 
 print(voronoinnd)
-ggsave(filename = "./edgeexports/voronoinnd.png", plot = voronoinnd, 
-    device = "png", width = 6,height = 4.5, units = "in")
+{if(save == 1)ggsave(filename = "./edgeexports/voronoinnd.png", plot = voronoinnd, 
+    device = "png", width = 6,height = 4.5, units = "in")}
 rm(voronoinnd)
 ```
 
@@ -1124,8 +1126,8 @@ voronoicts <- voronoidens %>%
         legend.text = element_text(colour="black", size = 12))
 
 print(voronoicts)
-ggsave(filename = "./edgeexports/voronoicts.png", plot = voronoicts, 
-    device = "png", width = 6,height = 4.5, units = "in")
+{if(save == 1)ggsave(filename = "./edgeexports/voronoicts.png", plot = voronoicts, 
+    device = "png", width = 6,height = 4.5, units = "in")}
 rm(voronoicts)
 
 voronoisize <- voronoidens %>%
@@ -1176,8 +1178,8 @@ voronoisize <- voronoidens %>%
         legend.text = element_text(colour="black", size = 12))
 
 print(voronoisize)
-ggsave(filename = "./edgeexports/voronoisize.png", plot = voronoisize, 
-    device = "png", width = 6,height = 4.5, units = "in")
+{if(save == 1)ggsave(filename = "./edgeexports/voronoisize.png", plot = voronoisize, 
+    device = "png", width = 6,height = 4.5, units = "in")}
 rm(voronoisize)
 
 voronoidens %>%
@@ -1261,8 +1263,8 @@ con.voronoi.dist.eda <- voronoidens %>%
   theme_classic()
 
 print(con.voronoi.dist.eda)
-ggsave(filename = "./edgeexports/plotexport_con-voronoi-dist-eda.png", plot = con.voronoi.dist.eda, 
-       device = "png", width = 10,height = 8, units = "in")
+{if(save == 1)ggsave(filename = "./edgeexports/plotexport_con-voronoi-dist-eda.png", plot = con.voronoi.dist.eda, 
+       device = "png", width = 10,height = 8, units = "in")}
 rm(con.voronoi.dist.eda)
 ```
 
