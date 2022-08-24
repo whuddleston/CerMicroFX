@@ -1036,6 +1036,64 @@ rm(voronoinnd)
 ```
 
 ```{r}
+voronoinndtemp <- voronoidens %>%
+  select(-x, -count, -density, -Labelfineshort) %>%
+  unique() %>%
+  #
+  #filter(Ni.Vol.Corrected == 0.1) %>%
+  filter(Temp == 900) %>%
+  #filter(hrs == 5) %>%
+  filter(Label != "WH13A") %>%
+  filter(Label != "WH15B") %>%
+  filter(Labelfine != "WH35A/WH35A0010.tiff") %>%
+  #
+  mutate(stresso = stressf*exp((1.05-Th.Density/100)*coef(fracmodel)[2]*-1)) %>%
+  #
+  mutate(errdist = cos(pi*45/180)*(avevoronoix-fineavennd)) %>%
+  mutate(errx = fineavennd + (cos(pi*45/180)*errdist)) %>%
+  mutate(erry = avevoronoix - (cos(pi*45/180)*errdist)) %>%
+  #
+  ggplot() +
+  #geom_boxplot(aes(group = substr(Label,1,4), x = avevoronoix, y = condAve)) +
+  geom_point(stroke = 1.5, size = 2, aes(x = fineavennd, y = avevoronoix,
+                           shape = as.factor(Temp),
+                           color = as.factor(Ni.Vol.Corrected))) +
+  #geom_segment(aes(x = fineavennd, y = avevoronoix, xend = errx, yend = erry, color = as.factor(Ni.Vol.Corrected)), size = 1.0) +
+  #geom_abline(slope = 1, intercept = 0) +
+  scale_y_continuous(limits = c(0.5, 2.0), sec.axis = sec_axis(~., labels = NULL)) +
+  scale_x_continuous(limits = c(0.5, 2.0), sec.axis = sec_axis(~., labels = NULL)) +
+  scale_shape_manual(values=c(17, 16, 0, 2)) + #Temp
+  {if(cb == 1)scale_color_scico_d(palette = "roma", direction = 1)} + #nickel
+  
+  #coord_cartesian(clip = "off") +
+  ylab(expression('Edge-to-Edge'~Distance~'['*mu*m*']')) +
+  xlab(expression('Center-to-Center'~Distance~'['*mu*m*']')) +
+  guides(shape = guide_legend(reverse = TRUE, title = expression(Temp~'['*degree*C*']'), order = 2,
+                              title.theme = element_text(colour="black", 
+                                                         size = 12))) +
+  guides(colour = guide_legend(reverse = TRUE, title = "Ni Vol.", order = 1,
+                               #override.aes = list(size=4), 
+                               title.theme = element_text(colour = "black",
+                                                          #face = "bold",
+                                                          size = 12))) +
+  
+  coord_fixed() +
+  theme_classic() +
+  theme(axis.text.x = element_text(colour = "black", size = 16),
+        axis.text.y = element_text(colour = "black", size = 16),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 16),
+        axis.title.y = element_text(colour = "black", size = 16),
+        legend.text = element_text(colour="black", size = 12))
+
+print(voronoinndtemp)
+{if(save == 1)ggsave(filename = "./edgeexports/voronoinndtemp.png", plot = voronoinndtemp, 
+    device = "png", width = 6,height = 4.5, units = "in")}
+rm(voronoinndtemp)
+```
+
+```{r}
 voronoidens %>%
   select(-x, -count, -density, -Labelfineshort) %>%
   unique() %>%
@@ -1129,7 +1187,65 @@ print(voronoicts)
 {if(save == 1)ggsave(filename = "./edgeexports/voronoicts.png", plot = voronoicts, 
     device = "png", width = 6,height = 4.5, units = "in")}
 rm(voronoicts)
+```
 
+```{r}
+voronoictstemp <- voronoidens %>%
+  select(-x, -count, -density, -Labelfineshort) %>%
+  unique() %>%
+  #
+  #filter(Ni.Vol.Corrected == 0.35) %>%
+  filter(Temp >= 800) %>%
+  #filter(hrs == 5) %>%
+  filter(Labelfine != "WH35A/WH35A0010.tiff") %>%
+  filter(Label != "WH13A") %>% #weird outlier
+  filter(Label != "WH15B") %>%
+  filter(Label != "WH10D") %>%
+  #filter(Labelfine != "WH06A/1000-5-35A0006.tiff") %>%
+  #filter(Labelfine != "WH06C/1000-5-35C0004.tiff") %>%
+  #
+  #
+  mutate(stresso = stressf*exp((1.05-Th.Density/100)*coef(fracmodel)[2]*-1)) %>%
+  #
+  ggplot() +
+  #geom_boxplot(aes(group = substr(Label,1,4), x = avevoronoix, y = condAve)) +
+  geom_point(stroke = 1.5, size = 2, aes(x = countperarea, y = avevoronoix,
+                           shape = as.factor(Temp),
+                           color = as.factor(Ni.Vol.Corrected))) +
+  #geom_label_repel(aes(x = countperarea, y = avevoronoix, label = Label)) +
+  scale_y_continuous(limits = c(0, 2.5),
+                     sec.axis = sec_axis(~., labels = NULL)) +
+  scale_x_continuous(limits = c(0, 1.4),
+                     breaks = c(0,0.25,0.5,0.75,1,1.25),
+                     sec.axis = sec_axis(~., labels = NULL)) +
+  scale_shape_manual(values=c(17, 16, 0, 2)) + #Temp
+  {if(cb == 1)scale_color_scico_d(palette = "roma", direction = 1)} + #nickel
+  ylab(expression('Edge-to-Edge'~Distance~'['*mu*m*']')) +
+  xlab(expression('Counts-Per-Area'~'['*cts*'/'*mu*m^2*']')) +
+  theme_classic() +
+  guides(shape = guide_legend(reverse = TRUE, title = expression(Temp~'['*degree*C*']'), 
+                              title.theme = element_text(colour="black", 
+                                                         size = 12))) +
+  guides(colour = guide_legend(reverse = TRUE, title = "Ni Vol.", 
+                               title.theme = element_text(colour="black", 
+                                                          size = 12))) +
+  
+  theme(axis.text.x = element_text(colour = "black", size = 16),
+        axis.text.y = element_text(colour = "black", size = 16),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 16),
+        axis.title.y = element_text(colour = "black", size = 16),
+        legend.text = element_text(colour="black", size = 12))
+
+print(voronoictstemp)
+{if(save == 1)ggsave(filename = "./edgeexports/voronoictstemp.png", plot = voronoictstemp, 
+    device = "png", width = 6,height = 4.5, units = "in")}
+rm(voronoictstemp)
+```
+
+
+```{r}
 voronoisize <- voronoidens %>%
   select(-x, -count, -density, -Labelfineshort) %>%
   unique() %>%
@@ -1181,8 +1297,10 @@ print(voronoisize)
 {if(save == 1)ggsave(filename = "./edgeexports/voronoisize.png", plot = voronoisize, 
     device = "png", width = 6,height = 4.5, units = "in")}
 rm(voronoisize)
+```
 
-voronoidens %>%
+```{r}
+voronoisizetemp <- voronoidens %>%
   select(-x, -count, -density, -Labelfineshort) %>%
   unique() %>%
   #
@@ -1209,7 +1327,7 @@ voronoidens %>%
                      sec.axis = sec_axis(~., labels = NULL)) +
   scale_x_continuous(limits = c(0, 3),
                      sec.axis = sec_axis(~., labels = NULL)) +
-  #scale_shape_manual(values=c(16, 17, 0, 2)) + #hrs
+  scale_shape_manual(values=c(17, 16, 0, 2)) + #Temp
   {if(cb == 1)scale_color_scico_d(palette = "roma", direction = 1)} + #nickel
   ylab(expression(Average~Voronoi~Distance~'['*mu*m*']')) +
   xlab(expression(Average~Particle~Area~'['*mu*m^2*']')) +
@@ -1228,6 +1346,11 @@ voronoidens %>%
         axis.title.x = element_text(colour = "black", size = 16),
         axis.title.y = element_text(colour = "black", size = 16),
         legend.text = element_text(colour="black", size = 12))
+
+print(voronoisizetemp)
+{if(save == 1)ggsave(filename = "./edgeexports/voronoisizetemp.png", plot = voronoisizetemp, 
+    device = "png", width = 6,height = 4.5, units = "in")}
+rm(voronoisizetemp)
 ```
 
 ```{r}
