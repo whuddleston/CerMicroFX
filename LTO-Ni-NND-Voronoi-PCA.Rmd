@@ -365,7 +365,7 @@ prcomp.v.results <- prcomp.v.meta %>%
 ```
 
 ```{r}
-voronoidens %>%
+vrn.PC2.Temp <- voronoidens %>%
   #filter(Ni.Vol.Corrected == 0.35) %>%
   #filter(Temp == 900) %>%
   filter(hrs == 5) %>%
@@ -382,11 +382,11 @@ voronoidens %>%
   #
   #mutate(r3x = 10^r3x) %>%
   #
-  ggplot(aes(fill = PC1)) +
+  ggplot(aes(fill = PC2)) +
   geom_ridgeline_gradient(aes(x = vx, y = Temp, 
                      #fill = PC1,
                      #height = count/200, 
-                     height = density*100, #height is either density or count
+                     height = density*75, #height is either density or count
                      group = Labelfine)) + 
 
   # geom_rect(color = "black", aes(xmin = avevoronoix-0.01,
@@ -395,8 +395,8 @@ voronoidens %>%
   #               ymax = Temp+100,
   #               fill = as.factor(Temp))) +
 
-  geom_tile(aes(x = vx, y = 1200, width = 0.025, height = 10)) +
-  scale_fill_scico(palette = "roma", limits = c(-0.15,0.15), direction = -1) +
+  geom_tile(aes(x = vx, y = 1250, width = 0.1, height = 10)) +
+  scale_fill_scico(palette = "buda", limits = c(-0.1,0.1), direction = -1) +
   scale_x_log10(sec.axis = sec_axis(~., labels = NULL)) +
   scale_y_continuous(breaks = c(700,800,900,1000,1100),
                      labels = c(700,800,900,1000,1100),
@@ -417,10 +417,15 @@ voronoidens %>%
         axis.title.x = element_text(colour = "black", size = 16),
         axis.title.y = element_text(colour = "black", size = 16),
         legend.text = element_text(colour="black", size = 12))
+
+print(vrn.PC2.Temp)
+ggsave(filename = "./PCAexports/vrn-PC2-Temp.png", plot = vrn.PC2.Temp, 
+         device = "png", width = 6,height = 4, units = "in")
+rm(vrn.PC2.Temp)
 ```
 
 ```{r}
-voronoidens %>%
+vrn.PC1.Ni <- voronoidens %>%
   mutate(Ni.Vol.Corrected2 = Ni.Vol.Corrected) %>%
   mutate(Ni.Vol.Corrected2 = if_else(Ni.Vol.Corrected == 0.05,
                                     replace(Ni.Vol.Corrected, Ni.Vol.Corrected == 0.05, 1), Ni.Vol.Corrected2)) %>%
@@ -439,7 +444,7 @@ voronoidens %>%
   mutate(Ni.Vol.Corrected2 = if_else(Ni.Vol.Corrected == 0.50,
                                     replace(Ni.Vol.Corrected, Ni.Vol.Corrected == 0.50, 8), Ni.Vol.Corrected2)) %>%
   
-  #filter(Temp == 900) %>%
+  filter(Temp == 900) %>%
   #filter(Ni.Vol.Corrected == 0.35) %>%
   filter(hrs == 5) %>%
   filter(Label != "WH13A") %>%
@@ -455,13 +460,13 @@ voronoidens %>%
   #
   ggplot(aes(fill = PC1)) +
   geom_ridgeline_gradient(aes(x = vx, y = Ni.Vol.Corrected2,
-                              color = as.factor(Temp),
+                              #color = as.factor(Temp),
                      #fill = as.factor(Ni.Vol.Corrected),
                      #height = count/20000, 
                      height = density, #height is either density or count
                      group = Labelfine)) + 
-  #geom_tile(aes(x = vx, y = 1200, width = 0.025, height = 10)) +
-  scale_fill_scico(palette = "roma", limits = c(-0.15,0.15), direction = -1) +
+  geom_tile(aes(x = vx, y = 10, width = 0.1, height = 0.25)) +
+  scale_fill_scico(palette = "buda", limits = c(-0.1,0.1), direction = -1) +
   #
   # geom_rect(color = "black", aes(xmin = avevoronoix-0.01, 
   #               ymin = Ni.Vol.Corrected2, 
@@ -470,8 +475,8 @@ voronoidens %>%
   #               fill = as.factor(Ni.Vol.Corrected))) +
   #
   scale_x_log10(sec.axis = sec_axis(~., labels = NULL)) +
-  scale_y_continuous(breaks = c(1:8),
-                     labels = c("0.05", "0.10", "0.20", "0.24", "0.28", "0.35", "0.40", "0.50"),
+  scale_y_continuous(breaks = c(1:8,10),
+                     labels = c("0.05", "0.10", "0.20", "0.24", "0.28", "0.35", "0.40", "0.50","PC"),
                      sec.axis = sec_axis(~., breaks = c(1:8), labels = NULL)) +
   xlab(expression(Voronoi~Distance~'['*mu*m*']')) +
   ylab("Nickel Volume Fraction") +
@@ -489,5 +494,13 @@ voronoidens %>%
         axis.title.x = element_text(colour = "black", size = 16),
         axis.title.y = element_text(colour = "black", size = 16),
         legend.text = element_text(colour="black", size = 12))
+
+
+print(vrn.PC1.Ni)
+ggsave(filename = "./PCAexports/vrn-PC1-Ni.png", plot = vrn.PC1.Ni, 
+         device = "png", width = 6,height = 4, units = "in")
+rm(vrn.PC1.Ni)
+
+scico_palette_show()
 ```
 

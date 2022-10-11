@@ -1,0 +1,279 @@
+---
+title: "skel-PCA"
+author: "whh36"
+date: "8/28/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+#SKEL.BR
+
+```{r}
+skel.br.densities <- read.csv("./data-files/skel.dens.branch.csv", header = TRUE)
+
+skel.br.densities <- skel.br.densities %>%
+  mutate(Labelfineshort = i) %>%
+  select(-i) %>%
+  mutate(Labelfineshort = as.character(Labelfineshort)) %>%
+  mutate(LabelLength = nchar(Labelfineshort)) %>%
+  mutate(Labelfineshort = substr(Labelfineshort, 27, LabelLength-4)) %>%
+  select(-LabelLength)
+
+skel.br.densities <- voronoidens %>%
+  select(-x,-density,-count) %>%
+  unique() %>%
+  left_join(., skel.br.densities, by = "Labelfineshort")
+```
+
+##scree
+
+```{r}
+prcomp.skel.br <- skel.br.densities %>%
+  #mutate(Label = substr(Labelfine, 1, 5)) %>%
+  #left_join(., fractSum, by = "Label") %>%
+  #
+  #same filters below as R3 PCA
+  filter(Label != "WH13A") %>% #weird outlier
+  filter(Label != "WH15B") %>%
+  filter(Label != "WH21B") %>%
+  filter(Labelfine != "WH06A/1000-5-35A0006.tiff") %>%
+  filter(Labelfine != "WH06C/1000-5-35C0004.tiff") %>%
+  #
+  select(x, density, Labelfine) %>%
+  mutate(x = round(x, digits = 3)) %>%
+  spread(., key = x, value = density) %>%
+  select(-Labelfine) %>%
+  prcomp(scale = TRUE)
+
+prcomp.skel.br.meta <- skel.br.densities %>%
+  #mutate(Label = substr(Labelfine, 1, 5)) %>%
+  #left_join(., fractSum, by = "Label") %>%
+  #
+  #same filters below as R3 PCA
+  filter(Label != "WH13A") %>% #weird outlier
+  filter(Label != "WH15B") %>%
+  filter(Label != "WH21B") %>%
+  filter(Labelfine != "WH06A/1000-5-35A0006.tiff") %>%
+  filter(Labelfine != "WH06C/1000-5-35C0004.tiff") %>%
+  #
+  select(-x, -density) %>%
+  unique() %>%
+  arrange(Labelfine)
+
+prcomp.skel.br.meta$Temp <- as.factor(prcomp.skel.br.meta$Temp)
+prcomp.skel.br.meta$hrs <- as.factor(prcomp.skel.br.meta$hrs)
+prcomp.skel.br.meta$Ni.Vol.Corrected <- as.factor(prcomp.skel.br.meta$Ni.Vol.Corrected)
+
+
+fviz_eig(prcomp.skel.br, addlabels = TRUE)
+
+loadingplot(prcomp.skel.br, comps = 1:5, legendpos = "right", labels = 'numbers', pretty.xlabels = TRUE, #xlab = 'Time (s)',
+            ylab = 'Loading Value')
+
+```
+
+##scores
+
+```{r}
+autoplot(prcomp.NND, data = prcomp.NND.meta,
+         x = 1,
+         y = 2,
+         colour = "Temp",
+         #shape = "hrs",
+         label = FALSE, frame = TRUE) +
+  scale_x_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  scale_y_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  geom_hline(yintercept = 0, color = "black", size = 0.5, linetype = "dashed") +
+  geom_vline(xintercept = 0, color = "black", size = 0.5, linetype = "dashed") +
+  scale_shape_manual(values=c(16, 17, 0, 2)) + #hrs
+  {if(cb == 1)scale_fill_scico_d(palette = "batlow", direction = 1, begin = 0, end = 0.7)} +
+  {if(cb == 1)scale_color_scico_d(palette = "batlow", direction = 1, begin = 0, end = 0.7)} +
+  theme_classic()
+
+autoplot(prcomp.NND, data = prcomp.NND.meta,
+         x = 1,
+         y = 2,
+         colour = "hrs",
+         label = FALSE, frame = TRUE) +
+  scale_x_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  scale_y_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  geom_hline(yintercept = 0, color = "black", size = 0.5, linetype = "dashed") +
+  geom_vline(xintercept = 0, color = "black", size = 0.5, linetype = "dashed") +
+  {if(cb == 1)scale_fill_scico_d(palette = "lajolla", direction = 1, begin = 0.4, end = 1)} +
+  {if(cb == 1)scale_color_scico_d(palette = "lajolla", direction = 1, begin = 0.4, end = 1)} +
+  theme_classic()
+
+autoplot(prcomp.NND, data = prcomp.NND.meta,
+         x = 1,
+         y = 2,
+         colour = "Ni.Vol.Corrected",
+         #shape = "hrs",
+         label = FALSE, frame = TRUE) +
+  scale_x_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  scale_y_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  geom_hline(yintercept = 0, color = "black", size = 0.5, linetype = "dashed") +
+  geom_vline(xintercept = 0, color = "black", size = 0.5, linetype = "dashed") +
+  {if(cb == 1)scale_fill_scico_d(palette = "roma", direction = 1)} +
+  {if(cb == 1)scale_color_scico_d(palette = "roma", direction = 1)} +
+  labs(colour = "Ni [%]") +
+  labs(fill = "Ni [%]") +
+  scale_shape_manual(values=c(16, 17, 0, 2)) + #hrs
+  theme_classic()
+
+
+
+autoplot(prcomp.NND, 
+         x = 1,
+         y = 2,
+         data = prcomp.NND.meta,
+         colour = "Temp",
+         shape = "hrs",
+         label = FALSE, frame = TRUE) +
+  scale_x_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  scale_y_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  scale_shape_manual(values=c(16, 17, 0, 2)) + #hrs
+  {if(cb == 1)scale_fill_scico_d(palette = "batlow", direction = 1, begin = 0, end = 0.7)} +
+  {if(cb == 1)scale_color_scico_d(palette = "batlow", direction = 1, begin = 0, end = 0.7)} +
+  theme_classic()
+```
+
+##filmstrip
+
+```{r}
+prcomp.skel.br.rot <- prcomp.skel.br$rotation %>%
+  as.data.frame() %>%
+  rownames_to_column(var = "x") %>%
+  mutate(x = as.numeric(x)) %>%
+  #filter(r3x >= -4) %>%
+  #filter(r3x <= 4) %>%
+  select(1:11)
+
+prcomp.skel.br.rot %>%
+  mutate(x = 10^x) %>% #log scale fix
+  #
+  ggplot() +
+  geom_tile(aes(x = x, y = 1, width = 0.025, height = 0.1, fill = PC1)) +
+  geom_tile(aes(x = x, y = 2, width = 0.025, height = 0.1, fill = PC2)) +
+  geom_tile(aes(x = x, y = 3, width = 0.025, height = 0.1, fill = PC3)) +
+  geom_tile(aes(x = x, y = 4, width = 0.025, height = 0.1, fill = PC4)) +
+  geom_tile(aes(x = x, y = 5, width = 0.025, height = 0.1, fill = PC5)) +
+  #
+  scale_fill_scico(palette = "roma", limits = c(-0.2,0.2), 
+                   direction = -1) +
+  #scale_fill_gradientn(colors = brewer_pal(palette = "RdBu")(5), limits = c(-0.15,0.15)) +
+  scale_x_log10(sec.axis = sec_axis(~., labels = NULL)) +
+  scale_y_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  ylab("PC") +
+  #xlab(expression(Nearest~Neighbor~Distance~'['*mu*m*']')) +
+  labs(fill = "PC") +
+  theme_classic() +
+  theme(axis.text.x = element_text(colour = "black", size = 16),
+        axis.text.y = element_text(colour = "black", size = 16),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 16),
+        axis.title.y = element_text(colour = "black", size = 16),
+        legend.text = element_text(colour="black", size = 12))
+
+
+```
+
+```{r}
+prcomp.skel.br.Var = get_pca_ind(prcomp.skel.br)
+
+#prcomp.NND.Contrib = prcomp.NND.Var$contrib
+
+prcomp.skel.br.Coord = as.data.frame(prcomp.skel.br.Var$coord)[1:10]
+
+rm(prcomp.skel.br.Var)
+
+
+prcomp.skel.br.results <- prcomp.skel.br.meta %>%
+  select(Labelfine) %>%
+  cbind(., prcomp.skel.br.Coord) %>%
+  rename(skel.br.PC1 = Dim.1,
+         skel.br.PC2 = Dim.2,
+         skel.br.PC3 = Dim.3,
+         skel.br.PC4 = Dim.4,
+         skel.br.PC5 = Dim.5,
+         skel.br.PC6 = Dim.6,
+         skel.br.PC7 = Dim.7,
+         skel.br.PC8 = Dim.8,
+         skel.br.PC9 = Dim.9,
+         skel.br.PC10 = Dim.10)
+
+```
+
+
+```{r}
+
+
+skel.br.PC1.Ni <- skel.br.densities %>%
+  mutate(Ni.Vol.Corrected2 = Ni.Vol.Corrected) %>%
+  mutate(Ni.Vol.Corrected2 = if_else(Ni.Vol.Corrected == 0.05,
+                                    replace(Ni.Vol.Corrected, Ni.Vol.Corrected == 0.05, 1), Ni.Vol.Corrected2)) %>%
+  mutate(Ni.Vol.Corrected2 = if_else(Ni.Vol.Corrected == 0.10,
+                                    replace(Ni.Vol.Corrected, Ni.Vol.Corrected == 0.10, 2), Ni.Vol.Corrected2)) %>%
+  mutate(Ni.Vol.Corrected2 = if_else(Ni.Vol.Corrected == 0.20,
+                                    replace(Ni.Vol.Corrected, Ni.Vol.Corrected == 0.20, 3), Ni.Vol.Corrected2)) %>%
+  mutate(Ni.Vol.Corrected2 = if_else(Ni.Vol.Corrected == 0.24,
+                                    replace(Ni.Vol.Corrected, Ni.Vol.Corrected == 0.24, 4), Ni.Vol.Corrected2)) %>%
+  mutate(Ni.Vol.Corrected2 = if_else(Ni.Vol.Corrected == 0.28,
+                                    replace(Ni.Vol.Corrected, Ni.Vol.Corrected == 0.28, 5), Ni.Vol.Corrected2)) %>%
+  mutate(Ni.Vol.Corrected2 = if_else(Ni.Vol.Corrected == 0.35,
+                                    replace(Ni.Vol.Corrected, Ni.Vol.Corrected == 0.35, 6), Ni.Vol.Corrected2)) %>%
+  mutate(Ni.Vol.Corrected2 = if_else(Ni.Vol.Corrected == 0.40,
+                                    replace(Ni.Vol.Corrected, Ni.Vol.Corrected == 0.40, 7), Ni.Vol.Corrected2)) %>%
+  mutate(Ni.Vol.Corrected2 = if_else(Ni.Vol.Corrected == 0.50,
+                                    replace(Ni.Vol.Corrected, Ni.Vol.Corrected == 0.50, 8), Ni.Vol.Corrected2)) %>%
+  filter(Label != "WH13A") %>% #weird outlier
+  filter(Label != "WH15B") %>%
+  filter(Labelfine != "WH06A/1000-5-35A0006.tiff") %>%
+  filter(Labelfine != "WH06C/1000-5-35C0004.tiff") %>%
+  filter(Label != "WH19A") %>%
+  #filter(Average.Branch.Length > 0) %>%
+  #filter(Branches > 1) %>%
+  #
+  filter(Temp == 900) %>%
+  filter(hrs == 5) %>%
+  mutate(x = round(x, digits = 3)) %>%
+  
+  left_join(., prcomp.skel.br.rot, by = "x") %>%
+  
+  #
+  ggplot(aes(fill = PC1)) +
+  geom_ridgeline_gradient(size = 1, aes(x = x, y = Ni.Vol.Corrected2, group = Labelfine, 
+                                    #color = black,
+                                    height = density)) +
+  #geom_tile(aes(x = x, y = 10, width = 0.1, height = 1)) +
+  scale_fill_scico(palette = "cork", limits = c(-0.1,0.1), direction = -1) +
+  
+  ylab("Nickel Volume Fraction") +
+  xlab("Branches") +
+  scale_x_log10(limits = c(0.25,3),sec.axis = sec_axis(~., labels = NULL)) +
+  scale_y_continuous(breaks = c(1,2,3,4,5,6,7,8),
+                     labels = c("0.05", "0.10", "0.20", "0.24", "0.28", "0.35", "0.40", "0.50"),
+                     sec.axis = sec_axis(~., labels = NULL)) +
+  annotation_logticks(sides = "b") +
+  guides(colour = FALSE, fill = guide_colorbar(reverse = TRUE, title = "PC1", 
+                               #override.aes = list(size=4), 
+                               title.theme = element_text(colour = "black",
+                                                          #face = "bold",
+                                                          size = 12))) +
+  theme_classic() +
+  theme(axis.text.x = element_text(colour = "black", size = 16),
+        axis.text.y = element_text(colour = "black", size = 16),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 16),
+        axis.title.y = element_text(colour = "black", size = 16),
+        legend.text = element_text(colour="black", size = 12))
+
+print(skel.br.PC1.Ni)
+ggsave(filename = "./PCAexports/skel-br-PC1-Ni.png", plot = skel.br.PC1.Ni, 
+         device = "png", width = 6,height = 4, units = "in")
+rm(skel.br.PC1.Ni)
+```
