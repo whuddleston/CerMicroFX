@@ -13,6 +13,8 @@ library(e1071)
 library(ipred)
 library(concaveman)
 library(randomForestExplainer)
+
+save <- 0
 ```
 
 #data splitting
@@ -84,7 +86,9 @@ rm(bind3)
 tempscaled <- as.data.frame(scale(temp))
 
 #split into testing and training
-split <- createDataPartition(temp$condAve, p = 0.7, times = 4)
+temp <- mutate(temp, Ni.Vol.Corrected = as.factor(Ni.Vol.Corrected))
+split <- createDataPartition(temp$condAve, p = 0.7, times = 1)
+temp <- mutate(temp, Ni.Vol.Corrected = as.numeric(Ni.Vol.Corrected))
 
 trainset <- temp[as.vector(split[[1]]),]
 testset <- temp[-as.vector(split[[1]]),]
@@ -102,7 +106,7 @@ testset <- select(testset,c(names(select(testset, -condAve)), "condAve"))
 summary(trainset)
 #summary(testset)
 #rm(temp)
-rm(split)
+#rm(split)
 
 ```
 
@@ -144,8 +148,8 @@ conrferrplot <- ggplot() +
 
 
 print(conrferrplot)
-ggsave(filename = "./MLexports/conrferrplot.png", plot = conrferrplot, 
-         device = "png", width = 6,height = 4, units = "in")
+{if(save == 1)ggsave(filename = "./MLexports/conrferrplot.png", plot = conrferrplot, 
+         device = "png", width = 6,height = 4, units = "in")}
 rm(conrferr)
 rm(conrferrplot)
 
@@ -196,13 +200,14 @@ ggplot() +
 # conrfnode <- dotchart(rfmodimp.verb$IncNodePurity, labels = rfmodimp.verb$variable, main = "Conductivity RF")
 # 
 # print(conrfnode)
-# ggsave(filename = "./MLexports/conrfnode.png", plot = conrfnode, 
-#          device = "png", width = 6,height = 4, units = "in")
+# {if(save == 1)ggsave(filename = "./MLexports/conrfnode.png", plot = conrfnode, 
+#          device = "png", width = 6,height = 4, units = "in")}
 # rm(conrfnode)
+{if(save == 1)
 png("./MLexports/conrfnode.png")
 print(dotchart(rfmodimp.verb$IncNodePurity, labels = rfmodimp.verb$variable, main = "Conductivity RF"))
 dev.off()
-
+}
 
 #somehow combine node purity and depth information?
 ```
@@ -258,8 +263,8 @@ conrfpredmeas <- cbind(rfresults, testset) %>%
            y = -1)
 
 print(conrfpredmeas)
-ggsave(filename = "./MLexports/conrfpredmeas.png", plot = conrfpredmeas, 
-         device = "png", width = 6,height = 4, units = "in")
+{if(save == 1)ggsave(filename = "./MLexports/conrfpredmeas.png", plot = conrfpredmeas, 
+         device = "png", width = 6,height = 4, units = "in")}
 rm(conrfpredmeas)
 
 ```
@@ -316,8 +321,8 @@ conrfpredmeas.training <- cbind(rfresults.training, trainset) %>%
            y = -1)
 
 print(conrfpredmeas.training)
-ggsave(filename = "./MLexports/conrfpredmeastrain.png", plot = conrfpredmeas.training, 
-         device = "png", width = 6,height = 4, units = "in")
+{if(save == 1)ggsave(filename = "./MLexports/conrfpredmeastrain.png", plot = conrfpredmeas.training, 
+         device = "png", width = 6,height = 4, units = "in")}
 rm(conrfpredmeas.training)
 
 
@@ -354,8 +359,8 @@ conrfmindepth <- plot_min_depth_distribution(rfmodel.min.depth.df, k = 30) +
   {if(cb == 1)scale_fill_scico_d(na.translate = FALSE, palette = "nuuk", direction = 1, begin = 0, end = 1)}
 
 print(conrfmindepth)
-ggsave(filename = "./MLexports/conrfmindepth.png", plot = conrfmindepth, 
-         device = "png", width = 7.29,height = 4.5, units = "in")
+{if(save == 1)ggsave(filename = "./MLexports/conrfmindepth.png", plot = conrfmindepth, 
+         device = "png", width = 7.29,height = 4.5, units = "in")}
 rm(conrfmindepth)
 ```
 
@@ -630,8 +635,8 @@ consvmimp.verb <- consvmimp %>%
 #                       consvmvarex*100,
 #                       "% Var Explained"))
 # print(consvmvar)
-# ggsave(filename = "./MLexports/consvmvar.png", plot = consvmvar, 
-#          device = "png", width = 6,height = 4, units = "in")
+# {if(save == 1)ggsave(filename = "./MLexports/consvmvar.png", plot = consvmvar, 
+#          device = "png", width = 6,height = 4, units = "in")}
 # rm(consvmvar)
 png("./MLexports/consvmvar.png")
 print(dotchart(consvmimp.verb$Overall, xlab = "Importance", labels = consvmimp.verb$variable, main = paste("Conductivity SVM -",
@@ -677,8 +682,8 @@ consvmpredmeas <- cbind(consvmresults, testset) %>%
 
 
 print(consvmpredmeas)
-ggsave(filename = "./MLexports/consvmpredmeas.png", plot = consvmpredmeas, 
-         device = "png", width = 6,height = 4, units = "in")
+{if(save == 1)ggsave(filename = "./MLexports/consvmpredmeas.png", plot = consvmpredmeas, 
+         device = "png", width = 6,height = 4, units = "in")}
 rm(consvmpredmeas)
 ```
 
@@ -925,8 +930,8 @@ stressrferrplot <- ggplot() +
         legend.text = element_text(colour="black", size = 12))
 
 print(stressrferrplot)
-ggsave(filename = "./MLexports/stressrferrplot.png", plot = stressrferrplot, 
-         device = "png", width = 6,height = 4, units = "in")
+{if(save == 1)ggsave(filename = "./MLexports/stressrferrplot.png", plot = stressrferrplot, 
+         device = "png", width = 6,height = 4, units = "in")}
 rm(stressrferr)
 rm(stressrferrplot)
 #print(rfmodels)
@@ -984,8 +989,8 @@ stressrfpredmeas <- cbind(rfresultss, testset2) %>%
            y = -1)
 
 print(stressrfpredmeas)
-ggsave(filename = "./MLexports/stressrfpredmeas.png", plot = stressrfpredmeas, 
-         device = "png", width = 6,height = 4, units = "in")
+{if(save == 1)ggsave(filename = "./MLexports/stressrfpredmeas.png", plot = stressrfpredmeas, 
+         device = "png", width = 6,height = 4, units = "in")}
 rm(stressrfpredmeas)
 ```
 
@@ -1018,8 +1023,8 @@ ggplot() +
 # stressrfnode <- dotchart(rfmodimps.verb$IncNodePurity, labels = rfmodimps.verb$variable, main = "Stress RF")
 # 
 # print(stressrfnode)
-# ggsave(filename = "./MLexports/stressrfnode.png", plot = stressrfnode, 
-#          device = "png", width = 6,height = 4, units = "in")
+# {if(save == 1)ggsave(filename = "./MLexports/stressrfnode.png", plot = stressrfnode, 
+#          device = "png", width = 6,height = 4, units = "in")}
 # rm(stressrfnode)
 png("./MLexports/stressrfnode.png")
 print(dotchart(rfmodimps.verb$IncNodePurity, labels = rfmodimps.verb$variable, main = "Stress RF"))
@@ -1062,8 +1067,8 @@ stressrfmindepth <- plot_min_depth_distribution(rfmodels.min.depth.df, k = 30) +
 
 
 print(stressrfmindepth)
-ggsave(filename = "./MLexports/stressrfmindepth.png", plot = stressrfmindepth, 
-         device = "png", width = 7.29,height = 4.5, units = "in")
+{if(save == 1)ggsave(filename = "./MLexports/stressrfmindepth.png", plot = stressrfmindepth, 
+         device = "png", width = 7.29,height = 4.5, units = "in")}
 rm(stressrfmindepth)
 
 # measure_importance(rfmodels) %>%
@@ -1274,8 +1279,8 @@ ggplot() +
 #                       stress.svmvarex*100,
 #                       "% Var Explained"))
 # print(stress.svmvar)
-# ggsave(filename = "./MLexports/stress.svmvar.png", plot = stress.svmvar, 
-#          device = "png", width = 6,height = 4, units = "in")
+# {if(save == 1)ggsave(filename = "./MLexports/stress.svmvar.png", plot = stress.svmvar, 
+#          device = "png", width = 6,height = 4, units = "in")}
 # rm(stress.svmvar)
 png("./MLexports/stresssvmvar.png")
 print(dotchart(stress.svmimp.verb$Overall, xlab = "Importance", labels = stress.svmimp.verb$variable, main = paste("Stress SVM -",
@@ -1318,8 +1323,8 @@ stress.svmpredmeas <- cbind(stress.svmresults, testset2) %>%
            y = -1)
 
 print(stress.svmpredmeas)
-ggsave(filename = "./MLexports/stresssvmpredmeas.png", plot = stress.svmpredmeas, 
-         device = "png", width = 6,height = 4, units = "in")
+{if(save == 1)ggsave(filename = "./MLexports/stresssvmpredmeas.png", plot = stress.svmpredmeas, 
+         device = "png", width = 6,height = 4, units = "in")}
 rm(stress.svmpredmeas)
 ```
 
