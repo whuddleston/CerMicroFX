@@ -13,11 +13,20 @@ library(e1071)
 library(ipred)
 library(concaveman)
 library(randomForestExplainer)
-
+cb <- 1
 save <- 0
 ```
 
 #data prep
+
+<!--
+```{r}
+df_particles_fine %>% 
+  select(Labelfine,condAve) %>% 
+  unique() %>%
+  filter(is.na(condAve) == FALSE)
+```
+
 
 ```{r}
 PC_compiled.full <- read.csv("./data-files/pc_scores_nnd_vrn_r3d_3skel.csv")
@@ -27,15 +36,16 @@ PC_compiled.mid <- df_particles_fine %>%
   unique() %>%
   left_join(PC_compiled.full,., by = "Labelfine") %>%
   filter(is.na(condAve) == FALSE) %>%
-  mutate(condAve = log(condAve)) %>%
-  filter(magx == 10)
+  mutate(condAve = log(condAve)) #%>%
+  #filter(magx == 10)
 
 PC_compiled <- PC_compiled.mid %>%
-  select(-1,-2,-3) %>%
+  select(-1,-3) %>%
   #select(1:60,condAve) %>%
   filter(is.na(condAve) == FALSE) %>%
   #
-  select(nnd_pc1,nnd_pc2,nnd_pc3,nnd_pc4,
+  select(Labelfine,
+         nnd_pc1,nnd_pc2,nnd_pc3,nnd_pc4,
          vrn_pc1,vrn_pc2,vrn_pc3,vrn_pc4,
          r3d_pc1,r3d_pc2,r3d_pc3,r3d_pc4,
          skel_avbr_pc1,skel_avbr_pc2,skel_avbr_pc3,skel_avbr_pc4,
@@ -50,13 +60,34 @@ PC_compiled <- PC_compiled.mid %>%
 ```
 
 ```{r}
-tempscaled.pc <- as.data.frame(scale(PC_compiled))
+#tempscaled.pc <- as.data.frame(scale(PC_compiled))
 
 #split into testing and training
 split.pc <- createDataPartition(PC_compiled$condAve, p = 0.7, times = 4)
 
+
 trainset.pc <- PC_compiled[as.vector(split.pc[[1]]),]
 testset.pc <- PC_compiled[-as.vector(split.pc[[1]]),]
+
+
+
+trainset.pc.noscale <- trainset.pc
+testset.pc.noscale <- testset.pc
+trainset.pc.noscale <- select(trainset.pc.noscale,c(names(select(trainset.pc.noscale, -condAve)), "condAve"))
+testset.pc.noscale <- select(testset.pc.noscale,c(names(select(testset.pc.noscale, -condAve)), "condAve"))
+write.table(trainset.pc.noscale, file = "./data-files/trainset-pc-save.csv", row.names = FALSE, sep = ",")
+write.table(testset.pc.noscale, file = "./data-files/testset-pc-save.csv", row.names = FALSE, sep = ",")
+```
+-->
+
+
+```{r}
+#same train test split
+trainset.pc <- read.csv("./data-files/trainset-pc-save.csv", header = TRUE)
+testset.pc <- read.csv("./data-files/testset-pc-save.csv", header = TRUE)
+
+trainset.pc <- select(trainset.pc, -Labelfine)
+testset.pc <- select(testset.pc, -Labelfine)
 
 #scale features
 trainset.pc <- as.data.frame(scale(trainset.pc))
@@ -72,7 +103,10 @@ testset.pc <- select(testset.pc,c(names(select(testset.pc, -condAve)), "condAve"
 #summary(testset)
 #rm(temp)
 rm(split.pc)
+
+
 ```
+
 
 
 #models
@@ -321,6 +355,54 @@ conrfmindepth.pc <- plot_min_depth_distribution(rfmodel.min.depth.df.pc, k = 30)
 print(conrfmindepth.pc)
 {if(save == 1)ggsave(filename = "./MLexportsPC/conrfmindepth.png", plot = conrfmindepth.pc, device = "png", width = 7.29,height = 4.5, units = "in")}
 rm(conrfmindepth.pc)
+```
+
+
+```{r}
+trainset.pc.labels <- read.csv("./data-files/trainset-pc-save.csv", header = TRUE) %>% select(1)
+testset.pc.labels <- read.csv("./data-files/testset-pc-save.csv", header = TRUE) %>% select(1)
+
+```
+
+
+```{r}
+#quick model runs
+
+for (i in 1:10){
+  
+
+rfmodel.pc <- trainset.pc %>%
+  select(-Ni.Vol.Corrected, -Temp, -hrs) %>%
+  randomForest(x = ., y = trainset.pc$condAve, ntree = 300)
+
+#filename <- paste("./MLexportsPC/PC-RF-",i,".Rdata", sep = "")
+#save(rfmodel.pc, file = filename)
+
+rfresults.pc <- predict(rfmodel.pc, testset.pc) %>%
+  as.data.frame() %>%
+  cbind(as.data.frame(testset.pc$condAve),testset.pc.labels) %>%
+  mutate(partition = "test")
+
+colnames(rfresults.pc)[1] <- "prediction"
+colnames(rfresults.pc)[2] <- "actual"
+
+
+rfresults.training.pc <- predict(rfmodel.pc, trainset.pc) %>%
+  as.data.frame() %>%
+  cbind(as.data.frame(trainset.pc$condAve), trainset.pc.labels) %>%
+  mutate(partition = "train")
+
+colnames(rfresults.training.pc)[1] <- "prediction"
+colnames(rfresults.training.pc)[2] <- "actual"
+
+rfresults.out <- rbind(rfresults.pc,rfresults.training.pc)
+
+filename <- paste("./MLexportsPC/PC-RF-",i,".csv", sep = "")
+
+write.table(rfresults.out, file = filename, row.names = FALSE, sep = ",")
+
+}
+
 ```
 
 
