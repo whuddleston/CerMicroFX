@@ -7,6 +7,8 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(scico)
 library(caret)
 library(randomForest)
 library(e1071)
@@ -102,7 +104,7 @@ testset.pc <- select(testset.pc,c(names(select(testset.pc, -condAve)), "condAve"
 #summary(trainset3)
 #summary(testset)
 #rm(temp)
-rm(split.pc)
+#rm(split.pc)
 
 
 ```
@@ -358,22 +360,65 @@ rm(conrfmindepth.pc)
 ```
 
 
+
+#RUN MANY MODELS
+
+```{r}
+#model.csv generation
+# (0) .modelid
+# (1) .ntree (25-100)
+# (2) .mtry  24/3 is default (4-12)
+# (3) .sampsize obsnum is default
+# (4) .nodesize (5 is default (1-9))
+# (5) maxnodes
+# (6) nPerm default is 1
+# (7) importance
+# (8) top-10 tree-size
+
+# obsnum <- nrow(trainset.pc)
+# 
+# model.csv.meta <- data.frame("modelid" = 1:700) %>%
+#   mutate(modelid = sprintf("%03i",modelid)) %>%
+#   mutate(modelid = paste("PC-RF-",modelid, sep = "")) %>%
+#   cbind(., ntree.int = sample(seq(from=10,to=100,by=1), size = 700, replace = T)) %>%
+#   cbind(., mtry.int = sample(seq(from=4,to=12,by=1), size = 700, replace = T)) %>%
+#   cbind(., sampsize.int = round(sample(seq(from = 0.1*obsnum, to = obsnum, by = 1), size = 700, replace = T))) %>%
+#   cbind(., nodesize.int = sample(seq(from=1,to=9,by=1), size = 700, replace = T))
+#   #maxnodes is a direct function of nodesize, don't need to control this value
+#   
+# 
+# model.csv.meta %>%
+#   mutate(code = paste(ntree.int,mtry.int,sampsize.int,nodesize.int, sep = "-")) %>% select(code) %>% unique(.)
+# 
+# write.table(model.csv.meta, file = "./MLexportsPC/PC-RF/model.csv", row.names = FALSE, sep = ",")
+
+model.csv.meta <- read.csv("./MLexportsPC/PC-RF/model.csv", header = TRUE)
+```
+
+
 ```{r}
 trainset.pc.labels <- read.csv("./data-files/trainset-pc-save.csv", header = TRUE) %>% select(1)
 testset.pc.labels <- read.csv("./data-files/testset-pc-save.csv", header = TRUE) %>% select(1)
 
 ```
 
-
+<!--
 ```{r}
-#quick model runs
+#model runs
 
-for (i in 1:10){
-  
+model.meta.results <- data.frame()
+
+for (i in 1:3){
+
 
 rfmodel.pc <- trainset.pc %>%
   select(-Ni.Vol.Corrected, -Temp, -hrs) %>%
-  randomForest(x = ., y = trainset.pc$condAve, ntree = 300)
+  randomForest(x = ., y = trainset.pc$condAve, 
+               ntree = model.csv.meta[i,2],
+               mtry = model.csv.meta[i,3],
+               sampsize = model.csv.meta[i,4],
+               nodesize = model.csv.meta[i,5],
+               )
 
 #filename <- paste("./MLexportsPC/PC-RF-",i,".Rdata", sep = "")
 #save(rfmodel.pc, file = filename)
@@ -404,6 +449,12 @@ write.table(rfresults.out, file = filename, row.names = FALSE, sep = ",")
 }
 
 ```
+-->
 
+```{r}
+treesize(rfmodel.pc) %>%
+  sort(decreasing = T) %>%
+  .[1:10]
+```
 
 
