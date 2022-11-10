@@ -358,7 +358,7 @@ print(conrfmindepth.pc)
 {if(save == 1)ggsave(filename = "./MLexportsPC/conrfmindepth.png", plot = conrfmindepth.pc, device = "png", width = 7.29,height = 4.5, units = "in")}
 rm(conrfmindepth.pc)
 ```
-
+-->
 
 
 #RUN MANY MODELS
@@ -402,13 +402,14 @@ testset.pc.labels <- read.csv("./data-files/testset-pc-save.csv", header = TRUE)
 
 ```
 
-<!--
+
 ```{r}
 #model runs
 
 model.meta.results <- data.frame()
+#i <- 3
 
-for (i in 1:3){
+for (i in 1:700){
 
 
 rfmodel.pc <- trainset.pc %>%
@@ -442,19 +443,47 @@ colnames(rfresults.training.pc)[2] <- "actual"
 
 rfresults.out <- rbind(rfresults.pc,rfresults.training.pc)
 
-filename <- paste("./MLexportsPC/PC-RF-",i,".csv", sep = "")
+filename <- paste("./MLexportsPC/PC-RF/",model.csv.meta[i,1],".csv", sep = "")
 
 write.table(rfresults.out, file = filename, row.names = FALSE, sep = ",")
 
+
+temp1 <- treesize(rfmodel.pc) %>%
+  sort(decreasing = T) %>%
+  .[1:10] %>%
+  paste(collapse = " ") %>%
+  as.character() %>%
+  as.data.frame() %>%
+  rename(., treesize10 = .)
+
+temp2 <- importance(rfmodel.pc) %>%
+  as.data.frame() %>%
+  rownames_to_column() %>%
+  filter(rowname != "condAve") %>%
+  mutate(IncNodePurity = round(IncNodePurity, 2)) %>%
+  pull(IncNodePurity) %>%
+  paste(collapse = " ") %>%
+  as.data.frame() %>%
+  rename(., Importance24 = .)
+
+model.meta.results <- cbind(model.csv.meta[i,1], temp2, temp1) %>%
+  rename(modelid = "model.csv.meta[i, 1]") %>%
+  rbind(model.meta.results, .)
+
+rm(temp1)
+rm(temp2)
+
 }
 
-```
--->
 
-```{r}
-treesize(rfmodel.pc) %>%
-  sort(decreasing = T) %>%
-  .[1:10]
+model.csv.meta %>%
+  mutate(maxnodes.int = NA) %>%
+  mutate(nPerm.int = NA) %>%
+  left_join(., model.meta.results, by = "modelid") %>%
+write.table(., file = "./MLexportsPC/PC-RF/modelout.csv", row.names = FALSE, sep = ",")
+
 ```
+
+
 
 
