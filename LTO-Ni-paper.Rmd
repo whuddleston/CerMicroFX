@@ -66,11 +66,11 @@ voronoiTempave <- voronoidens %>%
   theme_classic() +
   
   coord_cartesian(clip = "off") +
-  annotation_custom(text_grob(line1, color = "purple", rot = 90, face = "bold", size = 16), 
+  annotation_custom(text_grob(line1, color = "purple", rot = 90, face = "bold", size = 14), 
                     xmin = 540, xmax = 540, ymin = 1.25, ymax = 1.25) +
-  annotation_custom(text_grob(line2, color = "red", rot = 90, face = "bold" , size = 16),
+  annotation_custom(text_grob(line2, color = "red", rot = 90, face = "bold" , size = 14),
                     xmin = 585, xmax = 585, ymin = 1.25, ymax = 1.25) +
-  
+  labs(tag = "(b)") +
   theme(axis.text.x = element_text(colour = "black", size = 16),
         axis.text.y = element_text(colour = "black", size = 16),
         axis.ticks = element_line(colour = "black", size = 1),
@@ -78,6 +78,7 @@ voronoiTempave <- voronoidens %>%
         axis.title.x = element_text(colour = "black", size = 16),
         axis.title.y = element_text(colour = "black", size = 16),
         plot.margin = margin(10,10,10,45),
+        plot.tag = element_text(colour = "black", size = 18, face = "bold"),
         legend.text = element_text(colour="black", size = 12))
 
 print(voronoiTempave)
@@ -140,11 +141,11 @@ voronoiNiave <- voronoidens %>%
   theme_classic() +
   
   coord_cartesian(clip = "off") +
-  annotation_custom(text_grob(line1, color = "purple", rot = 90, face = "bold", size = 16), 
+  annotation_custom(text_grob(line1, color = "purple", rot = 90, face = "bold", size = 14), 
                     xmin = -0.12, xmax = -0.12, ymin = 1.25, ymax = 1.25) +
-  annotation_custom(text_grob(line2, color = "red", rot = 90, face = "bold" , size = 16),
+  annotation_custom(text_grob(line2, color = "red", rot = 90, face = "bold" , size = 14),
                     xmin = -0.075, xmax = -0.075, ymin = 1.25, ymax = 1.25) +
-  
+  labs(tag = "(a)") +
   theme(axis.text.x = element_text(colour = "black", size = 16),
         axis.text.y = element_text(colour = "black", size = 16),
         axis.ticks = element_line(colour = "black", size = 1),
@@ -152,6 +153,7 @@ voronoiNiave <- voronoidens %>%
         axis.title.x = element_text(colour = "black", size = 16),
         axis.title.y = element_text(colour = "black", size = 16),
         plot.margin = margin(10,10,10,45),
+        plot.tag = element_text(colour = "black", size = 18, face = "bold"),
         legend.text = element_text(colour="black", size = 12))
 
 print(voronoiNiave)
@@ -420,7 +422,7 @@ voronoiTempave <- skeleton.data %>%
                     xmin = 510, xmax = 510, ymin = 1.25, ymax = 1.25) +
   annotation_custom(text_grob(line2, color = PAL2, rot = 90, face = "bold" , size = 16),
                     xmin = 555, xmax = 555, ymin = 1.25, ymax = 1.25) +
-  
+  labs(tag = "(b)") +
   theme(axis.text.x = element_text(colour = "black", size = 16),
         axis.text.y = element_text(colour = "black", size = 16),
         axis.ticks = element_line(colour = "black", size = 1),
@@ -428,6 +430,7 @@ voronoiTempave <- skeleton.data %>%
         axis.title.x = element_text(colour = "black", size = 16),
         axis.title.y = element_text(colour = "black", size = 16),
         plot.margin = margin(10,10,10,45),
+        plot.tag = element_text(colour = "black", size = 18, face = "bold"),
         axis.title.y.right = element_text(color = PAL3),
         legend.text = element_text(colour="black", size = 12))
 
@@ -503,7 +506,7 @@ voronoiNiave <- skeleton.data %>%
                     xmin = -0.12, xmax = -0.12, ymin = 1.25, ymax = 1.25) +
   annotation_custom(text_grob(line2, color = PAL2, rot = 90, face = "bold" , size = 16),
                     xmin = -0.075, xmax = -0.075, ymin = 1.25, ymax = 1.25) +
-  
+  labs(tag = "(a)") +
   theme(axis.text.x = element_text(colour = "black", size = 16),
         axis.text.y = element_text(colour = "black", size = 16),
         axis.ticks = element_line(colour = "black", size = 1),
@@ -511,6 +514,7 @@ voronoiNiave <- skeleton.data %>%
         axis.title.x = element_text(colour = "black", size = 16),
         axis.title.y = element_text(colour = "black", size = 16),
         plot.margin = margin(10,10,10,45),
+        plot.tag = element_text(colour = "black", size = 18, face = "bold"),
         axis.title.y.right = element_text(color = PAL3),
         legend.text = element_text(colour="black", size = 12))
 

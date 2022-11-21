@@ -1229,13 +1229,14 @@ voronoictstemp <- voronoidens %>%
   guides(colour = guide_legend(reverse = TRUE, title = "Ni Vol.", 
                                title.theme = element_text(colour="black", 
                                                           size = 12))) +
-  
+  labs(tag = "(a)") +
   theme(axis.text.x = element_text(colour = "black", size = 16),
         axis.text.y = element_text(colour = "black", size = 16),
         axis.ticks = element_line(colour = "black", size = 1),
         axis.line = element_line(colour = 'black', size = 1),
         axis.title.x = element_text(colour = "black", size = 16),
         axis.title.y = element_text(colour = "black", size = 16),
+        plot.tag = element_text(colour = "black", size = 18, face = "bold"),
         legend.text = element_text(colour="black", size = 12))
 
 print(voronoictstemp)
@@ -1338,13 +1339,14 @@ voronoisizetemp <- voronoidens %>%
   guides(colour = guide_legend(reverse = TRUE, title = "Ni Vol.", 
                                title.theme = element_text(colour="black", 
                                                           size = 12))) +
-  
+  labs(tag = "(b)") +
   theme(axis.text.x = element_text(colour = "black", size = 16),
         axis.text.y = element_text(colour = "black", size = 16),
         axis.ticks = element_line(colour = "black", size = 1),
         axis.line = element_line(colour = 'black', size = 1),
         axis.title.x = element_text(colour = "black", size = 16),
         axis.title.y = element_text(colour = "black", size = 16),
+        plot.tag = element_text(colour = "black", size = 18, face = "bold"),
         legend.text = element_text(colour="black", size = 12))
 
 print(voronoisizetemp)
