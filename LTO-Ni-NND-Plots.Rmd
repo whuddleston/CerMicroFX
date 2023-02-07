@@ -955,28 +955,7 @@ print(aveR3nnddist)
 rm(aveR3nnddist)
 ```
 
-```{r}
-#pair correlation plots
-  
-fcpairs <- df_particles_fine %>%
-  filter(condAve >= 0.01) %>%
-  #mutate(R3 = log(R3)) %>%
-  mutate(condAve = log10(condAve)) %>%
-  filter(aveR3 <= 45) %>%
-  select(-Label, -Temp, -z) %>%
-  select(Ni.Vol.Corrected, Tempk, hrs, Th.Density, aveR3, 
-         zz, zzz,
-         avennd, avecountarea,
-         condAve, stressf) %>%
-  unique() %>%
-  ggpairs(aes(color = as.factor(Ni.Vol.Corrected)))
 
-print(fcpairs)
-
-{if(save == 1)ggsave(filename = "./nndexports/plotexportpairs.png", plot = fcpairs, 
-       device = "png", width = 10,height = 8, units = "in")} #ggsave has a dpi setting
-rm(fcpairs)
-```
 -->
 
 ```{r}
