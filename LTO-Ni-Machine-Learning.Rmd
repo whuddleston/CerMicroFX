@@ -1026,10 +1026,11 @@ ggplot() +
 # {if(save == 1)ggsave(filename = "./MLexports/stressrfnode.png", plot = stressrfnode, 
 #          device = "png", width = 6,height = 4, units = "in")}
 # rm(stressrfnode)
+{if(save == 1)
 png("./MLexports/stressrfnode.png")
 print(dotchart(rfmodimps.verb$IncNodePurity, labels = rfmodimps.verb$variable, main = "Stress RF"))
 dev.off()
-
+}
 #somehow combine node purity and depth information?
 ```
 
