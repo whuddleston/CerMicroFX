@@ -484,6 +484,23 @@ write.table(., file = "./MLexportsPC/PC-RF/modelout.csv", row.names = FALSE, sep
 
 ```
 
+-->
 
+```{r}
+read.csv("./data-files/pc_scores_nnd_vrn_r3d_3skel.csv") %>%
+  ggplot() +
+  geom_point(aes(x = r3d_pc1, y = vrn_pc1,
+                 color = as.factor(Ni.Vol.Corrected),
+                 shape = as.factor(Temp)
+                 ))
+
+read.csv("./data-files/pc_scores_nnd_vrn_r3d_3skel.csv") %>%
+  ggplot() +
+  geom_point(aes(x = r3d_pc1, y = skel_br_pc1,
+                 color = as.factor(Ni.Vol.Corrected),
+                 shape = as.factor(Temp)
+                 ))
+
+```
 
 
