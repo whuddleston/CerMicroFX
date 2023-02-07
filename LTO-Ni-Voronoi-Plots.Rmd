@@ -1330,7 +1330,7 @@ voronoisizetemp <- voronoidens %>%
                      sec.axis = sec_axis(~., labels = NULL)) +
   scale_shape_manual(values=c(17, 16, 0, 2)) + #Temp
   {if(cb == 1)scale_color_scico_d(palette = "roma", direction = 1)} + #nickel
-  ylab(expression(Average~Voronoi~Distance~'['*mu*m*']')) +
+  ylab(expression('Edge-to-Edge'~Distance~'['*mu*m*']')) +
   xlab(expression(Average~Particle~Area~'['*mu*m^2*']')) +
   theme_classic() +
   guides(shape = guide_legend(reverse = TRUE, title = expression(Temp~'['*degree*C*']'), 
@@ -1384,7 +1384,7 @@ con.voronoi.dist.eda <- voronoidens %>%
   scale_x_log10(limits = c(0.05, 10), sec.axis = sec_axis(~., labels = NULL)) +
   scale_y_log10(sec.axis = sec_axis(~., labels = NULL)) +
   ylab("Electrical Conductivity [S/cm]") +
-  xlab(expression(Voronoi~Distance~'['*mu*m*']')) +
+  xlab(expression('Edge-to-Edge'~Distance~'['*mu*m*']')) +
   theme_classic()
 
 print(con.voronoi.dist.eda)
