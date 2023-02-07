@@ -39,6 +39,8 @@ library(ggfortify)
 library(FactoMineR)
 library(pls) #loadingsplot
 library(scico)
+
+save <- 0
 ```
 
 ```{r, include=FALSE}

@@ -419,8 +419,8 @@ vrn.PC2.Temp <- voronoidens %>%
         legend.text = element_text(colour="black", size = 12))
 
 print(vrn.PC2.Temp)
-ggsave(filename = "./PCAexports/vrn-PC2-Temp.png", plot = vrn.PC2.Temp, 
-         device = "png", width = 6,height = 4, units = "in")
+{if(save == 1)ggsave(filename = "./PCAexports/vrn-PC2-Temp.png", plot = vrn.PC2.Temp, 
+         device = "png", width = 6,height = 4, units = "in")}
 rm(vrn.PC2.Temp)
 ```
 
@@ -497,10 +497,150 @@ vrn.PC1.Ni <- voronoidens %>%
 
 
 print(vrn.PC1.Ni)
-ggsave(filename = "./PCAexports/vrn-PC1-Ni.png", plot = vrn.PC1.Ni, 
-         device = "png", width = 6,height = 4, units = "in")
+{if(save == 1)ggsave(filename = "./PCAexports/vrn-PC1-Ni.png", plot = vrn.PC1.Ni, 
+         device = "png", width = 6,height = 4, units = "in")}
 rm(vrn.PC1.Ni)
 
-scico_palette_show()
+#scico_palette_show()
 ```
+
+
+```{r}
+con.vrn.PC1 <- voronoidens %>%
+  mutate(stresso = stressf*exp((1.05-Th.Density/100)*coef(fracmodel)[2]*-1)) %>%
+  filter(Label != "WH03A") %>%
+  filter(Label != "WH13A") %>%
+  filter(Label != "WH15B") %>%
+  filter(Labelfine != "WH35A/WH35A0010.tiff") %>%
+  filter(is.na(condAve) == FALSE) %>%
+  #filter(is.na(stressf) == FALSE) %>%
+  #mutate(Label = substr(Label,0,4)) %>%
+  group_by(Labelfine) %>%
+  #
+  #filter(hrs == 5) %>%
+  #filter(Ni.Vol.Corrected == 0.35) %>%
+  mutate(x = round(x, digits = 3)) %>%
+  mutate(vx = x) %>%
+  select(-x) %>%
+  #filter(vx >= -4) %>%
+  #filter(vx <= 4) %>%
+  left_join(., prcomp.v.rot, by = "vx") %>%
+  #
+  ggplot(aes(fill = PC1)) +
+  geom_ridgeline_gradient(aes(x = vx, y = condAve, 
+                     #fill = as.factor(Ni.Vol.Corrected),
+                     #height = count/100000, 
+                     height = density, #height is either density or count
+                     group = Labelfine)) + 
+  geom_tile(aes(x = vx, y = 5*10^5, width = 0.1, height = 0.25)) +
+  scale_fill_scico(palette = "buda", limits = c(-0.1,0.1), direction = -1) +
+  # geom_rect(color = "black", aes(xmin = avevoronoix-0.01,
+  #               ymin = condAve,
+  #               xmax = avevoronoix+0.01,
+  #               ymax = condAve*2,
+  #               fill = as.factor(Ni.Vol.Corrected))) +
+  scale_x_log10(limits = c(0.05, 10), sec.axis = sec_axis(~., labels = NULL)) +
+  scale_y_log10(sec.axis = sec_axis(~., labels = NULL)) +
+  ylab("Electrical Conductivity [S/cm]") +
+  xlab(expression('Edge-to-Edge'~Distance~'['*mu*m*']')) +
+  theme_classic()
+
+print(con.vrn.PC1)
+{if(save == 1)ggsave(filename = "./PCAexports/con-vrn-PC1.png", plot = con.vrn.PC1, 
+         device = "png", width = 6,height = 4, units = "in")}
+rm(con.vrn.PC1)
+```
+
+```{r}
+con.vrn.PC2 <- voronoidens %>%
+  mutate(stresso = stressf*exp((1.05-Th.Density/100)*coef(fracmodel)[2]*-1)) %>%
+  filter(Label != "WH03A") %>%
+  filter(Label != "WH13A") %>%
+  filter(Label != "WH15B") %>%
+  filter(Labelfine != "WH35A/WH35A0010.tiff") %>%
+  filter(is.na(condAve) == FALSE) %>%
+  #filter(is.na(stressf) == FALSE) %>%
+  #mutate(Label = substr(Label,0,4)) %>%
+  group_by(Labelfine) %>%
+  #
+  #filter(hrs == 5) %>%
+  #filter(Ni.Vol.Corrected == 0.35) %>%
+  mutate(x = round(x, digits = 3)) %>%
+  mutate(vx = x) %>%
+  select(-x) %>%
+  #filter(vx >= -4) %>%
+  #filter(vx <= 4) %>%
+  left_join(., prcomp.v.rot, by = "vx") %>%
+  #
+  ggplot(aes(fill = PC2)) +
+  geom_ridgeline_gradient(aes(x = vx, y = condAve, 
+                     #fill = as.factor(Ni.Vol.Corrected),
+                     #height = count/100000, 
+                     height = density, #height is either density or count
+                     group = Labelfine)) + 
+  geom_tile(aes(x = vx, y = 5*10^5, width = 0.1, height = 0.25)) +
+  scale_fill_scico(palette = "buda", limits = c(-0.1,0.1), direction = -1) +
+  # geom_rect(color = "black", aes(xmin = avevoronoix-0.01,
+  #               ymin = condAve,
+  #               xmax = avevoronoix+0.01,
+  #               ymax = condAve*2,
+  #               fill = as.factor(Ni.Vol.Corrected))) +
+  scale_x_log10(limits = c(0.05, 10), sec.axis = sec_axis(~., labels = NULL)) +
+  scale_y_log10(sec.axis = sec_axis(~., labels = NULL)) +
+  ylab("Electrical Conductivity [S/cm]") +
+  xlab(expression('Edge-to-Edge'~Distance~'['*mu*m*']')) +
+  theme_classic()
+
+print(con.vrn.PC2)
+{if(save == 1)ggsave(filename = "./PCAexports/con-vrn-PC2.png", plot = con.vrn.PC2, 
+         device = "png", width = 6,height = 4, units = "in")}
+rm(con.vrn.PC2)
+```
+
+```{r}
+con.vrn.PC3 <- voronoidens %>%
+  mutate(stresso = stressf*exp((1.05-Th.Density/100)*coef(fracmodel)[2]*-1)) %>%
+  filter(Label != "WH03A") %>%
+  filter(Label != "WH13A") %>%
+  filter(Label != "WH15B") %>%
+  filter(Labelfine != "WH35A/WH35A0010.tiff") %>%
+  filter(is.na(condAve) == FALSE) %>%
+  #filter(is.na(stressf) == FALSE) %>%
+  #mutate(Label = substr(Label,0,4)) %>%
+  group_by(Labelfine) %>%
+  #
+  #filter(hrs == 5) %>%
+  #filter(Ni.Vol.Corrected == 0.35) %>%
+  mutate(x = round(x, digits = 3)) %>%
+  mutate(vx = x) %>%
+  select(-x) %>%
+  #filter(vx >= -4) %>%
+  #filter(vx <= 4) %>%
+  left_join(., prcomp.v.rot, by = "vx") %>%
+  #
+  ggplot(aes(fill = PC3)) +
+  geom_ridgeline_gradient(aes(x = vx, y = condAve, 
+                     #fill = as.factor(Ni.Vol.Corrected),
+                     #height = count/100000, 
+                     height = density, #height is either density or count
+                     group = Labelfine)) + 
+  geom_tile(aes(x = vx, y = 5*10^5, width = 0.1, height = 0.25)) +
+  scale_fill_scico(palette = "buda", limits = c(-0.15,0.15), direction = -1) +
+  # geom_rect(color = "black", aes(xmin = avevoronoix-0.01,
+  #               ymin = condAve,
+  #               xmax = avevoronoix+0.01,
+  #               ymax = condAve*2,
+  #               fill = as.factor(Ni.Vol.Corrected))) +
+  scale_x_log10(limits = c(0.05, 10), sec.axis = sec_axis(~., labels = NULL)) +
+  scale_y_log10(sec.axis = sec_axis(~., labels = NULL)) +
+  ylab("Electrical Conductivity [S/cm]") +
+  xlab(expression('Edge-to-Edge'~Distance~'['*mu*m*']')) +
+  theme_classic()
+
+print(con.vrn.PC3)
+{if(save == 1)ggsave(filename = "./PCAexports/con-vrn-PC3.png", plot = con.vrn.PC3, 
+         device = "png", width = 6,height = 4, units = "in")}
+rm(con.vrn.PC3)
+```
+
 
