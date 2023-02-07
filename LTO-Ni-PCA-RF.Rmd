@@ -486,21 +486,200 @@ write.table(., file = "./MLexportsPC/PC-RF/modelout.csv", row.names = FALSE, sep
 
 -->
 
+
 ```{r}
-read.csv("./data-files/pc_scores_nnd_vrn_r3d_3skel.csv") %>%
-  ggplot() +
-  geom_point(aes(x = r3d_pc1, y = vrn_pc1,
-                 color = as.factor(Ni.Vol.Corrected),
-                 shape = as.factor(Temp)
-                 ))
 
-read.csv("./data-files/pc_scores_nnd_vrn_r3d_3skel.csv") %>%
-  ggplot() +
-  geom_point(aes(x = r3d_pc1, y = skel_br_pc1,
-                 color = as.factor(Ni.Vol.Corrected),
-                 shape = as.factor(Temp)
-                 ))
+bind2 <- df_particles_fine %>%
+  select(Labelfine, magx) %>%
+  unique()
 
+scoresdata <- read.csv("./data-files/pc_scores_nnd_vrn_r3d_3skel.csv") %>%
+  left_join(., bind2, by = "Labelfine") %>%
+  filter(magx == 10) %>%
+  filter(Temp >= 800) %>%
+  filter(Labelfine != "WH35A/WH35A0010.tiff") %>%
+  filter(Label != "WH13A") %>% #weird outlier
+  filter(Label != "WH15B") %>%
+  filter(Label != "WH10D")
 ```
 
 
+```{r}
+hull_data <- scoresdata %>%
+  #
+  group_by(Ni.Vol.Corrected) %>%
+  slice(chull(r3d_pc1, vrn_pc1))
+
+r3d_pc1.vrn_pc1 <- scoresdata %>%
+  #
+  ggplot(aes(x = r3d_pc1, y = vrn_pc1)) +
+  geom_point(aes(color = as.factor(Ni.Vol.Corrected),
+                 shape = as.factor(Temp)
+                 )) +
+  geom_polygon(data = hull_data, alpha = 0.3, show.legend = T,
+               aes(fill = as.factor(Ni.Vol.Corrected), 
+                   color = as.factor(Ni.Vol.Corrected))) +
+  scale_x_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  scale_y_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  scale_shape_manual(values=c(17, 16, 0, 2)) + #Temp
+  geom_hline(yintercept = 0, color = "black", size = 0.5, linetype = "dashed") +
+  geom_vline(xintercept = 0, color = "black", size = 0.5, linetype = "dashed") +
+  #scale_shape_manual(values=c(16, 17, 0, 2)) + #hrs
+  {if(cb == 1)scale_fill_scico_d(palette = "roma", direction = 1)} + #nickel
+  {if(cb == 1)scale_color_scico_d(palette = "roma", direction = 1)} + #nickel
+  theme_classic() +
+  guides(shape = guide_legend(title = expression(Temp~'['*degree*C*']'),  reverse = TRUE,
+                               #override.aes = list(size=4),
+                              override.aes=list(fill=NA),
+                               title.theme = element_text(colour="black",
+                                                          #face = "bold",
+                                                          size = 10))) +
+  guides(fill = guide_legend(reverse = FALSE, title = "Ni Vol.",
+                               #override.aes = list(size=4), 
+                               title.theme = element_text(colour = "black",
+                                                          #face = "bold",
+                                                          size = 10))) +
+  guides(color = guide_legend(reverse = FALSE, title = "Ni Vol.", 
+                               #override.aes = list(size=4), 
+                               title.theme = element_text(colour = "black",
+                                                          #face = "bold",
+                                                          size = 10)))
+
+print(r3d_pc1.vrn_pc1)
+{if(save == 1)ggsave(filename = "./paperexports/r3d_pc1-vrn_pc1.png", plot = r3d_pc1.vrn_pc1, 
+         device = "png", width = 6,height = 4, units = "in")}
+rm(r3d_pc1.vrn_pc1)
+```
+
+```{r}
+hull_data <- scoresdata %>%
+  #
+  group_by(Ni.Vol.Corrected) %>%
+  slice(chull(r3d_pc1, skel_br_pc1))
+
+r3d_pc1.skel_br_pc1 <- scoresdata %>%
+  #
+  ggplot(aes(x = r3d_pc1, y = skel_br_pc1)) +
+  geom_point(aes(color = as.factor(Ni.Vol.Corrected),
+                 shape = as.factor(Temp)
+                 )) +
+  geom_polygon(data = hull_data, alpha = 0.3, show.legend = T,
+               aes(fill = as.factor(Ni.Vol.Corrected), color = as.factor(Ni.Vol.Corrected))) +
+  scale_x_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  scale_y_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  scale_shape_manual(values=c(17, 16, 0, 2)) + #Temp
+  geom_hline(yintercept = 0, color = "black", size = 0.5, linetype = "dashed") +
+  geom_vline(xintercept = 0, color = "black", size = 0.5, linetype = "dashed") +
+  #scale_shape_manual(values=c(16, 17, 0, 2)) + #hrs
+  {if(cb == 1)scale_fill_scico_d(palette = "roma", direction = 1)} + #nickel
+  {if(cb == 1)scale_color_scico_d(palette = "roma", direction = 1)} + #nickel
+  theme_classic() +
+  guides(shape = guide_legend(title = expression(Temp~'['*degree*C*']'),  reverse = TRUE,
+                               #override.aes = list(size=4), 
+                              override.aes=list(fill=NA),
+                               title.theme = element_text(colour="black",
+                                                          #face = "bold",
+                                                          size = 10))) +
+  guides(fill = guide_legend(reverse = FALSE, title = "Ni Vol.",
+                               #override.aes = list(size=4), 
+                               title.theme = element_text(colour = "black",
+                                                          #face = "bold",
+                                                          size = 10))) +
+  guides(color = guide_legend(reverse = FALSE, title = "Ni Vol.", 
+                               #override.aes = list(size=4), 
+                               title.theme = element_text(colour = "black",
+                                                          #face = "bold",
+                                                          size = 10)))
+
+
+print(r3d_pc1.skel_br_pc1)
+{if(save == 1)ggsave(filename = "./paperexports/r3d_pc1-skel_br_pc1.png", plot = r3d_pc1.skel_br_pc1, 
+         device = "png", width = 6,height = 4, units = "in")}
+rm(r3d_pc1.skel_br_pc1)
+```
+
+```{r}
+hull_data <- scoresdata %>%
+  #
+  group_by(Ni.Vol.Corrected) %>%
+  slice(chull(r3d_pc1, r3d_pc2))
+
+scoresdata %>%
+  #
+  ggplot(aes(x = r3d_pc1, y = r3d_pc2)) +
+  geom_point(aes(color = as.factor(Ni.Vol.Corrected),
+                 shape = as.factor(Temp)
+                 )) +
+  geom_polygon(data = hull_data, alpha = 0.3, show.legend = T,
+               aes(fill = as.factor(Ni.Vol.Corrected), 
+                   color = as.factor(Ni.Vol.Corrected))) +
+  scale_x_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  scale_y_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  scale_shape_manual(values=c(17, 16, 0, 2)) + #Temp
+  geom_hline(yintercept = 0, color = "black", size = 0.5, linetype = "dashed") +
+  geom_vline(xintercept = 0, color = "black", size = 0.5, linetype = "dashed") +
+  #scale_shape_manual(values=c(16, 17, 0, 2)) + #hrs
+  {if(cb == 1)scale_fill_scico_d(palette = "roma", direction = 1)} + #nickel
+  {if(cb == 1)scale_color_scico_d(palette = "roma", direction = 1)} + #nickel
+  theme_classic() +
+  guides(shape = guide_legend(title = expression(Temp~'['*degree*C*']'),  reverse = TRUE,
+                               #override.aes = list(size=4),
+                              override.aes=list(fill=NA),
+                               title.theme = element_text(colour="black",
+                                                          #face = "bold",
+                                                          size = 10))) +
+  guides(fill = guide_legend(reverse = FALSE, title = "Ni Vol.",
+                               #override.aes = list(size=4), 
+                               title.theme = element_text(colour = "black",
+                                                          #face = "bold",
+                                                          size = 10))) +
+  guides(color = guide_legend(reverse = FALSE, title = "Ni Vol.", 
+                               #override.aes = list(size=4), 
+                               title.theme = element_text(colour = "black",
+                                                          #face = "bold",
+                                                          size = 10)))
+```
+
+
+
+```{r}
+hull_data <- scoresdata %>%
+  #
+  group_by(Ni.Vol.Corrected) %>%
+  slice(chull(r3d_pc1, vrn_pc2))
+
+scoresdata %>%
+  #
+  ggplot(aes(x = r3d_pc1, y = vrn_pc2)) +
+  geom_point(aes(color = as.factor(Ni.Vol.Corrected),
+                 shape = as.factor(Temp)
+                 )) +
+  geom_polygon(data = hull_data, alpha = 0.3, show.legend = T,
+               aes(fill = as.factor(Ni.Vol.Corrected), 
+                   color = as.factor(Ni.Vol.Corrected))) +
+  scale_x_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  scale_y_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  scale_shape_manual(values=c(17, 16, 0, 2)) + #Temp
+  geom_hline(yintercept = 0, color = "black", size = 0.5, linetype = "dashed") +
+  geom_vline(xintercept = 0, color = "black", size = 0.5, linetype = "dashed") +
+  #scale_shape_manual(values=c(16, 17, 0, 2)) + #hrs
+  {if(cb == 1)scale_fill_scico_d(palette = "roma", direction = 1)} + #nickel
+  {if(cb == 1)scale_color_scico_d(palette = "roma", direction = 1)} + #nickel
+  theme_classic() +
+  guides(shape = guide_legend(title = expression(Temp~'['*degree*C*']'),  reverse = TRUE,
+                               #override.aes = list(size=4),
+                              override.aes=list(fill=NA),
+                               title.theme = element_text(colour="black",
+                                                          #face = "bold",
+                                                          size = 10))) +
+  guides(fill = guide_legend(reverse = FALSE, title = "Ni Vol.",
+                               #override.aes = list(size=4), 
+                               title.theme = element_text(colour = "black",
+                                                          #face = "bold",
+                                                          size = 10))) +
+  guides(color = guide_legend(reverse = FALSE, title = "Ni Vol.", 
+                               #override.aes = list(size=4), 
+                               title.theme = element_text(colour = "black",
+                                                          #face = "bold",
+                                                          size = 10)))
+```
