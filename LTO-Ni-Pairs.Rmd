@@ -5,12 +5,100 @@ date: "2023-02-07"
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE, warning = F, message = F)
+
+save <- 1
 ```
 
 ```{r}
-#pair correlation plots
+bind1 <- voronoidens %>%
+  select(-x, -count, -density, -Labelfineshort) %>%
+  select(-magx, -imagearea, -avennd) %>%
+  select(-avecountarea,-avevcoarse, -countperarea) %>%
+  #select(-Ni.Vol.Corrected) %>%
+  select(-stressf, -aveR3) %>%
+  #
+  filter(Label != "WH13A") %>% #weird outlier
+  filter(Label != "WH15B") %>%
+  filter(Labelfine != "WH06A/1000-5-35A0006.tiff") %>%
+  filter(Labelfine != "WH06C/1000-5-35C0004.tiff") %>%
+  #select(-Label, -Labelfine) %>%
+  #
+  unique()
+
+#bind2 allows the PCA dataset to be filtered down to Magx = 10 (machine learning doesn't have Magx=5)
+bind2 <- df_particles_fine %>%
+  select(Labelfine, magx) %>%
+  unique()
+
+#bind 3 brings in skeleton data
+bind3 <- skeleton.data %>%
+  select(ave.branches, ave.ave.branches, ave.max.branches, Labelfine) %>%
+  unique()
+
+temppairs <- left_join(bind1,bind3, by = "Labelfine")
+
+
+#add PC results to bind1 then bind3
+# temp <- left_join(prcomp.R3.Results, bind2, by = "Labelfine") %>%
+#   filter(magx == 10) %>%
+#   select(1:7) %>%
+#   left_join(., bind1, by = "Labelfine") %>%
+#   left_join(., bind3, by = "Labelfine") %>%
+#   select(-Label, -Labelfine) %>%
+#   mutate(condAve = log(condAve)) %>%
+#   filter(is.na(condAve) == FALSE)
+```
+
+```{r}
+pairsplottemp <- temppairs %>%
+  mutate(condAve = log10(condAve)) %>%
+  select(-Label,-Labelfine) %>%
+  select(Ni.Vol.Corrected, Temp, hrs,Th.Density,
+         totNifrace,finecount,aveAreafine,
+         fineavennd,
+         voronoicount,avevoronoix,
+         ave.branches,ave.ave.branches,ave.max.branches,
+         condAve
+         ) %>%
+  rename(.,"Nominal Nickel Fraction"="Ni.Vol.Corrected") %>%
+  rename(.,"Average Branch Length"="ave.ave.branches") %>%
+  rename(.,"Maximum Branch Length"="ave.max.branches") %>%
+  rename(.,"Average Number of Branches"="ave.branches") %>%
+  rename(.,"Average Particle Area"="aveAreafine") %>%
+  rename(.,"Average Edge-to-Edge Spacing"="avevoronoix") %>%
+  rename(.,"Average Center-to-Center Spacing"="fineavennd") %>%
+  rename(.,"Counts Per Area"="finecount") %>%
+  rename(.,"Dwell Time"="hrs") %>%
+  rename(.,"Sintering Temperature"="Temp") %>%
+  rename(.,"Bulk Density"="Th.Density") %>%
+  rename(.,"Nickel Area Fraction"="totNifrace") %>%
+  rename(.,"Edge-to-Edge Complexity"="voronoicount") %>%
+  rename(., "Conductivity"="condAve") %>%
   
+  ggpairs(labeller = label_wrap_gen(10))
+
+#names(temppairs)
+  
+```
+
+```{r}
+pairsplottemp
+```
+
+
+```{r}
+{if(save == 1)ggsave(filename = "./paperexports/plotexportpairs.png", plot = pairsplottemp, 
+       device = "png", width = 10,height = 10, units = "in")} #ggsave has a dpi setting
+```
+
+
+
+<!--
+```{r}
+#pair correlation plots
+
+
 fcpairs <- df_particles_fine %>%
   filter(condAve >= 0.01) %>%
   #mutate(R3 = log(R3)) %>%
