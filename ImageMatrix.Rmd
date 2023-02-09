@@ -24,10 +24,12 @@ matrixkey <- list.files("C:/Users/whhuddle/Desktop/WHX_10k_HC2",recursive = T,fu
   mutate(Temp = substr(filename,39,42)) %>%
   mutate(hrs = substr(filename,44,46)) %>%
   mutate(nom.ni = substr(filename,48,49)) %>%
-  mutate(Labelfineshort = substr(filename,53,nchar(filename)))
+  mutate(procint = paste(Temp,hrs,nom.ni, sep = "")) %>%
+  mutate(procint = as.numeric(procint)) #%>%
+  #mutate(Labelfineshort = substr(filename,53,nchar(filename)))
 ```
 
-
+<!--
 ```{r}
 # for (i in imagelist){
 #  assign(substr(i,53,nchar(i)),image_read(i))
@@ -184,19 +186,53 @@ image_append(c(stack5,stack10,stack20,
 
 
 ```
-
+-->
 
 ```{r}
+
 matrix5k <- list.files("C:/Users/whhuddle/Desktop/WHX_05k_HC2",recursive = T,full.names = T) %>%
   as.data.frame() %>%
   rename(., filename = .) %>%
-  mutate(Temp = substr(filename,39,42)) %>%
-  mutate(hrs = substr(filename,44,46)) %>%
-  mutate(nom.ni = substr(filename,48,49)) %>%
-  mutate(Labelfineshort = substr(filename,53,nchar(filename)))
+  mutate(Label = substr(filename,39,43))
 
+matrix5k <- read.csv("./data-files/fractSum.csv") %>%
+  select(Label, Ni.Vol.Corrected, Temp, hrs) %>%
+  unique() %>%
+  mutate(Ni.Vol.Corrected = as.character(Ni.Vol.Corrected*100)) %>%
+  mutate(Ni.Vol.Corrected = if_else(Ni.Vol.Corrected == "5","05",Ni.Vol.Corrected)) %>%
+  #
+  mutate(Temp = as.character(Temp)) %>%
+  mutate(Temp = if_else(Temp == "700","0700",Temp)) %>%
+  mutate(Temp = if_else(Temp == "800","0800",Temp)) %>%
+  mutate(Temp = if_else(Temp == "900","0900",Temp)) %>%
+  
+  mutate(hrs = as.character(hrs)) %>%
+  mutate(hrs = if_else(hrs == "5","005",hrs)) %>%
+  mutate(hrs = if_else(hrs == "10","010",hrs)) %>%
+  mutate(hrs = if_else(hrs == "50","050",hrs)) %>%
+  mutate(procint = paste(Temp,hrs,Ni.Vol.Corrected, sep = "")) %>%
+  #select(Label,procint) %>%
+  left_join(matrix5k, ., by = "Label") %>%
+  select(filename,Temp,hrs,Ni.Vol.Corrected,procint) %>%
+  mutate(procint = as.numeric(procint)) %>%
+  rename(nom.ni = Ni.Vol.Corrected)
+```
 
+<!--
+```{r}
+nom.ni,hrs,Temp  1
+nom.ni,Temp,hrs  2
+Temp,hrs,nom.ni  3
+Temp,nom.ni,hrs  4
+hrs,nom.ni,Temp  5
+hrs,Temp,nom.ni  6
+```
+-->
+
+```{r}
 bigmatrix <- rbind(matrixkey,matrix5k) %>%
+  #arrange(., procint) %>%
+  arrange(Temp,nom.ni,hrs) %>%
   #filter(hrs == hrsselect) %>%
   #filter(Temp == Tempselect) %>%
   #filter(nom.ni == "20") %>%
