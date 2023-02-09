@@ -1,0 +1,212 @@
+---
+title: "ImageMatrix"
+author: "William Huddleston"
+date: '2023-02-08'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse)
+library(magick)
+```
+
+
+```{r}
+#imagelist <- list.files("C:/Users/whhuddle/Desktop/WHX_10k_HC2",recursive = T,full.names = T)[1:3]
+```
+
+```{r}
+matrixkey <- list.files("C:/Users/whhuddle/Desktop/WHX_10k_HC2",recursive = T,full.names = T) %>%
+  as.data.frame() %>%
+  rename(., filename = .) %>%
+  mutate(Temp = substr(filename,39,42)) %>%
+  mutate(hrs = substr(filename,44,46)) %>%
+  mutate(nom.ni = substr(filename,48,49)) %>%
+  mutate(Labelfineshort = substr(filename,53,nchar(filename)))
+```
+
+
+```{r}
+# for (i in imagelist){
+#  assign(substr(i,53,nchar(i)),image_read(i))
+# 
+# }
+# 
+# ls()[3]
+# 
+# matrixkey %>%
+#   #filter %>%
+#   select(Labelfineshort) %>%
+#   slice(1:3) %>%
+#   pull()
+# 
+# image_append(`LTO-28NiA_700_05_H20005.tiff`)
+# 
+# 
+# lapply(imagelist,image_read)
+
+
+```
+
+```{r}
+matrixkey %>%
+  filter(hrs == "005") %>%
+  filter(Temp == "0900") %>%
+  dim()
+
+matrixkey %>%
+  filter(hrs == "005") %>%
+  filter(Temp == "0700") %>%
+  dim()
+
+matrixkey %>%
+  filter(hrs == "005") %>%
+  filter(Temp == "0800") %>%
+  dim()
+
+matrixkey %>%
+  filter(hrs == "005") %>%
+  filter(Temp == "1000") %>%
+  dim()
+
+matrixkey %>%
+  filter(hrs == "005") %>%
+  filter(Temp == "1100") %>%
+  dim()
+```
+
+```{r}
+Tempselect <- "0900"
+hrsselect <- "005"
+
+matrix5 <- matrixkey %>%
+  filter(hrs == hrsselect) %>%
+  filter(Temp == Tempselect) %>%
+  filter(nom.ni == "05") %>%
+  select(filename) %>%
+  pull()
+
+stack5 <- do.call("c", lapply(matrix5,image_read)) %>%
+  image_montage(tile = '1x6', geometry = 'x100+3+3') %>%
+  image_scale("70")
+
+matrix10 <- matrixkey %>%
+  filter(hrs == hrsselect) %>%
+  filter(Temp == Tempselect) %>%
+  filter(nom.ni == "10") %>%
+  select(filename) %>%
+  pull()
+
+stack10 <- do.call("c", lapply(matrix10,image_read)) %>%
+  image_montage(tile = '2x6', geometry = 'x100+3+3') %>%
+  image_scale("140")
+
+matrix20 <- matrixkey %>%
+  filter(hrs == hrsselect) %>%
+  filter(Temp == Tempselect) %>%
+  filter(nom.ni == "20") %>%
+  select(filename) %>%
+  pull()
+
+stack20 <- do.call("c", lapply(matrix20,image_read)) %>%
+  image_montage(tile = '2x8', geometry = 'x100+3+3') %>%
+  image_scale("140")
+
+matrix24 <- matrixkey %>%
+  filter(hrs == hrsselect) %>%
+  filter(Temp == Tempselect) %>%
+  filter(nom.ni == "24") %>%
+  select(filename) %>%
+  pull()
+
+stack24 <- do.call("c", lapply(matrix24,image_read)) %>%
+  image_montage(tile = '2x6', geometry = 'x100+3+3') %>%
+  image_scale("140")
+
+matrix28 <- matrixkey %>%
+  filter(hrs == hrsselect) %>%
+  filter(Temp == Tempselect) %>%
+  filter(nom.ni == "28") %>%
+  select(filename) %>%
+  pull()
+
+stack28 <- do.call("c", lapply(matrix28,image_read)) %>%
+  image_montage(tile = '2x6', geometry = 'x100+3+3') %>%
+  image_scale("140")
+
+matrix35 <- matrixkey %>%
+  filter(hrs == hrsselect) %>%
+  filter(Temp == Tempselect) %>%
+  filter(nom.ni == "35") %>%
+  select(filename) %>%
+  pull()
+
+stack35 <- do.call("c", lapply(matrix35,image_read)) %>%
+  image_montage(tile = '2x6', geometry = 'x100+3+3') %>%
+  image_scale("140")
+
+matrix40 <- matrixkey %>%
+  filter(hrs == hrsselect) %>%
+  filter(Temp == Tempselect) %>%
+  filter(nom.ni == "40") %>%
+  select(filename) %>%
+  pull()
+
+stack40 <- do.call("c", lapply(matrix40,image_read)) %>%
+  image_montage(tile = '1x9', geometry = 'x100+3+3') %>%
+  image_scale("70")
+
+matrix50 <- matrixkey %>%
+  filter(hrs == hrsselect) %>%
+  filter(Temp == Tempselect) %>%
+  filter(nom.ni == "50") %>%
+  select(filename) %>%
+  pull()
+
+stack50 <- do.call("c", lapply(matrix50,image_read)) %>%
+  image_montage(tile = '1x6', geometry = 'x100+3+3') %>%
+  image_scale("70")
+```
+
+
+
+```{r}
+image_append(c(stack5,stack10,stack20,
+               stack24,
+               stack28,
+               stack35,
+               stack40,
+               stack50
+               ))
+
+
+
+```
+
+
+```{r}
+matrix5k <- list.files("C:/Users/whhuddle/Desktop/WHX_05k_HC2",recursive = T,full.names = T) %>%
+  as.data.frame() %>%
+  rename(., filename = .) %>%
+  mutate(Temp = substr(filename,39,42)) %>%
+  mutate(hrs = substr(filename,44,46)) %>%
+  mutate(nom.ni = substr(filename,48,49)) %>%
+  mutate(Labelfineshort = substr(filename,53,nchar(filename)))
+
+
+bigmatrix <- rbind(matrixkey,matrix5k) %>%
+  #filter(hrs == hrsselect) %>%
+  #filter(Temp == Tempselect) %>%
+  #filter(nom.ni == "20") %>%
+  select(filename) %>%
+  pull()
+
+do.call("c", lapply(bigmatrix,image_read)) %>%
+  image_montage(tile = '20x19', geometry = 'x100+3+3') %>%
+  image_scale("2000") %>%
+  image_write(., "./full-montage.png", format = "png")
+
+```
+
