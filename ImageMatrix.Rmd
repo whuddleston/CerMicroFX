@@ -18,6 +18,47 @@ library(magick)
 ```
 
 ```{r}
+bind1 <- voronoidens %>%
+  select(-x, -count, -density) %>%
+  select(-imagearea, -avennd) %>%
+  select(-avecountarea,-avevcoarse, -countperarea) %>%
+  #select(-Ni.Vol.Corrected) %>%
+  select(-stressf, -aveR3) %>%
+  #
+  #filter(Label != "WH13A") %>% #weird outlier
+  #filter(Label != "WH15B") %>%
+  #filter(Labelfine != "WH06A/1000-5-35A0006.tiff") %>%
+  #filter(Labelfine != "WH06C/1000-5-35C0004.tiff") %>%
+  #select(-Label, -Labelfine) %>%
+  #
+  unique()
+
+#bind2 allows the PCA dataset to be filtered down to Magx = 10 (machine learning doesn't have Magx=5)
+bind2 <- df_particles_fine %>%
+  select(Labelfine, magx) %>%
+  unique()
+
+#bind 3 brings in skeleton data
+bind3 <- skeleton.data %>%
+  select(ave.branches, ave.ave.branches, ave.max.branches, Labelfine) %>%
+  unique()
+
+temppairs <- left_join(bind1,bind3, by = "Labelfine")
+
+```
+
+
+```{r}
+# metadata <- read.csv("./data-files/df_particles_fine.csv") %>%
+#   select(Label,Labelfine,
+#          magx,imagearea,finecount,countperarea,
+#          avennd,totNifrac,fineavennd,avecountarea,aveAreafine) %>%
+#   unique() %>%
+#   mutate(Labelfineshort = substr(Labelfine,7,nchar(Labelfine)))
+
+metadata <- temppairs
+
+
 matrixkey <- list.files("C:/Users/whhuddle/Desktop/WHX_10k_HC2",recursive = T,full.names = T) %>%
   as.data.frame() %>%
   rename(., filename = .) %>%
@@ -230,16 +271,31 @@ hrs,Temp,nom.ni  6
 -->
 
 ```{r}
-bigmatrix <- rbind(matrixkey,matrix5k) %>%
+matrix5k <- matrix5k %>%
+  mutate(Labelfineshort = substr(filename,45,nchar(filename))) %>%
+  left_join(., metadata, by = "Labelfineshort")
+
+matrixkey <- matrixkey %>%
+  mutate(Labelfineshort = substr(filename,53,nchar(filename))) %>%
+  left_join(., metadata, by = "Labelfineshort")
+
+bigmatrix <- rbind(matrixkey,matrix5k)
+```
+
+
+
+```{r}
+ordermatrix <- bigmatrix %>%
   #arrange(., procint) %>%
-  arrange(Temp,nom.ni,hrs) %>%
+  arrange(Temp.x,nom.ni,hrs.x) %>%
+  #arrange(totNifrace) %>%
   #filter(hrs == hrsselect) %>%
   #filter(Temp == Tempselect) %>%
   #filter(nom.ni == "20") %>%
   select(filename) %>%
   pull()
 
-do.call("c", lapply(bigmatrix,image_read)) %>%
+do.call("c", lapply(ordermatrix,image_read)) %>%
   image_montage(tile = '20x19', geometry = 'x100+3+3') %>%
   image_scale("2000") %>%
   image_write(., "./full-montage.png", format = "png")
