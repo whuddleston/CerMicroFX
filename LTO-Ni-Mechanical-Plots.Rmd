@@ -8,6 +8,8 @@ output: html_document
 ```{r setup, include=FALSE}
 #SETUP OF LIBRARIES
 knitr::opts_chunk$set(echo = FALSE, warning=FALSE, message=FALSE) #set echo to FALSE to hide code
+
+save <- 0
 ```
 
 ```{r}
@@ -67,8 +69,8 @@ mechtempploteb <- fractSum %>%
         legend.text = element_text(colour="black", size = 12))
 
 print(mechtempploteb)
-ggsave(filename = "./mechexports/plotexportmechtempeb.png", plot = mechtempploteb, 
-       device = "png", width = 6,height = 4, units = "in")
+{if(save == 1)ggsave(filename = "./mechexports/plotexportmechtempeb.png", plot = mechtempploteb, 
+       device = "png", width = 6,height = 4, units = "in")}
 rm(mechtempploteb)
 ```
 
@@ -135,8 +137,8 @@ mechniploteb <- fractSum %>%
 
 
 print(mechniploteb)
-ggsave(filename = "./mechexports/plotexportmechnieb.png", plot = mechniploteb, 
-       device = "png", width = 6,height = 4, units = "in")
+{if(save == 1)ggsave(filename = "./mechexports/plotexportmechnieb.png", plot = mechniploteb, 
+       device = "png", width = 6,height = 4, units = "in")}
 rm(mechniploteb)
 
 ```
@@ -193,8 +195,8 @@ mechtimeeb <- fractSum %>%
         legend.text = element_text(colour="black", size = 12))
 
 print(mechtimeeb)
-ggsave(filename = "./mechexports/plotexportmechtimeeb.png", plot = mechtimeeb, 
-       device = "png", width = 6,height = 4, units = "in")
+{if(save == 1)ggsave(filename = "./mechexports/plotexportmechtimeeb.png", plot = mechtimeeb, 
+       device = "png", width = 6,height = 4, units = "in")}
 rm(mechtimeeb)
 ```
 
@@ -306,9 +308,55 @@ fracsize <- fractSum %>%
         legend.text = element_text(colour = "black", size = 12))
 
 print(fracsize)
-ggsave(filename = "./mechexports/plotexportfracsize.png", plot = fracsize, 
-       device = "png", width = 6,height = 4, units = "in")
+{if(save == 1)ggsave(filename = "./mechexports/plotexportfracsize.png", plot = fracsize, 
+       device = "png", width = 6,height = 4, units = "in")}
 rm(fracsize)
+```
+
+```{r}
+fracsize3 <- fractSum %>%
+  filter(is.na(load) == FALSE) %>% #removes non mech data
+  #filter(Ni.Vol.Corrected == 0.35) %>%
+  mutate(stresso = stressf*exp((1.05-Th.Density/100)*coef(fracmodel)[2]*-1)) %>%
+  ggplot() +
+  geom_point(size = 2.5, stroke = 2,aes(x = R3, y = log(stresso), 
+                 shape = as.factor(hrs),
+                 color = as.factor(Ni.Vol.Corrected))) +
+  #guides(color = FALSE) +
+  #scale_x_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  scale_x_log10(sec.axis = sec_axis(~.^(1/3)*2, name = expression(D~'['*mu*m*']')),
+                limits = c(0.006, 150),
+                #breaks = scales::trans_breaks("log10", function(x) 10^x),
+                labels = trans_format("log10", math_format(10^.x))) +
+  scale_y_continuous(limits = c(3,7), 
+                expand = c(0,0), 
+                sec.axis = sec_axis(~., labels = NULL)) +
+  scale_shape_manual(values=c(16, 17, 0, 2)) + #hrs
+  ylab(expression('ln'*'('*sigma[o]*')'~'['*MPa*']')) +
+  xlab(expression(R^3~'['*mu*m^3*']')) +
+  theme_classic() +
+  guides(shape = guide_legend(title = "Time [hrs]", reverse = TRUE,
+                               #override.aes = list(size=4), 
+                               title.theme = element_text(colour="black",
+                                                          #face = "bold",
+                                                          size = 12))) +
+  guides(colour = guide_legend(reverse = TRUE, title = "Ni Vol.", 
+                               override.aes = list(size=3), 
+                               title.theme = element_text(colour="black", size = 12))) +
+  theme(axis.text.x = element_text(colour = "black", size = 16),
+        axis.text.y = element_text(colour = "black", size = 16),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 16),
+        axis.title.y = element_text(colour = "black", size = 16),
+        legend.text = element_text(colour = "black", size = 12))
+
+print(fracsize3)
+{if(save == 1)ggsave(filename = "./mechexports/plotexportfracsize3.png", plot = fracsize3, 
+       device = "png", width = 6,height = 4, units = "in")}
+rm(fracsize3)
+
+
 ```
 
 ```{r}
@@ -354,8 +402,8 @@ fracsize2 <- fractSum %>%
         legend.text = element_text(colour = "black", size = 12))
 
 print(fracsize2)
-ggsave(filename = "./mechexports/plotexportfracsize2.png", plot = fracsize2, 
-       device = "png", width = 6,height = 4, units = "in")
+{if(save == 1)ggsave(filename = "./mechexports/plotexportfracsize2.png", plot = fracsize2, 
+       device = "png", width = 6,height = 4, units = "in")}
 rm(fracsize2)
 ```
 
@@ -386,8 +434,8 @@ fracmod <- fractSum %>%
         legend.text = element_text(colour="black", size = 12))
 
 print(fracmod)
-ggsave(filename = "./mechexports/plotexportfracmod.png", plot = fracmod, 
-       device = "png", width = 6,height = 4, units = "in")
+{if(save == 1)ggsave(filename = "./mechexports/plotexportfracmod.png", plot = fracmod, 
+       device = "png", width = 6,height = 4, units = "in")}
 rm(fracmod)
 ```
 
@@ -412,8 +460,8 @@ fracporo <- fractSum %>%
         legend.text = element_text(colour="black", size = 12))
 
 print(fracporo)
-ggsave(filename = "./mechexports/plotexportfracporo.png", plot = fracporo, 
-       device = "png", width = 6,height = 4, units = "in")
+{if(save == 1)ggsave(filename = "./mechexports/plotexportfracporo.png", plot = fracporo, 
+       device = "png", width = 6,height = 4, units = "in")}
 rm(fracporo)
 ```
 
@@ -449,8 +497,8 @@ toughen <- mechdata %>%
         legend.text = element_text(colour="black", size = 12))
 
 print(toughen)
-ggsave(filename = "./mechexports/plotexportmechtoughen.png", plot = toughen, 
-       device = "png", width = 6,height = 4, units = "in")
+{if(save == 1)ggsave(filename = "./mechexports/plotexportmechtoughen.png", plot = toughen, 
+       device = "png", width = 6,height = 4, units = "in")}
 rm(toughen)
 ```
 
@@ -509,8 +557,8 @@ toughsize <- fractSum %>%
         legend.text = element_text(colour="black", size = 12))
 
 print(toughsize)
-ggsave(filename = "./mechexports/plotexportmechtoughsize.png", plot = toughsize, 
-       device = "png", width = 6,height = 4.5, units = "in")
+{if(save == 1)ggsave(filename = "./mechexports/plotexportmechtoughsize.png", plot = toughsize, 
+       device = "png", width = 6,height = 4.5, units = "in")}
 rm(toughsize)
 
 fractSum %>%
@@ -571,7 +619,7 @@ stressfzz <- fractSum %>%
         legend.text = element_text(colour="black", size = 12))
 
 print(stressfzz)
-ggsave(filename = "./mechexports/plotexportstressfzz.png", plot = stressfzz, device = "png", width = 8, height = 6, units = "in")
+{if(save == 1)ggsave(filename = "./mechexports/plotexportstressfzz.png", plot = stressfzz, device = "png", width = 8, height = 6, units = "in")}
 rm(stressfzz)
 
 stressozz <- fractSum %>%
@@ -598,7 +646,7 @@ stressozz <- fractSum %>%
         legend.text = element_text(colour="black", size = 12))
 
 print(stressozz)
-ggsave(filename = "./mechexports/plotexportstressozz.png", plot = stressozz, device = "png", width = 8, height = 6, units = "in")
+{if(save == 1)ggsave(filename = "./mechexports/plotexportstressozz.png", plot = stressozz, device = "png", width = 8, height = 6, units = "in")}
 rm(stressozz)
 ```
 
@@ -689,7 +737,7 @@ stressnormni <- fractSum %>%
         legend.text = element_text(colour="black", size = 12))
 
 print(stressnormni)
-ggsave(filename = "./mechexports/plotexportstressnormni.png", plot = stressnormni, device = "png", width = 6, height = 4, units = "in")
+{if(save == 1)ggsave(filename = "./mechexports/plotexportstressnormni.png", plot = stressnormni, device = "png", width = 6, height = 4, units = "in")}
 rm(stressnormni)
 ```
 
@@ -724,7 +772,7 @@ stressnormni2 <- fractSum %>%
         legend.text = element_text(colour="black", size = 12))
 
 print(stressnormni2)
-ggsave(filename = "./mechexports/plotexportstressnormni2.png", plot = stressnormni2, device = "png", width = 6, height = 4, units = "in")
+{if(save == 1)ggsave(filename = "./mechexports/plotexportstressnormni2.png", plot = stressnormni2, device = "png", width = 6, height = 4, units = "in")}
 rm(stressnormni2)
 
 stressnormtemp2 <- fractSum %>%
@@ -755,7 +803,7 @@ stressnormtemp2 <- fractSum %>%
         legend.text = element_text(colour="black", size = 12))
 
 print(stressnormtemp2)
-ggsave(filename = "./mechexports/plotexportstressnormtemp2.png", plot = stressnormtemp2, device = "png", width = 6, height = 4, units = "in")
+{if(save == 1)ggsave(filename = "./mechexports/plotexportstressnormtemp2.png", plot = stressnormtemp2, device = "png", width = 6, height = 4, units = "in")}
 rm(stressnormtemp2)
 
 stressnormhrs2 <- fractSum %>%
@@ -790,8 +838,8 @@ stressnormhrs2 <- fractSum %>%
         legend.text = element_text(colour="black", size = 12))
 
 print(stressnormhrs2)
-ggsave(filename = "./mechexports/plotexportstressnormhrs2.png", plot = stressnormhrs2, 
-       device = "png", width = 6, height = 4, units = "in")
+{if(save == 1)ggsave(filename = "./mechexports/plotexportstressnormhrs2.png", plot = stressnormhrs2, 
+       device = "png", width = 6, height = 4, units = "in")}
 rm(stressnormhrs2)
 ```
 
@@ -881,7 +929,7 @@ stressnormtemp <- fractSum %>%
         legend.text = element_text(colour="black", size = 12))
 
 print(stressnormtemp)
-ggsave(filename = "./mechexports/plotexportstressnormtemp.png", plot = stressnormtemp, device = "png", width = 6, height = 4, units = "in")
+{if(save == 1)ggsave(filename = "./mechexports/plotexportstressnormtemp.png", plot = stressnormtemp, device = "png", width = 6, height = 4, units = "in")}
 rm(stressnormtemp)
 
 #all samples
@@ -943,8 +991,8 @@ stressnormhrs <- fractSum %>%
         legend.text = element_text(colour="black", size = 12))
 
 print(stressnormhrs)
-ggsave(filename = "./mechexports/plotexportstressnormhrs.png", plot = stressnormhrs, 
-       device = "png", width = 6, height = 4, units = "in")
+{if(save == 1)ggsave(filename = "./mechexports/plotexportstressnormhrs.png", plot = stressnormhrs, 
+       device = "png", width = 6, height = 4, units = "in")}
 rm(stressnormhrs)
 
 #all samples
@@ -1040,7 +1088,7 @@ stresscond <- fractSum %>%
 #Stress and Conductivity vs Microstructure
 
 print(stresscond)
-ggsave(filename = "./mechexports/plotexportstresscond.png", plot = stresscond, device = "png", width = 8, height = 6, units = "in")
+{if(save == 1)ggsave(filename = "./mechexports/plotexportstresscond.png", plot = stresscond, device = "png", width = 8, height = 6, units = "in")}
 rm(stresscond)
 ```
 
@@ -1104,7 +1152,7 @@ normstresscond <- fractSum %>%
         legend.text = element_text(colour="black", size = 12))
 
 print(normstresscond)
-ggsave(filename = "./mechexports/plotexportnormstresscond.png", plot = normstresscond, device = "png", width = 8, height = 6, units = "in")
+{if(save == 1)ggsave(filename = "./mechexports/plotexportnormstresscond.png", plot = normstresscond, device = "png", width = 8, height = 6, units = "in")}
 rm(normstresscond)
 ```
 
@@ -1141,6 +1189,6 @@ mechhard <- read.csv("./data-files/cracklengthdata.csv") %>%
         legend.text = element_text(colour="black", size = 12))
 
 print(mechhard)
-ggsave(filename = "./mechexports/plotexportmechhard.png", plot = mechhard, device = "png", width = 8, height = 6, units = "in")
+{if(save == 1)ggsave(filename = "./mechexports/plotexportmechhard.png", plot = mechhard, device = "png", width = 8, height = 6, units = "in")}
 rm(mechhard)
 ```
