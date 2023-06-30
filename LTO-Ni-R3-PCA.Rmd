@@ -838,6 +838,44 @@ rm(scoresTemphrs)
 ```
 
 ```{r}
+scoresNiTemp <- autoplot(prcomp.R3, data = prcomp.R3.fractSum,
+         x = 1,
+         y = 2,
+         colour = "Ni.Vol.Corrected",
+         shape = "Temp",
+         label = FALSE, frame = TRUE) +
+  scale_x_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  scale_y_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  geom_hline(yintercept = 0, color = "black", size = 0.5, linetype = "dashed") +
+  geom_vline(xintercept = 0, color = "black", size = 0.5, linetype = "dashed") +
+  {if(cb == 1)scale_fill_scico_d(palette = "roma", direction = 1)} + #nickel
+  {if(cb == 1)scale_color_scico_d(palette = "roma", direction = 1)} + #nickel
+  labs(colour = "Ni Vol.") +
+  labs(fill = "Ni Vol.") +
+  scale_shape_manual(values=c(8, 17, 16, 0, 2)) + #Temp
+  guides(shape = guide_legend(reverse = TRUE, title = expression(Temp~'['*degree*C*']'), 
+                              title.theme = element_text(colour="black", 
+                                                         size = 10))) +
+  theme_classic() +
+  guides(fill = guide_legend(reverse = TRUE, title = "Ni Vol.", 
+                               #override.aes = list(size=4), 
+                               title.theme = element_text(colour = "black",
+                                                          #face = "bold",
+                                                          size = 10))) +
+  guides(colour = guide_legend(reverse = TRUE, title = "Ni Vol.", 
+                               #override.aes = list(size=4), 
+                               title.theme = element_text(colour = "black",
+                                                          #face = "bold",
+                                                          size = 10))) +
+  theme(legend.key.height = unit(0.2, 'in'))
+
+print(scoresNiTemp)
+{if(save == 1)ggsave(filename = "./PCAexports/scoresNiTemp.png", plot = scoresNiTemp, 
+         device = "png", width = 6,height = 4, units = "in")}
+rm(scoresNiTemp)
+```
+
+```{r}
 scoresTemp34 <- autoplot(prcomp.R3, 
          x = 3,
          y = 4,
@@ -1211,8 +1249,8 @@ PCfilm <- prcomp.R3.rot %>%
   geom_tile(aes(x = r3x, y = 2, width = 0.025, height = 0.2, fill = PC2)) +
   geom_tile(aes(x = r3x, y = 3, width = 0.025, height = 0.2, fill = PC3)) +
   geom_tile(aes(x = r3x, y = 4, width = 0.025, height = 0.2, fill = PC4)) +
-  geom_tile(aes(x = r3x, y = 5, width = 0.025, height = 0.2, fill = PC5)) +
-  geom_tile(aes(x = r3x, y = 6, width = 0.025, height = 0.2, fill = PC6)) +
+  #geom_tile(aes(x = r3x, y = 5, width = 0.025, height = 0.2, fill = PC5)) +
+  #geom_tile(aes(x = r3x, y = 6, width = 0.025, height = 0.2, fill = PC6)) +
   #
   scale_fill_scico(palette = "roma", limits = c(-0.15,0.15), direction = -1) +
   #scale_fill_gradientn(colors = brewer_pal(palette = "RdBu")(5), limits = c(-0.15,0.15)) +
