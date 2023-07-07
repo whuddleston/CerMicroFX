@@ -258,7 +258,17 @@ conrfpredmeas.pc <- cbind(rfresults.pc, testset.pc) %>%
               color = "red",linetype = "dashed") +
   annotate("text", label = VALUETEMP.pc, parse = T,
            x = 1, 
-           y = -1)
+           y = -1) +
+  labs(tag = "(b)") +
+  theme(axis.text.x = element_text(colour = "black", size = 16),
+        axis.text.y = element_text(colour = "black", size = 16),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 16),
+        axis.title.y = element_text(colour = "black", size = 16),
+        #plot.margin = margin(10,10,10,45),
+        plot.tag = element_text(colour = "black", size = 18, face = "bold"),
+        legend.text = element_text(colour="black", size = 12))
 
 print(conrfpredmeas.pc)
 {if(save == 1)ggsave(filename = "./MLexportsPC/conrfpredmeas.png", plot = conrfpredmeas.pc, device = "png", width = 6,height = 4, units = "in")}
@@ -315,7 +325,17 @@ conrfpredmeas.training.pc <- cbind(rfresults.training.pc, trainset.pc) %>%
               color = "red",linetype = "dashed") +
   annotate("text", label = VALUETEMP.pc, parse = T,
            x = 1, 
-           y = -1)
+           y = -1)  +
+  labs(tag = "(a)") +
+  theme(axis.text.x = element_text(colour = "black", size = 16),
+        axis.text.y = element_text(colour = "black", size = 16),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 16),
+        axis.title.y = element_text(colour = "black", size = 16),
+        #plot.margin = margin(10,10,10,45),
+        plot.tag = element_text(colour = "black", size = 18, face = "bold"),
+        legend.text = element_text(colour="black", size = 12))
 
 print(conrfpredmeas.training.pc)
 {if(save == 1)ggsave(filename = "./MLexportsPC/conrfpredmeastrain.png", plot = conrfpredmeas.training.pc, device = "png", width = 6,height = 4, units = "in")}
@@ -352,6 +372,15 @@ rfmodel.min.depth.df.pc <- rfmodel.min.depth.df.pc %>%
 
 conrfmindepth.pc <- plot_min_depth_distribution(rfmodel.min.depth.df.pc, k = 30) +
   xlab("") +
+  theme(axis.text.x = element_text(colour = "black", size = 12),
+        axis.text.y = element_text(colour = "black", size = 12),
+        axis.ticks = element_line(colour = "black", size = 1),
+        #axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 12),
+        axis.title.y = element_text(colour = "black", size = 12),
+        #plot.margin = margin(10,10,10,45),
+        plot.tag = element_text(colour = "black", size = 18, face = "bold"),
+        legend.text = element_text(colour="black", size = 12)) +
   {if(cb == 1)scale_fill_scico_d(na.translate = FALSE, palette = "nuuk", direction = 1, begin = 0, end = 1)}
 
 print(conrfmindepth.pc)
@@ -543,7 +572,17 @@ r3d_pc1.vrn_pc1 <- scoresdata %>%
                                #override.aes = list(size=4), 
                                title.theme = element_text(colour = "black",
                                                           #face = "bold",
-                                                          size = 10)))
+                                                          size = 10))) +
+  labs(tag = "(b)") +
+  theme(axis.text.x = element_text(colour = "black", size = 16),
+        axis.text.y = element_text(colour = "black", size = 16),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 16),
+        axis.title.y = element_text(colour = "black", size = 16),
+        #plot.margin = margin(10,10,10,45),
+        plot.tag = element_text(colour = "black", size = 18, face = "bold"),
+        legend.text = element_text(colour="black", size = 12))
 
 print(r3d_pc1.vrn_pc1)
 {if(save == 1)ggsave(filename = "./paperexports/r3d_pc1-vrn_pc1.png", plot = r3d_pc1.vrn_pc1, 
@@ -589,7 +628,17 @@ r3d_pc1.skel_br_pc1 <- scoresdata %>%
                                #override.aes = list(size=4), 
                                title.theme = element_text(colour = "black",
                                                           #face = "bold",
-                                                          size = 10)))
+                                                          size = 10))) +
+  labs(tag = "(a)") +
+  theme(axis.text.x = element_text(colour = "black", size = 16),
+        axis.text.y = element_text(colour = "black", size = 16),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 16),
+        axis.title.y = element_text(colour = "black", size = 16),
+        #plot.margin = margin(10,10,10,45),
+        plot.tag = element_text(colour = "black", size = 18, face = "bold"),
+        legend.text = element_text(colour="black", size = 12))
 
 
 print(r3d_pc1.skel_br_pc1)
