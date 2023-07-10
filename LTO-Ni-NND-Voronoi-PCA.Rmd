@@ -482,6 +482,7 @@ vrn.PC1.Ni <- voronoidens %>%
   ylab("Nickel Volume Fraction") +
   #
   theme_classic() +
+  labs(tag = "(d)") +
   # guides(colour = FALSE, fill = guide_legend(reverse = TRUE, title = "PC", 
   #                              #override.aes = list(size=4), 
   #                              title.theme = element_text(colour = "black",
@@ -493,6 +494,7 @@ vrn.PC1.Ni <- voronoidens %>%
         axis.line = element_line(colour = 'black', size = 1),
         axis.title.x = element_text(colour = "black", size = 16),
         axis.title.y = element_text(colour = "black", size = 16),
+        plot.tag = element_text(colour = "black", size = 18, face = "bold"),
         legend.text = element_text(colour="black", size = 12))
 
 

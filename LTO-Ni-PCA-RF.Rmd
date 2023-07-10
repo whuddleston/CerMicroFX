@@ -573,7 +573,7 @@ r3d_pc1.vrn_pc1 <- scoresdata %>%
                                title.theme = element_text(colour = "black",
                                                           #face = "bold",
                                                           size = 10))) +
-  labs(tag = "(b)") +
+  labs(tag = "(c)") +
   theme(axis.text.x = element_text(colour = "black", size = 16),
         axis.text.y = element_text(colour = "black", size = 16),
         axis.ticks = element_line(colour = "black", size = 1),

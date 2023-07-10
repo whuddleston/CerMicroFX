@@ -264,10 +264,12 @@ skel.br.PC1.Ni <- skel.br.densities %>%
                                                           #face = "bold",
                                                           size = 12))) +
   theme_classic() +
+  labs(tag = "(b)") +
   theme(axis.text.x = element_text(colour = "black", size = 16),
         axis.text.y = element_text(colour = "black", size = 16),
         axis.ticks = element_line(colour = "black", size = 1),
         axis.line = element_line(colour = 'black', size = 1),
+        plot.tag = element_text(colour = "black", size = 18, face = "bold"),
         axis.title.x = element_text(colour = "black", size = 16),
         axis.title.y = element_text(colour = "black", size = 16),
         legend.text = element_text(colour="black", size = 12))
