@@ -465,7 +465,7 @@ vrn.PC1.Ni <- voronoidens %>%
                      #height = count/20000, 
                      height = density, #height is either density or count
                      group = Labelfine)) + 
-  geom_tile(aes(x = vx, y = 10, width = 0.1, height = 0.25)) +
+  #geom_tile(aes(x = vx, y = 10, width = 0.1, height = 0.25)) +
   scale_fill_scico(palette = "buda", limits = c(-0.1,0.1), direction = -1) +
   #
   # geom_rect(color = "black", aes(xmin = avevoronoix-0.01, 
@@ -475,8 +475,10 @@ vrn.PC1.Ni <- voronoidens %>%
   #               fill = as.factor(Ni.Vol.Corrected))) +
   #
   scale_x_log10(sec.axis = sec_axis(~., labels = NULL)) +
-  scale_y_continuous(breaks = c(1:8,10),
-                     labels = c("0.05", "0.10", "0.20", "0.24", "0.28", "0.35", "0.40", "0.50","PC"),
+  scale_y_continuous(breaks = c(1:8#,10
+                                ),
+                     labels = c("0.05", "0.10", "0.20", "0.24", "0.28", "0.35", "0.40", "0.50"#,"PC"
+                                ),
                      sec.axis = sec_axis(~., breaks = c(1:8), labels = NULL)) +
   xlab(expression(Voronoi~Distance~'['*mu*m*']')) +
   ylab("Nickel Volume Fraction") +
