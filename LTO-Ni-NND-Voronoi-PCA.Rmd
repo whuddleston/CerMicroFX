@@ -480,11 +480,12 @@ vrn.PC1.Ni <- voronoidens %>%
                      labels = c("0.05", "0.10", "0.20", "0.24", "0.28", "0.35", "0.40", "0.50"#,"PC"
                                 ),
                      sec.axis = sec_axis(~., breaks = c(1:8), labels = NULL)) +
-  xlab(expression(Voronoi~Distance~'['*mu*m*']')) +
+  xlab(expression(Edge*"-"*to*"-"*Edge~Distance~'['*mu*m*']')) +
   ylab("Nickel Volume Fraction") +
   #
   theme_classic() +
   labs(tag = "(d)") +
+  guides(fill = guide_colorbar(title = "vrn_pc1\n")) +
   # guides(colour = FALSE, fill = guide_legend(reverse = TRUE, title = "PC", 
   #                              #override.aes = list(size=4), 
   #                              title.theme = element_text(colour = "black",

@@ -267,6 +267,7 @@ skel.br.PC1.Ni <- skel.br.densities %>%
                                                           size = 12))) +
   theme_classic() +
   labs(tag = "(b)") +
+  guides(fill = guide_colorbar(title = "skel_br_PC1\n")) +
   theme(axis.text.x = element_text(colour = "black", size = 16),
         axis.text.y = element_text(colour = "black", size = 16),
         axis.ticks = element_line(colour = "black", size = 1),
