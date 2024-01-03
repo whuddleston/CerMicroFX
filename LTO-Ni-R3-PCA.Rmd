@@ -868,6 +868,8 @@ scoresNiTemp <- autoplot(prcomp.R3, data = prcomp.R3.fractSum,
                                                           #face = "bold",
                                                           size = 10))) +
   labs(tag = "(a)") +
+  xlab("r3d_pc1") +
+  ylab("r3d_pc2") +
   theme(legend.key.height = unit(0.2, 'in')) +
   theme(axis.text.x = element_text(colour = "black", size = 16),
         axis.text.y = element_text(colour = "black", size = 16),
@@ -1355,6 +1357,7 @@ PCANi <- r3densities %>%
   labs(tag = "(b)") +
   ylab("Nickel Volume Fraction") +
   xlab(expression(R^3~'['*mu*m^3*']')) +
+  guides(fill=guide_colorbar(title="r3d_pc1")) +
   theme(axis.text.x = element_text(colour = "black", size = 16),
         axis.text.y = element_text(colour = "black", size = 16),
         axis.ticks = element_line(colour = "black", size = 1),
