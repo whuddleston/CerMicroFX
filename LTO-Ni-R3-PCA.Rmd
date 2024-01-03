@@ -857,17 +857,17 @@ scoresNiTemp <- autoplot(prcomp.R3, data = prcomp.R3.fractSum,
                               title.theme = element_text(colour="black", 
                                                          size = 10))) +
   theme_classic() +
-  guides(fill = guide_legend(reverse = TRUE, title = "Ni Vol.", 
+  guides(fill = guide_legend(reverse = F, title = "Ni Vol.", 
                                #override.aes = list(size=4), 
                                title.theme = element_text(colour = "black",
                                                           #face = "bold",
                                                           size = 10))) +
-  guides(colour = guide_legend(reverse = TRUE, title = "Ni Vol.", 
+  guides(colour = guide_legend(reverse = F, title = "Ni Vol.", 
                                #override.aes = list(size=4), 
                                title.theme = element_text(colour = "black",
                                                           #face = "bold",
                                                           size = 10))) +
-  labs(tag = "(b)") +
+  labs(tag = "(a)") +
   theme(legend.key.height = unit(0.2, 'in')) +
   theme(axis.text.x = element_text(colour = "black", size = 16),
         axis.text.y = element_text(colour = "black", size = 16),
@@ -875,7 +875,7 @@ scoresNiTemp <- autoplot(prcomp.R3, data = prcomp.R3.fractSum,
         axis.line = element_line(colour = 'black', size = 1),
         axis.title.x = element_text(colour = "black", size = 16),
         axis.title.y = element_text(colour = "black", size = 16),
-        plot.margin = margin(10,10,10,45),
+        #plot.margin = margin(10,10,10,45),
         plot.tag = element_text(colour = "black", size = 18, face = "bold"),
         legend.text = element_text(colour="black", size = 12))
 
@@ -1352,7 +1352,7 @@ PCANi <- r3densities %>%
                                 ),
                      sec.axis = sec_axis(~., breaks = c(0,1,2,3,4,5,6,7,9), labels = NULL)) +
   theme_classic() +
-  labs(tag = "(a)") +
+  labs(tag = "(b)") +
   ylab("Nickel Volume Fraction") +
   xlab(expression(R^3~'['*mu*m^3*']')) +
   theme(axis.text.x = element_text(colour = "black", size = 16),
