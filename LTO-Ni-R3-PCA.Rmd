@@ -689,10 +689,21 @@ prcomp.R3.fractSum$Ni.Vol.Corrected <- as.factor(prcomp.R3.fractSum$Ni.Vol.Corre
 
 ```{r}
 PCAscree <- fviz_eig(prcomp.R3, addlabels = TRUE, barfill = "#00A9FF") +
-  labs(title = "") +
+  labs(title = "Partice Size Distribution (r3d_pc#)") +
+  xlab("Principal Component Number") +
+  labs(tag = "(a)") +
   theme_classic() +
   scale_y_continuous(limits = c(0,37), expand = c(0,0), sec.axis = sec_axis(~., labels = NULL)) +
-  geom_hline(yintercept = 37, size = 1)
+  #scale_x_discrete(sec.axis = sec_axis(~., labels = NULL)) +
+  geom_hline(yintercept = 37, size = 1.5) +
+  theme(axis.text.x = element_text(colour = "black", size = 14),
+        axis.text.y = element_text(colour = "black", size = 14),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 14),
+        axis.title.y = element_text(colour = "black", size = 14),
+        plot.tag = element_text(colour = "black", size = 18, face = "bold"),
+        legend.text = element_text(colour="black", size = 12))
 
 print(PCAscree)
 {if(save == 1)ggsave(filename = "./PCAexports/PCAscree.png", plot = PCAscree, 

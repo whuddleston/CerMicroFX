@@ -46,7 +46,27 @@ prcomp.NND.meta$hrs <- as.factor(prcomp.NND.meta$hrs)
 prcomp.NND.meta$Ni.Vol.Corrected <- as.factor(prcomp.NND.meta$Ni.Vol.Corrected)
 
 
-fviz_eig(prcomp.NND, addlabels = TRUE)
+nnd_scree <- fviz_eig(prcomp.NND, addlabels = TRUE, barfill = "#00A9FF") +
+  labs(title = "Center-to-Center Distance Distribution (nnd_pc#)") +
+  xlab("Principal Component Number") +
+  labs(tag = "(b)") +
+  theme_classic() +
+  scale_y_continuous(limits = c(0,40), expand = c(0,0), sec.axis = sec_axis(~., labels = NULL)) +
+  #scale_x_discrete(sec.axis = sec_axis(~., labels = NULL)) +
+  geom_hline(yintercept = 40, size = 1.5) +
+  theme(axis.text.x = element_text(colour = "black", size = 14),
+        axis.text.y = element_text(colour = "black", size = 14),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 14),
+        axis.title.y = element_text(colour = "black", size = 14),
+        plot.tag = element_text(colour = "black", size = 18, face = "bold"),
+        legend.text = element_text(colour="black", size = 12))
+
+print(nnd_scree)
+{if(save == 1)ggsave(filename = "./PCAexports/nnd_scree.png", plot = nnd_scree, 
+         device = "png", width = 6,height = 4, units = "in")}
+rm(nnd_scree)
 
 loadingplot(prcomp.NND, comps = 1:5, legendpos = "right", labels = 'numbers', pretty.xlabels = TRUE, #xlab = 'Time (s)',
             ylab = 'Loading Value')
@@ -219,7 +239,27 @@ prcomp.v.meta$Temp <- as.factor(prcomp.v.meta$Temp)
 prcomp.v.meta$hrs <- as.factor(prcomp.v.meta$hrs)
 prcomp.v.meta$Ni.Vol.Corrected <- as.factor(prcomp.v.meta$Ni.Vol.Corrected)
 
-fviz_eig(prcomp.v, addlabels = TRUE)
+vrn_scree <- fviz_eig(prcomp.v, addlabels = TRUE, barfill = "#00A9FF") +
+  labs(title = "Edge-to-Edge Distance Distribution (nnd_pc#)") +
+  xlab("Principal Component Number") +
+  labs(tag = "(c)") +
+  theme_classic() +
+  scale_y_continuous(limits = c(0,60), expand = c(0,0), sec.axis = sec_axis(~., labels = NULL)) +
+  #scale_x_discrete(sec.axis = sec_axis(~., labels = NULL)) +
+  geom_hline(yintercept = 60, size = 1.5) +
+  theme(axis.text.x = element_text(colour = "black", size = 14),
+        axis.text.y = element_text(colour = "black", size = 14),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 14),
+        axis.title.y = element_text(colour = "black", size = 14),
+        plot.tag = element_text(colour = "black", size = 18, face = "bold"),
+        legend.text = element_text(colour="black", size = 12))
+
+print(vrn_scree)
+{if(save == 1)ggsave(filename = "./PCAexports/vrn_scree.png", plot = vrn_scree, 
+         device = "png", width = 6,height = 4, units = "in")}
+rm(vrn_scree)
 
 loadingplot(prcomp.v, comps = 1:5, legendpos = "right", labels = 'numbers', pretty.xlabels = TRUE, #xlab = 'Time (s)',
             ylab = 'Loading Value')
