@@ -304,3 +304,180 @@ ggsave(filename = "./PCAexports/skel-br-PC1-Ni.png", plot = skel.br.PC1.Ni,
          device = "png", width = 6,height = 4, units = "in")
 rm(skel.br.PC1.Ni)
 ```
+
+
+#SKEL.AVE
+
+```{r}
+skel.ave.densities <- read.csv("./data-files/skel.dens.avebranch.csv", header = TRUE)
+
+skel.ave.densities <- skel.ave.densities %>%
+  mutate(Labelfineshort = i) %>%
+  select(-i) %>%
+  mutate(Labelfineshort = as.character(Labelfineshort)) %>%
+  mutate(LabelLength = nchar(Labelfineshort)) %>%
+  mutate(Labelfineshort = substr(Labelfineshort, 27, LabelLength-4)) %>%
+  select(-LabelLength)
+
+skel.ave.densities <- voronoidens %>%
+  select(-x,-density,-count) %>%
+  unique() %>%
+  left_join(., skel.ave.densities, by = "Labelfineshort")
+```
+
+##scree
+
+```{r}
+prcomp.skel.ave <- skel.ave.densities %>%
+  #mutate(Label = substr(Labelfine, 1, 5)) %>%
+  #left_join(., fractSum, by = "Label") %>%
+  #
+  #same filters below as R3 PCA
+  filter(Label != "WH13A") %>% #weird outlier
+  filter(Label != "WH15B") %>%
+  filter(Label != "WH21B") %>%
+  filter(Labelfine != "WH06A/1000-5-35A0006.tiff") %>%
+  filter(Labelfine != "WH06C/1000-5-35C0004.tiff") %>%
+  #
+  select(x, density, Labelfine) %>%
+  mutate(x = round(x, digits = 3)) %>%
+  spread(., key = x, value = density) %>%
+  select(-Labelfine) %>%
+  prcomp(scale = TRUE)
+
+prcomp.skel.ave.meta <- skel.ave.densities %>%
+  #mutate(Label = substr(Labelfine, 1, 5)) %>%
+  #left_join(., fractSum, by = "Label") %>%
+  #
+  #same filters below as R3 PCA
+  filter(Label != "WH13A") %>% #weird outlier
+  filter(Label != "WH15B") %>%
+  filter(Label != "WH21B") %>%
+  filter(Labelfine != "WH06A/1000-5-35A0006.tiff") %>%
+  filter(Labelfine != "WH06C/1000-5-35C0004.tiff") %>%
+  #
+  select(-x, -density) %>%
+  unique() %>%
+  arrange(Labelfine)
+
+prcomp.skel.ave.meta$Temp <- as.factor(prcomp.skel.ave.meta$Temp)
+prcomp.skel.ave.meta$hrs <- as.factor(prcomp.skel.ave.meta$hrs)
+prcomp.skel.ave.meta$Ni.Vol.Corrected <- as.factor(prcomp.skel.ave.meta$Ni.Vol.Corrected)
+
+
+loadingplot(prcomp.skel.ave, comps = 1:5, legendpos = "right", labels = 'numbers', pretty.xlabels = TRUE, #xlab = 'Time (s)',
+            ylab = 'Loading Value')
+
+```
+
+```{r}
+skel_ave_scree <- fviz_eig(prcomp.skel.ave, addlabels = TRUE, barfill = "#00A9FF") +
+  labs(title = "Ave. Branch Length Distribution (skel_avbr_pc#)") +
+  xlab("Principal Component Number") +
+  labs(tag = "(e)") +
+  theme_classic() +
+  scale_y_continuous(limits = c(0,50), expand = c(0,0), sec.axis = sec_axis(~., labels = NULL)) +
+  #scale_x_discrete(sec.axis = sec_axis(~., labels = NULL)) +
+  geom_hline(yintercept = 50, size = 1.5) +
+  theme(axis.text.x = element_text(colour = "black", size = 14),
+        axis.text.y = element_text(colour = "black", size = 14),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 14),
+        axis.title.y = element_text(colour = "black", size = 14),
+        plot.tag = element_text(colour = "black", size = 18, face = "bold"),
+        legend.text = element_text(colour="black", size = 12))
+
+print(skel_ave_scree)
+{if(save == 1)ggsave(filename = "./PCAexports/skel_ave_scree.png", plot = skel_ave_scree, 
+         device = "png", width = 6,height = 4, units = "in")}
+rm(skel_ave_scree)
+```
+
+#SKEL.MAX
+
+```{r}
+skel.max.densities <- read.csv("./data-files/skel.dens.maxbranch.csv", header = TRUE)
+
+skel.max.densities <- skel.max.densities %>%
+  mutate(Labelfineshort = i) %>%
+  select(-i) %>%
+  mutate(Labelfineshort = as.character(Labelfineshort)) %>%
+  mutate(LabelLength = nchar(Labelfineshort)) %>%
+  mutate(Labelfineshort = substr(Labelfineshort, 27, LabelLength-4)) %>%
+  select(-LabelLength)
+
+skel.max.densities <- voronoidens %>%
+  select(-x,-density,-count) %>%
+  unique() %>%
+  left_join(., skel.max.densities, by = "Labelfineshort")
+```
+
+##scree
+
+```{r}
+prcomp.skel.max <- skel.max.densities %>%
+  #mutate(Label = substr(Labelfine, 1, 5)) %>%
+  #left_join(., fractSum, by = "Label") %>%
+  #
+  #same filters below as R3 PCA
+  filter(Label != "WH13A") %>% #weird outlier
+  filter(Label != "WH15B") %>%
+  filter(Label != "WH21B") %>%
+  filter(Labelfine != "WH06A/1000-5-35A0006.tiff") %>%
+  filter(Labelfine != "WH06C/1000-5-35C0004.tiff") %>%
+  #
+  select(x, density, Labelfine) %>%
+  mutate(x = round(x, digits = 3)) %>%
+  spread(., key = x, value = density) %>%
+  select(-Labelfine) %>%
+  prcomp(scale = TRUE)
+
+prcomp.skel.max.meta <- skel.max.densities %>%
+  #mutate(Label = substr(Labelfine, 1, 5)) %>%
+  #left_join(., fractSum, by = "Label") %>%
+  #
+  #same filters below as R3 PCA
+  filter(Label != "WH13A") %>% #weird outlier
+  filter(Label != "WH15B") %>%
+  filter(Label != "WH21B") %>%
+  filter(Labelfine != "WH06A/1000-5-35A0006.tiff") %>%
+  filter(Labelfine != "WH06C/1000-5-35C0004.tiff") %>%
+  #
+  select(-x, -density) %>%
+  unique() %>%
+  arrange(Labelfine)
+
+prcomp.skel.max.meta$Temp <- as.factor(prcomp.skel.max.meta$Temp)
+prcomp.skel.max.meta$hrs <- as.factor(prcomp.skel.max.meta$hrs)
+prcomp.skel.max.meta$Ni.Vol.Corrected <- as.factor(prcomp.skel.max.meta$Ni.Vol.Corrected)
+
+
+loadingplot(prcomp.skel.max, comps = 1:5, legendpos = "right", labels = 'numbers', pretty.xlabels = TRUE, #xlab = 'Time (s)',
+            ylab = 'Loading Value')
+
+```
+
+```{r}
+skel_max_scree <- fviz_eig(prcomp.skel.max, addlabels = TRUE, barfill = "#00A9FF") +
+  labs(title = "Max. Branch Length Distribution (skel_avbr_pc#)") +
+  xlab("Principal Component Number") +
+  labs(tag = "(f)") +
+  theme_classic() +
+  scale_y_continuous(limits = c(0,50), expand = c(0,0), sec.axis = sec_axis(~., labels = NULL)) +
+  #scale_x_discrete(sec.axis = sec_axis(~., labels = NULL)) +
+  geom_hline(yintercept = 50, size = 1.5) +
+  theme(axis.text.x = element_text(colour = "black", size = 14),
+        axis.text.y = element_text(colour = "black", size = 14),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 14),
+        axis.title.y = element_text(colour = "black", size = 14),
+        plot.tag = element_text(colour = "black", size = 18, face = "bold"),
+        legend.text = element_text(colour="black", size = 12))
+
+print(skel_max_scree)
+{if(save == 1)ggsave(filename = "./PCAexports/skel_max_scree.png", plot = skel_max_scree, 
+         device = "png", width = 6,height = 4, units = "in")}
+rm(skel_max_scree)
+```
