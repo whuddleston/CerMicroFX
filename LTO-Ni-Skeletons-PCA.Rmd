@@ -460,7 +460,7 @@ loadingplot(prcomp.skel.max, comps = 1:5, legendpos = "right", labels = 'numbers
 
 ```{r}
 skel_max_scree <- fviz_eig(prcomp.skel.max, addlabels = TRUE, barfill = "#00A9FF") +
-  labs(title = "Max. Branch Length Distribution (skel_avbr_pc#)") +
+  labs(title = "Max. Branch Length Distribution (skel_mxbr_pc#)") +
   xlab("Principal Component Number") +
   labs(tag = "(f)") +
   theme_classic() +

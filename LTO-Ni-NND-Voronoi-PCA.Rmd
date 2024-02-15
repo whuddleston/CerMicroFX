@@ -240,7 +240,7 @@ prcomp.v.meta$hrs <- as.factor(prcomp.v.meta$hrs)
 prcomp.v.meta$Ni.Vol.Corrected <- as.factor(prcomp.v.meta$Ni.Vol.Corrected)
 
 vrn_scree <- fviz_eig(prcomp.v, addlabels = TRUE, barfill = "#00A9FF") +
-  labs(title = "Edge-to-Edge Distance Distribution (nnd_pc#)") +
+  labs(title = "Edge-to-Edge Distance Distribution (vrn_pc#)") +
   xlab("Principal Component Number") +
   labs(tag = "(c)") +
   theme_classic() +
