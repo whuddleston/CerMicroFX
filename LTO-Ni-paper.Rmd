@@ -1570,7 +1570,7 @@ CNN_preds <- read.csv("./data-files/preds0_class_correct.csv") %>%
   mutate(correct_fine = paste(correct,obs_class,sep = " ")) %>%
   ggplot() +
   geom_point(position = "jitter", size = 2, shape = 21, aes(x = Ni.Vol.Corrected, y = condAve, fill = as.factor(correct_fine))) +
-  geom_hline(yintercept = 1, color = "red",linetype = "dashed", size = 1) +
+  geom_hline(yintercept = 10, color = "red",linetype = "dashed", size = 1) +
   #annotate("rect", ymin = .0001, ymax = 1, xmin = -Inf, xmax = Inf, fill="red", alpha = 0.1) +
   #annotate("rect", ymin = 1, ymax = Inf, xmin = -Inf, xmax = Inf, fill="blue", alpha = 0.1) +
   scale_y_log10(limits = c(0.005, 90000), 
