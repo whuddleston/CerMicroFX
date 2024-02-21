@@ -1285,6 +1285,7 @@ PCfilm <- prcomp.R3.rot %>%
   ylab("Principal Component") +
   xlab(expression(R^3~'['*mu*m^3*']')) +
   labs(fill = "Loading") +
+  labs(tag = "(a)") +
   theme_classic() +
   theme(axis.text.x = element_text(colour = "black", size = 16),
         axis.text.y = element_text(colour = "black", size = 16),
@@ -1293,6 +1294,7 @@ PCfilm <- prcomp.R3.rot %>%
         axis.title.x = element_text(colour = "black", size = 16),
         axis.title.y = element_text(colour = "black", size = 16),
         legend.title = element_text(colour = "black", size = 12),
+        plot.tag = element_text(colour = "black", size = 18, face = "bold"),
         legend.text = element_text(colour="black", size = 12))
 
 print(PCfilm)

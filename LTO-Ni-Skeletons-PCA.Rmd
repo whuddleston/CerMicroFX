@@ -174,25 +174,29 @@ prcomp.skel.br.rot <- prcomp.skel.br$rotation %>%
   #filter(r3x >= -4) %>%
   #filter(r3x <= 4) %>%
   select(1:11)
+```
 
-prcomp.skel.br.rot %>%
+```{r}
+PCfilmBR <- prcomp.skel.br.rot %>%
   mutate(x = 10^x) %>% #log scale fix
   #
   ggplot() +
-  geom_tile(aes(x = x, y = 1, width = 0.025, height = 0.1, fill = PC1)) +
-  geom_tile(aes(x = x, y = 2, width = 0.025, height = 0.1, fill = PC2)) +
-  geom_tile(aes(x = x, y = 3, width = 0.025, height = 0.1, fill = PC3)) +
-  geom_tile(aes(x = x, y = 4, width = 0.025, height = 0.1, fill = PC4)) +
-  geom_tile(aes(x = x, y = 5, width = 0.025, height = 0.1, fill = PC5)) +
+  geom_tile(aes(x = x, y = 1, width = 0.025, height = 0.2, fill = PC1)) +
+  geom_tile(aes(x = x, y = 2, width = 0.025, height = 0.2, fill = PC2)) +
+  geom_tile(aes(x = x, y = 3, width = 0.025, height = 0.2, fill = PC3)) +
+  geom_tile(aes(x = x, y = 4, width = 0.025, height = 0.2, fill = PC4)) +
+  #geom_tile(aes(x = x, y = 5, width = 0.025, height = 0.1, fill = PC5)) +
   #
-  scale_fill_scico(palette = "roma", limits = c(-0.2,0.2), 
+  scale_fill_scico(palette = "cork", limits = c(-0.15,0.15), 
                    direction = -1) +
   #scale_fill_gradientn(colors = brewer_pal(palette = "RdBu")(5), limits = c(-0.15,0.15)) +
-  scale_x_log10(sec.axis = sec_axis(~., labels = NULL)) +
+  scale_x_log10(limits = c(10^0.25,50), sec.axis = sec_axis(~., labels = NULL)) +
   scale_y_continuous(sec.axis = sec_axis(~., labels = NULL)) +
-  ylab("PC") +
+  ylab("Principal Component") +
   #xlab(expression(Nearest~Neighbor~Distance~'['*mu*m*']')) +
-  labs(fill = "PC") +
+  xlab("Branches") +
+  labs(fill = "Loading \n") +
+  labs(tag = "(d)") +
   theme_classic() +
   theme(axis.text.x = element_text(colour = "black", size = 16),
         axis.text.y = element_text(colour = "black", size = 16),
@@ -200,9 +204,13 @@ prcomp.skel.br.rot %>%
         axis.line = element_line(colour = 'black', size = 1),
         axis.title.x = element_text(colour = "black", size = 16),
         axis.title.y = element_text(colour = "black", size = 16),
+        plot.tag = element_text(colour = "black", size = 18, face = "bold"),
         legend.text = element_text(colour="black", size = 12))
 
-
+print(PCfilmBR)
+{if(save == 1)ggsave(filename = "./PCAexports/PCfilmBR.png", plot = PCfilmBR, 
+         device = "png", width = 6,height = 4, units = "in")}
+rm(PCfilmBR)
 ```
 
 ```{r}
@@ -394,6 +402,57 @@ print(skel_ave_scree)
 rm(skel_ave_scree)
 ```
 
+##filmstrip
+
+```{r}
+prcomp.skel.ave.rot <- prcomp.skel.ave$rotation %>%
+  as.data.frame() %>%
+  rownames_to_column(var = "x") %>%
+  mutate(x = as.numeric(x)) %>%
+  #filter(r3x >= -4) %>%
+  #filter(r3x <= 4) %>%
+  select(1:11)
+```
+
+```{r}
+PCfilmAVE <- prcomp.skel.ave.rot %>%
+  mutate(x = 10^x) %>% #log scale fix
+  #
+  ggplot() +
+  geom_tile(aes(x = x, y = 1, width = 0.025, height = 0.2, fill = PC1)) +
+  geom_tile(aes(x = x, y = 2, width = 0.025, height = 0.2, fill = PC2)) +
+  geom_tile(aes(x = x, y = 3, width = 0.025, height = 0.2, fill = PC3)) +
+  geom_tile(aes(x = x, y = 4, width = 0.025, height = 0.2, fill = PC4)) +
+  #geom_tile(aes(x = x, y = 5, width = 0.025, height = 0.1, fill = PC5)) +
+  #
+  scale_fill_scico(palette = "cork", limits = c(-0.15,0.15), 
+                   direction = -1) +
+  #scale_fill_gradientn(colors = brewer_pal(palette = "RdBu")(5), limits = c(-0.15,0.15)) +
+  scale_x_log10(limits = c(0.01,10), sec.axis = sec_axis(~., labels = NULL)) +
+  scale_y_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  ylab("Principal Component") +
+  #xlab(expression(Nearest~Neighbor~Distance~'['*mu*m*']')) +
+  #xlab("Ave. Branch Length") +
+  xlab(expression("Ave. Branch Length"~'['*mu*m*']')) +
+  labs(fill = "Loading \n") +
+  labs(tag = "(e)") +
+  theme_classic() +
+  theme(axis.text.x = element_text(colour = "black", size = 16),
+        axis.text.y = element_text(colour = "black", size = 16),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 16),
+        axis.title.y = element_text(colour = "black", size = 16),
+        plot.tag = element_text(colour = "black", size = 18, face = "bold"),
+        legend.text = element_text(colour="black", size = 12))
+
+print(PCfilmAVE)
+{if(save == 1)ggsave(filename = "./PCAexports/PCfilmAVE.png", plot = PCfilmAVE, 
+         device = "png", width = 6,height = 4, units = "in")}
+rm(PCfilmAVE)
+```
+
+
 #SKEL.MAX
 
 ```{r}
@@ -481,3 +540,55 @@ print(skel_max_scree)
          device = "png", width = 6,height = 4, units = "in")}
 rm(skel_max_scree)
 ```
+
+
+##filmstrip
+
+```{r}
+prcomp.skel.max.rot <- prcomp.skel.max$rotation %>%
+  as.data.frame() %>%
+  rownames_to_column(var = "x") %>%
+  mutate(x = as.numeric(x)) %>%
+  #filter(r3x >= -4) %>%
+  #filter(r3x <= 4) %>%
+  select(1:11)
+```
+
+```{r}
+PCfilmMAX <- prcomp.skel.max.rot %>%
+  mutate(x = 10^x) %>% #log scale fix
+  #
+  ggplot() +
+  geom_tile(aes(x = x, y = 1, width = 0.025, height = 0.2, fill = PC1)) +
+  geom_tile(aes(x = x, y = 2, width = 0.025, height = 0.2, fill = PC2)) +
+  geom_tile(aes(x = x, y = 3, width = 0.025, height = 0.2, fill = PC3)) +
+  geom_tile(aes(x = x, y = 4, width = 0.025, height = 0.2, fill = PC4)) +
+  #geom_tile(aes(x = x, y = 5, width = 0.025, height = 0.1, fill = PC5)) +
+  #
+  scale_fill_scico(palette = "cork", limits = c(-0.15,0.15), 
+                   direction = -1) +
+  #scale_fill_gradientn(colors = brewer_pal(palette = "RdBu")(5), limits = c(-0.15,0.15)) +
+  scale_x_log10(limits = c(0.01,10), sec.axis = sec_axis(~., labels = NULL)) +
+  scale_y_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  ylab("Principal Component") +
+  #xlab(expression(Nearest~Neighbor~Distance~'['*mu*m*']')) +
+  #xlab("Ave. Branch Length") +
+  xlab(expression("Max. Branch Length"~'['*mu*m*']')) +
+  labs(fill = "Loading \n") +
+  labs(tag = "(f)") +
+  theme_classic() +
+  theme(axis.text.x = element_text(colour = "black", size = 16),
+        axis.text.y = element_text(colour = "black", size = 16),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 16),
+        axis.title.y = element_text(colour = "black", size = 16),
+        plot.tag = element_text(colour = "black", size = 18, face = "bold"),
+        legend.text = element_text(colour="black", size = 12))
+
+print(PCfilmMAX)
+{if(save == 1)ggsave(filename = "./PCAexports/PCfilmMAX.png", plot = PCfilmMAX, 
+         device = "png", width = 6,height = 4, units = "in")}
+rm(PCfilmMAX)
+```
+

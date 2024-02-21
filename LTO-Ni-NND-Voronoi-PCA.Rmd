@@ -148,25 +148,28 @@ prcomp.NND.rot <- prcomp.NND$rotation %>%
   #filter(r3x >= -4) %>%
   #filter(r3x <= 4) %>%
   select(1:11)
+```
 
-prcomp.NND.rot %>%
+```{r}
+PCfilmC2C <- prcomp.NND.rot %>%
   mutate(nndx = 10^nndx) %>% #log scale fix
   #
   ggplot() +
-  geom_tile(aes(x = nndx, y = 1, width = 0.025, height = 0.1, fill = PC1)) +
-  geom_tile(aes(x = nndx, y = 2, width = 0.025, height = 0.1, fill = PC2)) +
-  geom_tile(aes(x = nndx, y = 3, width = 0.025, height = 0.1, fill = PC3)) +
-  geom_tile(aes(x = nndx, y = 4, width = 0.025, height = 0.1, fill = PC4)) +
-  geom_tile(aes(x = nndx, y = 5, width = 0.025, height = 0.1, fill = PC5)) +
+  geom_tile(aes(x = nndx, y = 1, width = 0.025, height = 0.2, fill = PC1)) +
+  geom_tile(aes(x = nndx, y = 2, width = 0.025, height = 0.2, fill = PC2)) +
+  geom_tile(aes(x = nndx, y = 3, width = 0.025, height = 0.2, fill = PC3)) +
+  geom_tile(aes(x = nndx, y = 4, width = 0.025, height = 0.2, fill = PC4)) +
+  #geom_tile(aes(x = nndx, y = 5, width = 0.025, height = 0.1, fill = PC5)) +
   #
-  scale_fill_scico(palette = "roma", limits = c(-0.2,0.2), 
+  scale_fill_scico(palette = "vik", limits = c(-0.2,0.2), 
                    direction = -1) +
   #scale_fill_gradientn(colors = brewer_pal(palette = "RdBu")(5), limits = c(-0.15,0.15)) +
   scale_x_log10(sec.axis = sec_axis(~., labels = NULL)) +
   scale_y_continuous(sec.axis = sec_axis(~., labels = NULL)) +
-  ylab("PC") +
-  xlab(expression(Nearest~Neighbor~Distance~'['*mu*m*']')) +
-  labs(fill = "PC") +
+  ylab("Principal Component") +
+  xlab(expression("Center-to-Center"~Distance~'['*mu*m*']')) +
+  labs(fill = "Loading \n") +
+  labs(tag = "(b)") +
   theme_classic() +
   theme(axis.text.x = element_text(colour = "black", size = 16),
         axis.text.y = element_text(colour = "black", size = 16),
@@ -174,9 +177,13 @@ prcomp.NND.rot %>%
         axis.line = element_line(colour = 'black', size = 1),
         axis.title.x = element_text(colour = "black", size = 16),
         axis.title.y = element_text(colour = "black", size = 16),
+        plot.tag = element_text(colour = "black", size = 18, face = "bold"),
         legend.text = element_text(colour="black", size = 12))
 
-
+print(PCfilmC2C)
+{if(save == 1)ggsave(filename = "./PCAexports/PCfilmC2C.png", plot = PCfilmC2C, 
+         device = "png", width = 6,height = 4, units = "in")}
+rm(PCfilmC2C)
 ```
 
 ```{r}
@@ -340,25 +347,33 @@ prcomp.v.rot <- prcomp.v$rotation %>%
   #filter(r3x >= -4) %>%
   #filter(r3x <= 4) %>%
   select(1:11)
+```
 
-prcomp.v.rot %>%
-  mutate(vx = 10^vx) %>% #log scale fix
+```{r}
+PCfilmE2E <- prcomp.v.rot %>%
+  #mutate(vx = 10^vx) %>% #log scale fix
   #
   ggplot() +
-  geom_tile(aes(x = vx, y = 1, width = 0.025, height = 0.1, fill = PC1)) +
-  geom_tile(aes(x = vx, y = 2, width = 0.025, height = 0.1, fill = PC2)) +
-  geom_tile(aes(x = vx, y = 3, width = 0.025, height = 0.1, fill = PC3)) +
-  geom_tile(aes(x = vx, y = 4, width = 0.025, height = 0.1, fill = PC4)) +
-  geom_tile(aes(x = vx, y = 5, width = 0.025, height = 0.1, fill = PC5)) +
+  #geom_tile(aes(x = vx, y = 1, width = 0.025, height = 0.2, fill = PC1)) +
+  geom_tile(aes(x = vx, y = 1, width = 0.005*(3/vx), height = 0.2, fill = PC1)) +
+  geom_tile(aes(x = vx, y = 2, width = 0.005*(3/vx), height = 0.2, fill = PC2)) +
+  geom_tile(aes(x = vx, y = 3, width = 0.005*(3/vx), height = 0.2, fill = PC3)) +
+  geom_tile(aes(x = vx, y = 4, width = 0.005*(3/vx), height = 0.2, fill = PC4)) +
+  #geom_tile(aes(x = vx, y = 2, width = 0.025, height = 0.2, fill = PC2)) +
+  #geom_tile(aes(x = vx, y = 3, width = 0.025, height = 0.2, fill = PC3)) +
+  #geom_tile(aes(x = vx, y = 4, width = 0.025, height = 0.2, fill = PC4)) +
+  #geom_tile(aes(x = vx, y = 5, width = 0.025, height = 0.1, fill = PC5)) +
   #
-  scale_fill_scico(palette = "roma", limits = c(-0.2,0.2), 
+  scale_fill_scico(palette = "buda", limits = c(-0.15,0.15), 
                    direction = -1) +
   #scale_fill_gradientn(colors = brewer_pal(palette = "RdBu")(5), limits = c(-0.15,0.15)) +
-  scale_x_log10(sec.axis = sec_axis(~., labels = NULL)) +
+  scale_x_log10(limits = c(0.05,5), sec.axis = sec_axis(~., labels = NULL)) +
   scale_y_continuous(sec.axis = sec_axis(~., labels = NULL)) +
-  ylab("PC") +
+  ylab("Principal Component") +
   #xlab(expression(Nearest~Neighbor~Distance~'['*mu*m*']')) +
-  labs(fill = "PC") +
+  xlab(expression('Edge-to-Edge'~Distance~'['*mu*m*']')) +
+  labs(fill = "Loading") +
+  labs(tag = "(c)") +
   theme_classic() +
   theme(axis.text.x = element_text(colour = "black", size = 16),
         axis.text.y = element_text(colour = "black", size = 16),
@@ -366,8 +381,13 @@ prcomp.v.rot %>%
         axis.line = element_line(colour = 'black', size = 1),
         axis.title.x = element_text(colour = "black", size = 16),
         axis.title.y = element_text(colour = "black", size = 16),
+        plot.tag = element_text(colour = "black", size = 18, face = "bold"),
         legend.text = element_text(colour="black", size = 12))
 
+print(PCfilmE2E)
+{if(save == 1)ggsave(filename = "./PCAexports/PCfilmE2E.png", plot = PCfilmE2E, 
+         device = "png", width = 6,height = 4, units = "in")}
+rm(PCfilmE2E)
 ```
 
 ```{r}
