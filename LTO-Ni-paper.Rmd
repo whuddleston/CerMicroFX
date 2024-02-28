@@ -1549,7 +1549,7 @@ rm(dens.space.ni)
 
 PAL <- "lajolla"
 PALDir <- -1
-PALs <- 0
+PALs <- 0.25
 PALe <- 1
 PALn <- 4
 
@@ -1569,7 +1569,7 @@ PAL4 <- scico(PALn, begin = PALs, end = PALe, direction = PALDir, palette = PAL)
 CNN_preds <- read.csv("./data-files/preds0_class_correct.csv") %>%
   mutate(correct_fine = paste(correct,obs_class,sep = " ")) %>%
   ggplot() +
-  geom_point(position = "jitter", size = 2, shape = 21, aes(x = Ni.Vol.Corrected, y = condAve, fill = as.factor(correct_fine))) +
+  geom_point(position = "jitter", size = 2, shape = 21, aes(x = Ni.Vol.Corrected, y = condAve, fill = as.factor(correct))) +
   geom_hline(yintercept = 10, color = "red",linetype = "dashed", size = 1) +
   #annotate("rect", ymin = .0001, ymax = 1, xmin = -Inf, xmax = Inf, fill="red", alpha = 0.1) +
   #annotate("rect", ymin = 1, ymax = Inf, xmin = -Inf, xmax = Inf, fill="blue", alpha = 0.1) +
@@ -1578,11 +1578,11 @@ CNN_preds <- read.csv("./data-files/preds0_class_correct.csv") %>%
                 labels = trans_format("log10", math_format(10^.x)),
                 sec.axis = sec_axis(~., labels = NULL)) +
   scale_x_continuous(sec.axis = sec_axis(~., labels = NULL)) +
-  scale_fill_manual(values = c(PAL2,PAL1,PAL3,PAL4)) +
+  scale_fill_manual(values = c(PAL1,PAL3), labels = c("Correct","Incorrect")) +
   xlab("Nickel Volume Fraction") +
   ylab("Conductivity [S/cm]") +
   #scale_color_manual(values = c("#000000","#FF0000")) +
-  guides(fill = guide_legend(reverse = F, title = "", 
+  guides(fill = guide_legend(reverse = F, title = "",
                               title.theme = element_text(colour="black",
                                                          #face = "bold",
                                                          size = 12))) +
@@ -1593,7 +1593,7 @@ CNN_preds <- read.csv("./data-files/preds0_class_correct.csv") %>%
         axis.line = element_line(colour = 'black', size = 1),
         axis.title.x = element_text(colour = "black", size = 16),
         axis.title.y = element_text(colour = "black", size = 16),
-        legend.position = "bottom",
+        legend.position = "top",
         legend.text = element_text(colour="black", size = 12))
 
 print(CNN_preds)
