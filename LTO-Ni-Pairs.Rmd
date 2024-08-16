@@ -7,7 +7,7 @@ date: "2023-02-07"
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, warning = F, message = F)
 
-save <- 0
+save <- 1
 ```
 
 ```{r}
@@ -51,6 +51,64 @@ temppairs <- left_join(bind1,bind3, by = "Labelfine")
 ```
 
 ```{r}
+upper_fn <- function(data, mapping, method="p", use="pairwise"){
+
+              # grab data
+              x <- eval_data_col(data, mapping$x)
+              y <- eval_data_col(data, mapping$y)
+
+              # calculate correlation
+              corr <- cor(x, y, method=method, use=use)
+
+              # calculate colour based on correlation value
+              # Here I have set a correlation of minus one to blue, 
+              # zero to white, and one to red 
+              # Change this to suit: possibly extend to add as an argument of `my_fn`
+              #colFn <- colorRampPalette(c("blue", "white", "red"), interpolate ='spline')
+              fill <- scico(n=100,palette = "bam",direction = -1)[findInterval(corr, seq(-1, 1, length=100))]
+              
+              
+
+              ggally_cor(data = data, mapping = mapping, stars = F) + 
+                theme_void() +
+                theme(panel.background = element_rect(fill=fill))
+            }
+```
+
+```{r}
+lower_fn <- function(data, mapping, ...){
+
+              # grab data
+              x <- eval_data_col(data, mapping$x)
+              y <- eval_data_col(data, mapping$y)
+              #df <- data.frame(x = x, y = y)
+
+              ggplot(data = data, mapping = mapping) +
+                geom_point(alpha = 0.5,aes(shape = as.factor(`Sintering Temperature`),
+                                           color = as.factor(`Nominal Nickel Fraction`))) +
+                scale_color_scico_d(palette = "roma", direction = 1) + #Nickel
+                scale_shape_manual(values=c(8, 17, 16, 0, 2)) +  #Temp
+                theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+}
+
+#Other Lower Options
+
+#lower = list(continuous = wrap("points", alpha = 0.3)),
+
+# lower = list(continuous = function(data, mapping, ...) {
+#   ggally_points(data = data, mapping = mapping, alpha = 0.3) +
+#     scale_x_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+#     scale_y_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+#     theme_classic() #+
+#     #scale_colour_manual(values = c("black", "dark green", "red"))
+#   })
+
+```
+
+
+```{r}
+#CONSTRUCT PAIRS PLOT
+
 pairsplottemp <- temppairs %>%
   mutate(condAve = log10(condAve)) %>%
   select(-Label,-Labelfine) %>%
@@ -76,19 +134,32 @@ pairsplottemp <- temppairs %>%
   rename(.,"Edge-to-Edge Complexity"="voronoicount") %>%
   rename(., "Conductivity"="condAve") %>%
   
-  ggpairs(labeller = label_wrap_gen(10))
+  ggpairs(labeller = label_wrap_gen(10),
+          #ggplot2::aes(colour = as.factor(`Nominal Nickel Fraction`)),
+          #mapping = ggplot2::aes_string(color = as.factor("`Nominal Nickel Fraction`")),
+          
+          lower = list(continuous = wrap(lower_fn)),
+          
+          upper = list(continuous = wrap(upper_fn
+                                         #stars = F,
+                                         #mapping = ggplot2::aes(color = cor)
+                                         ))) +
+  theme(panel.border = element_rect(fill = NA))
 
 #names(temppairs)
-  
 ```
 
 ```{r}
+#PREVIEW PAIRS PLOT
+
 pairsplottemp
 ```
 
 
 ```{r}
-{if(save == 1)ggsave(filename = "./paperexports/plotexportpairs.png", plot = pairsplottemp, 
+#SAVE PAIRS PLOT
+
+{if(save == 1)ggsave(filename = "./paperexports/plotexportpairs-new.png", plot = pairsplottemp, 
        device = "png", width = 10,height = 10, units = "in")} #ggsave has a dpi setting
 ```
 
