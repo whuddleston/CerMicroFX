@@ -285,20 +285,50 @@ bigmatrix <- rbind(matrixkey,matrix5k)
 
 
 ```{r}
-ordermatrix <- bigmatrix %>%
+bigmatrix <- bigmatrix %>%
   #arrange(., procint) %>%
-  arrange(Temp.x,nom.ni,hrs.x) %>%
+  arrange(Temp.x,nom.ni,hrs.x)
   #arrange(totNifrace) %>%
   #filter(hrs == hrsselect) %>%
   #filter(Temp == Tempselect) %>%
   #filter(nom.ni == "20") %>%
+
+ordermatrix <- bigmatrix %>%
   select(filename) %>%
   pull()
+```
 
-do.call("c", lapply(ordermatrix,image_read)) %>%
+```{r}
+
+custom_fun <- function(x){
+  image_read(x)
+}
+
+do.call("c", lapply(ordermatrix,custom_fun)) %>%
   image_montage(tile = '20x19', geometry = 'x100+3+3') %>%
   image_scale("2000") %>%
   image_write(., "./full-montage.png", format = "png")
+
+```
+
+
+
+```{r}
+#create custom function to call in do.call below
+custom_fun2 <- function(x,i,j,k,y){
+  label <- (paste(as.numeric(i),"C","\n",as.numeric(j),"Ni",as.numeric(k),"Hrs",y,"kx"))
+  
+  image_read(x) %>%
+    image_scale(., 1024) %>% #resize all images to be uniform prior to text addition
+    image_annotate(., text = label, size = 100, gravity = "northeast", color = "white", boxcolor = "black")
+}
+
+
+do.call("c", mapply(custom_fun2,bigmatrix$filename, bigmatrix$Temp.x, bigmatrix$nom.ni,bigmatrix$hrs.x,bigmatrix$magx)) %>%
+  image_montage(tile = '20x19', #geometry = 'x100+3+3'
+                ) %>%
+  image_annotate(., "github.com/whuddleston/CerMicroFX", gravity = "southeast", size = 75) %>%
+  image_write(., "./full-montage-annotate.png", format = "png")
 
 ```
 
