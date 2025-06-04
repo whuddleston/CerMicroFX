@@ -22,23 +22,6 @@ save <- 0
 #data prep
 
 <!--
-```{r}
-df_particles_fine %>% 
-  select(Labelfine,condAve) %>% 
-  unique() %>%
-  filter(is.na(condAve) == FALSE)
-
-df_particles_fine %>% 
-  select(Labelfine,stressf) %>% 
-  unique() %>%
-  filter(is.na(stressf) == FALSE)
-
-df_particles_fine %>% 
-  select(Labelfine,stressf,condAve) %>% 
-  unique() %>%
-  filter(is.na(stressf) == FALSE) %>%
-  filter(is.na(condAve) == FALSE)
-```
 
 
 ```{r}

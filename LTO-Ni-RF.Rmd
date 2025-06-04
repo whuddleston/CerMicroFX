@@ -1,5 +1,5 @@
 ---
-title: "LTO-Ni-RF"
+title: "LTO-Ni-RF-Conductivity"
 author: "William Huddleston"
 date: "2025-06-03"
 output: html_document
@@ -10,17 +10,35 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ```{r}
+df_particles_fine %>% 
+  select(Labelfine,condAve) %>% 
+  unique() %>%
+  filter(is.na(condAve) == FALSE)
+
+df_particles_fine %>% 
+  select(Labelfine,stressf) %>% 
+  unique() %>%
+  filter(is.na(stressf) == FALSE)
+
+df_particles_fine %>% 
+  select(Labelfine,stressf,condAve) %>% 
+  unique() %>%
+  filter(is.na(stressf) == FALSE) %>%
+  filter(is.na(condAve) == FALSE)
+```
+
+```{r}
 PC_compiled.full <- read.csv("./data-files/pc_scores_nnd_vrn_r3d_3skel.csv")
 
-PC_compiled.full <- df_particles_fine %>%
+PC_compiled <- df_particles_fine %>%
   select(Labelfine, magx) %>%
   unique() %>%
-  left_join(PC_compiled.full,., by = "Labelfine") %>%
-  #filter(is.na(condAve) == FALSE) %>%
+  left_join(PC_compiled.full,., by = "Labelfine") %>% #joins magx data into pca data
+  filter(is.na(condAve) == FALSE) %>%
   mutate(condAve = log(condAve)) #%>%
   #filter(magx == 10)
 
-PC_compiled <- PC_compiled.full %>%
+PC_compiled <- PC_compiled %>%
   select(-1,-3) %>%
   #select(1:60,condAve) %>%
   #filter(is.na(condAve) == FALSE) %>%
@@ -33,34 +51,33 @@ PC_compiled <- PC_compiled.full %>%
          skel_br_pc1,skel_br_pc2,skel_br_pc3,skel_br_pc4,
          skel_mxbr_pc1,skel_mxbr_pc2,skel_mxbr_pc3,skel_mxbr_pc4,
          Ni.Vol.Corrected, Temp, hrs,
-         stressf,
+         #stressf,
          condAve)
 ```
 
 
 ```{r}
-test1 <- c(seq(50,300,50))
+df_particles_fine %>%
+  select(Labelfine, magx) %>%
+  unique() %>%
+  anti_join(., PC_compiled.full, by = "Labelfine")
 
-test2 <- c(seq(0.3,0.7,0.1))
-
-trainmatrix <- expand.grid(test1,test2) %>%
-  rename(treecount = Var1) %>%
-  rename(trainfrac = Var2)
-
-rm(test1,test2)
+#missing images are the same as filtered outliers in prior studies
+  # filter(Label != "WH13A") %>% #weird outlier
+  # filter(Label != "WH15B") %>%
+  # filter(Label != "WH21B") %>%
+  # filter(Labelfine != "WH06A/1000-5-35A0006.tiff") %>%
+  # filter(Labelfine != "WH06C/1000-5-35C0004.tiff") %>%
 ```
+
 
 ```{r}
-
-#for loop here to test each combination of treecount and trainfract
-#for loop to run entire matrix multiple times
+#goals
+#for loop to test each combination of ntree, mtry, nodesize, and trainfract
+#need for loop to run entire matrix multiple times
 #save results in new dataframe
 #do whole matrix for averages and PC datasets
-
 ```
-
-
-
 
 
 
@@ -69,125 +86,181 @@ rm(test1,test2)
 ```{r}
 #model.csv generation
 # (0) .modelid
-# (1) .ntree (25-100)
-# (2) .mtry  24/3 is default (4-12)
-# (3) .sampsize obsnum is default
+# (1) .ntree (10-100)
+# (2) .mtry  Default is p/3, therefore 24/3 is default with 24/3 for 24 PC variables, (4-12)
+# (3) .sampsize obsnum is default?
 # (4) .nodesize (5 is default (1-9))
 # (5) maxnodes
 # (6) nPerm default is 1
 # (7) importance
 # (8) top-10 tree-size
 
-# obsnum <- nrow(trainset.pc)
-# 
+#obsnum <- nrow(trainset.pc)
+
 # model.csv.meta <- data.frame("modelid" = 1:700) %>%
-#   mutate(modelid = sprintf("%03i",modelid)) %>%
+#   mutate(modelid = sprintf("%03i",modelid)) %>% #eg 1 becomes 001
 #   mutate(modelid = paste("PC-RF-",modelid, sep = "")) %>%
-#   cbind(., ntree.int = sample(seq(from=10,to=100,by=1), size = 700, replace = T)) %>%
+#   cbind(., ntree.int = sample(seq(from=10,to=300,by=1), size = 700, replace = T)) %>%
 #   cbind(., mtry.int = sample(seq(from=4,to=12,by=1), size = 700, replace = T)) %>%
-#   cbind(., sampsize.int = round(sample(seq(from = 0.1*obsnum, to = obsnum, by = 1), size = 700, replace = T))) %>%
-#   cbind(., nodesize.int = sample(seq(from=1,to=9,by=1), size = 700, replace = T))
-#   #maxnodes is a direct function of nodesize, don't need to control this value
+#   #cbind(., sampsize.int = round(sample(seq(from = 0.1*obsnum, to = obsnum, by = 1), size = 700, replace = T))) %>% #NEED TO MOVE THIS AFTER SPLIT
+#     #if tuning sampsize need to analyze as fraction of split size
+#   cbind(., nodesize.int = sample(seq(from=1,to=9,by=1), size = 700, replace = T)) %>%
+#   cbind(., trainfrac = sample(seq(from=0.3,to=0.7,by=0.05), size = 700, replace = T))
+  #maxnodes is a direct function of nodesize, don't need to control this value
 #   
 # 
 # model.csv.meta %>%
 #   mutate(code = paste(ntree.int,mtry.int,sampsize.int,nodesize.int, sep = "-")) %>% select(code) %>% unique(.)
 # 
-# write.table(model.csv.meta, file = "./MLexportsPC/PC-RF/model.csv", row.names = FALSE, sep = ",")
+#write.table(model.csv.meta, file = "./MLexportsPC/PC-RF/model.csv", row.names = FALSE, sep = ",")
 
 model.csv.meta <- read.csv("./MLexportsPC/PC-RF/model.csv", header = TRUE)
 ```
 
 
-```{r}
-#presplit trainset/testset for testing
-trainset.pc.labels <- read.csv("./data-files/trainset-pc-save.csv", header = TRUE) %>% select(1)
-testset.pc.labels <- read.csv("./data-files/testset-pc-save.csv", header = TRUE) %>% select(1)
-```
-
-
+#PC-RF
+<!--
 ```{r}
 #model runs
 
 model.meta.results <- data.frame()
-#i <- 3
+#i <- 3 #testing
 
 for (i in 1:700){
+  
+  #PERFORM SPLIT HERE
+  split.pc <- createDataPartition(PC_compiled$condAve, p = model.csv.meta$trainfrac[i], times = 1)
 
+  trainset.pc <- PC_compiled[as.vector(split.pc[[1]]),]
+  testset.pc <- PC_compiled[-as.vector(split.pc[[1]]),]
+  
+  rm(split.pc)
+  
+  #pull Labelfine to recombine with model results later
+  trainset.pc.labels <- trainset.pc %>% select(Labelfine) 
+  testset.pc.labels <- testset.pc %>% select(Labelfine)
+  
+  #remove Labelfine
+  trainset.pc <- select(trainset.pc, -Labelfine)
+  testset.pc <- select(testset.pc, -Labelfine)
+  
+  #scale features
+  trainset.pc <- as.data.frame(scale(trainset.pc))
+  testset.pc <- as.data.frame(scale(testset.pc))
 
-rfmodel.pc <- trainset.pc %>%
-  select(-Ni.Vol.Corrected, -Temp, -hrs) %>%
-  randomForest(x = ., y = trainset.pc$condAve, 
-               ntree = model.csv.meta[i,2],
-               mtry = model.csv.meta[i,3],
-               sampsize = model.csv.meta[i,4],
-               nodesize = model.csv.meta[i,5],
-               )
+  
+  
+  s=Sys.time()
+  rfmodel.pc <- trainset.pc %>%
+    select(-Ni.Vol.Corrected, -Temp, -hrs) %>%
+    randomForest(x = ., y = trainset.pc$condAve, 
+                 ntree = model.csv.meta$ntree.int[i],
+                 mtry = model.csv.meta$mtry.int[i],
+                 #sampsize = model.csv.meta$sampsize.int[i],
+                 nodesize = model.csv.meta$nodesize.int[i],
+                 )
+  traindur = Sys.time()-s #store training time for each model
+  rm(s)
 
-#filename <- paste("./MLexportsPC/PC-RF-",i,".Rdata", sep = "")
-#save(rfmodel.pc, file = filename)
-
-rfresults.pc <- predict(rfmodel.pc, testset.pc) %>%
-  as.data.frame() %>%
-  cbind(as.data.frame(testset.pc$condAve),testset.pc.labels) %>%
-  mutate(partition = "test")
-
-colnames(rfresults.pc)[1] <- "prediction"
-colnames(rfresults.pc)[2] <- "actual"
-
-
-rfresults.training.pc <- predict(rfmodel.pc, trainset.pc) %>%
-  as.data.frame() %>%
-  cbind(as.data.frame(trainset.pc$condAve), trainset.pc.labels) %>%
-  mutate(partition = "train")
-
-colnames(rfresults.training.pc)[1] <- "prediction"
-colnames(rfresults.training.pc)[2] <- "actual"
-
-rfresults.out <- rbind(rfresults.pc,rfresults.training.pc)
-
-filename <- paste("./MLexportsPC/PC-RF/",model.csv.meta[i,1],".csv", sep = "")
-
-write.table(rfresults.out, file = filename, row.names = FALSE, sep = ",")
-
-
-temp1 <- treesize(rfmodel.pc) %>%
-  sort(decreasing = T) %>%
-  .[1:10] %>%
-  paste(collapse = " ") %>%
-  as.character() %>%
-  as.data.frame() %>%
-  rename(., treesize10 = .)
-
-temp2 <- importance(rfmodel.pc) %>%
-  as.data.frame() %>%
-  rownames_to_column() %>%
-  filter(rowname != "condAve") %>%
-  mutate(IncNodePurity = round(IncNodePurity, 2)) %>%
-  pull(IncNodePurity) %>%
-  paste(collapse = " ") %>%
-  as.data.frame() %>%
-  rename(., Importance24 = .)
-
-model.meta.results <- cbind(model.csv.meta[i,1], temp2, temp1) %>%
-  rename(modelid = "model.csv.meta[i, 1]") %>%
-  rbind(model.meta.results, .)
-
-rm(temp1)
-rm(temp2)
+  rf_rmse = round(sqrt(last(rfmodel.pc$mse)),2) #store rmse for each model
+  
+  
+  #filename <- paste("./MLexportsPC/PC-RF-",i,".Rdata", sep = "")
+  #save(rfmodel.pc, file = filename)
+  
+  
+  
+  
+  rfresults.pc <- predict(rfmodel.pc, testset.pc) %>%
+    as.data.frame() %>%
+    cbind(as.data.frame(testset.pc$condAve),testset.pc.labels) %>%
+    mutate(partition = "test")
+  
+  colnames(rfresults.pc)[1] <- "prediction"
+  colnames(rfresults.pc)[2] <- "actual"
+  
+  rflm.pc <- lm(rfresults.pc$prediction ~ rfresults.pc$actual)
+  
+  test_adj_r2 <- round(summary(rflm.pc)$adj.r.squared,3)
+  
+  
+  
+  rfresults.training.pc <- predict(rfmodel.pc, trainset.pc) %>%
+    as.data.frame() %>%
+    cbind(as.data.frame(trainset.pc$condAve), trainset.pc.labels) %>%
+    mutate(partition = "train")
+  
+  colnames(rfresults.training.pc)[1] <- "prediction"
+  colnames(rfresults.training.pc)[2] <- "actual"
+  
+  rflm.training.pc <- lm(rfresults.training.pc$prediction ~ rfresults.training.pc$actual)
+  
+  train_adj_r2 <- round(summary(rflm.training.pc)$adj.r.squared,3)
+  
+  #rfresults.out <- rbind(rfresults.pc,rfresults.training.pc)
+  
+  #filename <- paste("./MLexportsPC/PC-RF/",model.csv.meta[i,1],".csv", sep = "")
+  
+  #write.table(rfresults.out, file = filename, row.names = FALSE, sep = ",")
+  
+  
+  # temp1 <- treesize(rfmodel.pc) %>%
+  #   sort(decreasing = T) %>%
+  #   .[1:10] %>%
+  #   paste(collapse = " ") %>%
+  #   as.character() %>%
+  #   as.data.frame() %>%
+  #   rename(., treesize10 = .)
+  
+  # temp2 <- importance(rfmodel.pc) %>%
+  #   as.data.frame() %>%
+  #   rownames_to_column() %>%
+  #   filter(rowname != "condAve") %>%
+  #   mutate(IncNodePurity = round(IncNodePurity, 2)) %>%
+  #   pull(IncNodePurity) %>%
+  #   paste(collapse = " ") %>%
+  #   as.data.frame() %>%
+  #   rename(., Importance24 = .)
+  
+  # model.meta.results <- cbind(model.csv.meta[i,1], temp2, temp1) %>%
+  #   rename(modelid = "model.csv.meta[i, 1]") %>%
+  #   rbind(model.meta.results, .)
+  
+  model.meta.results <- model.csv.meta[i,] %>%
+    select(modelid) %>%
+    cbind(traindur, rf_rmse,train_adj_r2, test_adj_r2) %>%
+    rbind(model.meta.results, .)
+  
+  #rm(temp1)
+  #rm(temp2)
 
 }
 
 
-model.csv.meta %>%
-  mutate(maxnodes.int = NA) %>%
-  mutate(nPerm.int = NA) %>%
-  left_join(., model.meta.results, by = "modelid") %>%
-write.table(., file = "./MLexportsPC/PC-RF/modelout.csv", row.names = FALSE, sep = ",")
+model.meta.results <- model.csv.meta %>%
+  #mutate(maxnodes.int = NA) %>%
+  #mutate(nPerm.int = NA) %>%
+  left_join(., model.meta.results, by = "modelid") #%>%
+
+write.table(model.meta.results, file = "./MLexportsPC/PC-RF/modelout.csv", row.names = FALSE, sep = ",")
+
 
 ```
+-->
 
+```{r}
+model.meta.results <- read.csv("./MLexportsPC/PC-RF/modelout.csv", header = TRUE)
+```
 
+```{r}
+model.meta.results %>%
+  ggplot() +
+  geom_boxplot(aes(x = trainfrac, y = test_adj_r2, group = trainfrac))
 
+model.meta.results %>%
+  ggplot() +
+  geom_point(aes(x = traindur, y = test_adj_r2, color = trainfrac))
+```
 
+#X-RF
 
