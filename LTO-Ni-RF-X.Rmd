@@ -317,7 +317,7 @@ model.meta.results.x %>%
 ```
 
 ```{r}
-model.meta.results %>%
+model.meta.results.x %>%
   arrange(desc(test_adj_r2)) %>%
   mutate(modelrank = seq.int(nrow(.))) %>%
   ggplot() +
@@ -351,7 +351,7 @@ model.meta.results %>%
 
 
 ```{r}
-x_ranks <- depth.data %>%
+x_ranks <- depth.data.x %>%
   select(-condAve, -modelid) %>%
   colMeans() %>%
   as.data.frame() %>%
@@ -504,14 +504,18 @@ depth.data %>%
         legend.text = element_text(colour="black", size = 12))
 
 ```
+--> 
 
 ```{r}
-depth.data %>%
-  left_join(model.meta.results, by = "modelid") %>%
+test1 <- model.meta.results %>%
+  arrange(desc(test_adj_r2)) %>%
+  mutate(modelrank = seq.int(nrow(.)))
+
+model.meta.results.x %>%
   arrange(desc(test_adj_r2)) %>%
   mutate(modelrank = seq.int(nrow(.))) %>%
   ggplot() +
-  
+  geom_point(data = test1, aes(x = modelrank, y = test_adj_r2), color = "red") +
   geom_point(aes(x = modelrank, y = test_adj_r2))
 ```
 
