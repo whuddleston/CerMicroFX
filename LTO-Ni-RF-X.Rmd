@@ -1,0 +1,518 @@
+---
+title: "LTO-Ni-RF-Conductivity"
+author: "William Huddleston"
+date: "2025-06-03"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(ggnewscale)
+```
+
+```{r}
+df_particles_fine %>% 
+  select(Labelfine,condAve) %>% 
+  unique() %>%
+  filter(is.na(condAve) == FALSE)
+
+df_particles_fine %>% 
+  select(Labelfine,stressf) %>% 
+  unique() %>%
+  filter(is.na(stressf) == FALSE)
+
+df_particles_fine %>% 
+  select(Labelfine,stressf,condAve) %>% 
+  unique() %>%
+  filter(is.na(stressf) == FALSE) %>%
+  filter(is.na(condAve) == FALSE)
+```
+
+```{r}
+#INCLUDE PCA
+
+
+#bind1 is a modified version of the original machine learning dataset
+#properly filtered to match PCA dataset
+#
+bind1 <- voronoidens %>%
+  select(-x, -count, -density, -Labelfineshort) %>%
+  select(-magx, -imagearea, -avennd) %>%
+  select(-avecountarea,-avevcoarse, -countperarea) %>%
+  #select(-Ni.Vol.Corrected) %>%
+  select(-stressf, -aveR3) %>%
+  #
+  #filter(Label != "WH13A") %>% #weird outlier
+  #filter(Label != "WH15B") %>%
+  #filter(Labelfine != "WH06A/1000-5-35A0006.tiff") %>%
+  #filter(Labelfine != "WH06C/1000-5-35C0004.tiff") %>%
+  #select(-Label, -Labelfine) %>%
+  #
+  unique()
+
+#bind2 allows the PCA dataset to be filtered down to Magx = 10 (machine learning doesn't have Magx=5)
+bind2 <- df_particles_fine %>%
+  select(Labelfine, magx) %>%
+  unique()
+
+#bind 3 brings in skeleton data
+bind3 <- skeleton.data %>%
+  select(ave.branches, ave.ave.branches, ave.max.branches, Labelfine) %>%
+  unique()
+
+
+X_compiled <- bind2 %>%
+  left_join(., bind1, by = "Labelfine") %>%
+  left_join(., bind3, by = "Labelfine") %>%
+  filter(Label != "WH13A") %>% #weird outlier
+  filter(Label != "WH15B") %>%
+  filter(Label != "WH21B") %>%
+  filter(Labelfine != "WH06A/1000-5-35A0006.tiff") %>%
+  filter(Labelfine != "WH06C/1000-5-35C0004.tiff") %>%
+  
+  select(-Label, -magx) %>%
+  
+  select(Labelfine, fineavennd, aveAreafine, avevoronoix, 
+         ave.branches, 
+         ave.ave.branches,
+         ave.max.branches,condAve) %>%
+  mutate(condAve = log(condAve)) %>%
+  filter(is.na(condAve) == FALSE)
+
+
+rm(bind1)
+rm(bind2)
+rm(bind3)
+```
+
+
+
+
+```{r}
+#goals
+#for loop to test each combination of ntree, mtry, nodesize, and trainfract
+#need for loop to run entire matrix multiple times
+#save results in new dataframe
+#do whole matrix for averages and PC datasets
+```
+
+
+
+#RUN MANY MODELS
+
+```{r}
+#model.csv generation
+# (0) .modelid
+# (1) .ntree (10-100)
+# (2) .mtry  Default is p/3, therefore 6/3 is default with 6/3 for 6 average (X) variables, (1-3)
+# (3) .sampsize obsnum is default?
+# (4) .nodesize (5 is default (1-9))
+# (5) maxnodes
+# (6) nPerm default is 1
+# (7) importance
+# (8) top-10 tree-size
+
+#obsnum <- nrow(trainset.pc)
+
+# model.csv.meta.x <- data.frame("modelid" = 1:500) %>%
+#   mutate(modelid = sprintf("%03i",modelid)) %>% #eg 1 becomes 001
+#   mutate(modelid = paste("X-RF-",modelid, sep = "")) %>%
+#   cbind(., ntree.int = sample(seq(from=10,to=300,by=1), size = 500, replace = T)) %>%
+#   cbind(., mtry.int = sample(seq(from=1,to=3,by=1), size = 500, replace = T)) %>%
+#   #cbind(., sampsize.int = round(sample(seq(from = 0.1*obsnum, to = obsnum, by = 1), size = 700, replace = T))) %>% #NEED TO MOVE THIS AFTER SPLIT
+#     #if tuning sampsize need to analyze as fraction of split size
+#   cbind(., nodesize.int = sample(seq(from=1,to=9,by=1), size = 500, replace = T)) %>%
+#   cbind(., trainfrac = sample(seq(from=0.3,to=0.7,by=0.05), size = 500, replace = T))
+# #maxnodes is a direct function of nodesize, don't need to control this value
+# # #   
+# # # 
+# # # model.csv.meta %>%
+# # #   mutate(code = paste(ntree.int,mtry.int,sampsize.int,nodesize.int, sep = "-")) %>% select(code) %>% unique(.)
+# # # 
+# write.table(model.csv.meta.x, file = "./MLexportsPC/PC-RF/model-x.csv", row.names = FALSE, sep = ",")
+
+model.csv.meta.x <- read.csv("./MLexportsPC/PC-RF/model-x.csv", header = TRUE)
+```
+
+
+#X-RF
+
+<!--
+```{r}
+#model runs
+depth.data.x <- data.frame()
+model.meta.results.x <- data.frame()
+#i <- 3 #testing
+
+for (i in 1:500){
+  
+  #PERFORM SPLIT HERE
+  split.x <- createDataPartition(X_compiled$condAve, p = model.csv.meta.x$trainfrac[i], times = 1)
+
+  trainset.x <- X_compiled[as.vector(split.x[[1]]),]
+  testset.x <- X_compiled[-as.vector(split.x[[1]]),]
+  
+  rm(split.x)
+  
+  #pull Labelfine to recombine with model results later
+  trainset.x.labels <- trainset.x %>% select(Labelfine) 
+  testset.x.labels <- testset.x %>% select(Labelfine)
+  
+  #remove Labelfine
+  trainset.x <- select(trainset.x, -Labelfine)
+  testset.x <- select(testset.x, -Labelfine)
+  
+  #scale features
+  trainset.x <- as.data.frame(scale(trainset.x))
+  testset.x <- as.data.frame(scale(testset.x))
+
+  
+  
+  s=Sys.time()
+  rfmodel.x <- trainset.x %>%
+    #select(-Ni.Vol.Corrected, -Temp, -hrs) %>%
+    randomForest(x = ., y = trainset.x$condAve, 
+                 ntree = model.csv.meta.x$ntree.int[i],
+                 mtry = model.csv.meta.x$mtry.int[i],
+                 #sampsize = model.csv.meta$sampsize.int[i],
+                 nodesize = model.csv.meta.x$nodesize.int[i],
+                 )
+  traindur = Sys.time()-s #store training time for each model
+  rm(s)
+
+  rf_rmse = round(sqrt(last(rfmodel.x$mse)),2) #store rmse for each model
+  
+  
+  #filename <- paste("./MLexportsPC/PC-RF-",i,".Rdata", sep = "")
+  #save(rfmodel.x, file = filename)
+  
+  
+  
+  
+  rfresults.x <- predict(rfmodel.x, testset.x) %>%
+    as.data.frame() %>%
+    cbind(as.data.frame(testset.x$condAve),testset.x.labels) %>%
+    mutate(partition = "test")
+  
+  colnames(rfresults.x)[1] <- "prediction"
+  colnames(rfresults.x)[2] <- "actual"
+  
+  rflm.x <- lm(rfresults.x$prediction ~ rfresults.x$actual)
+  
+  test_adj_r2 <- round(summary(rflm.x)$adj.r.squared,3)
+  
+  
+  
+  rfresults.training.x <- predict(rfmodel.x, trainset.x) %>%
+    as.data.frame() %>%
+    cbind(as.data.frame(trainset.x$condAve), trainset.x.labels) %>%
+    mutate(partition = "train")
+  
+  colnames(rfresults.training.x)[1] <- "prediction"
+  colnames(rfresults.training.x)[2] <- "actual"
+  
+  rflm.training.x <- lm(rfresults.training.x$prediction ~ rfresults.training.x$actual)
+  
+  train_adj_r2 <- round(summary(rflm.training.x)$adj.r.squared,3)
+  
+  #rfresults.out <- rbind(rfresults.x,rfresults.training.x)
+  
+  #filename <- paste("./MLexportsPC/PC-RF/",model.csv.meta.x[i,1],".csv", sep = "")
+  
+  #write.table(rfresults.out, file = filename, row.names = FALSE, sep = ",")
+  
+  
+  deepdata.x <- min_depth_distribution(rfmodel.x) %>%
+    group_by(variable) %>%
+    summarise(count = n(), totaldepth = sum(minimal_depth)) %>%
+    mutate(meandepth = totaldepth/count) %>%
+    mutate(meandepth = round(meandepth,2)) %>%
+    select(variable,meandepth) %>%
+    pivot_wider(names_from = variable, values_from = meandepth) %>%
+    mutate(modelid = model.csv.meta.x$modelid[i])
+  
+  depth.data.x <- depth.data.x %>%
+    rbind(., deepdata.x)
+  rm(deepdata.x)
+  
+  
+  # temp1 <- treesize(rfmodel.pc) %>%
+  #   sort(decreasing = T) %>%
+  #   .[1:10] %>%
+  #   paste(collapse = " ") %>%
+  #   as.character() %>%
+  #   as.data.frame() %>%
+  #   rename(., treesize10 = .)
+  
+  # temp2 <- importance(rfmodel.pc) %>%
+  #   as.data.frame() %>%
+  #   rownames_to_column() %>%
+  #   filter(rowname != "condAve") %>%
+  #   mutate(IncNodePurity = round(IncNodePurity, 2)) %>%
+  #   pull(IncNodePurity) %>%
+  #   paste(collapse = " ") %>%
+  #   as.data.frame() %>%
+  #   rename(., Importance24 = .)
+  
+  # model.meta.results <- cbind(model.csv.meta.x[i,1], temp2, temp1) %>%
+  #   rename(modelid = "model.csv.meta.x[i, 1]") %>%
+  #   rbind(model.meta.results, .)
+  
+  model.meta.results.x <- model.csv.meta.x[i,] %>%
+    select(modelid) %>%
+    cbind(traindur, rf_rmse,train_adj_r2, test_adj_r2) %>%
+    rbind(model.meta.results.x, .)
+  
+  #rm(temp1)
+  #rm(temp2)
+  print(i)
+}
+
+
+model.meta.results.x <- model.csv.meta.x %>%
+  #mutate(maxnodes.int = NA) %>%
+  #mutate(nPerm.int = NA) %>%
+  left_join(., model.meta.results.x, by = "modelid") #%>%
+```
+
+```{r}
+write.table(model.meta.results.x, file = "./MLexportsPC/PC-RF/modelout-x.csv", row.names = FALSE, sep = ",")
+
+write.table(depth.data.x, file = "./MLexportsPC/PC-RF/depthdata-x.csv", row.names = FALSE, sep = ",")
+```
+-->
+
+#analysis
+
+```{r}
+model.meta.results <- read.csv("./MLexportsPC/PC-RF/modelout.csv", header = TRUE)
+
+depth.data <- read.csv("./MLexportsPC/PC-RF/depthdata.csv", header = TRUE)
+
+model.meta.results.x <- read.csv("./MLexportsPC/PC-RF/modelout-x.csv", header = TRUE)
+
+depth.data.x <- read.csv("./MLexportsPC/PC-RF/depthdata-x.csv", header = TRUE)
+```
+
+
+
+```{r}
+model.meta.results.x %>%
+  ggplot() +
+  geom_boxplot(aes(x = trainfrac, y = test_adj_r2, group = trainfrac)) +
+  geom_boxplot(data = model.meta.results, aes(x = trainfrac, y = test_adj_r2, group = trainfrac), color = "red")
+
+model.meta.results.x %>%
+  ggplot() +
+  geom_point(aes(x = traindur, y = test_adj_r2, color = trainfrac))
+
+model.meta.results.x %>%
+  ggplot() +
+  geom_point(aes(x = mtry.int, y = test_adj_r2, color = trainfrac))
+
+model.meta.results.x %>%
+  ggplot() +
+  geom_point(aes(x = mtry.int, y = traindur, color = trainfrac))
+```
+
+```{r}
+model.meta.results %>%
+  arrange(desc(test_adj_r2)) %>%
+  mutate(modelrank = seq.int(nrow(.))) %>%
+  ggplot() +
+  geom_tile(aes(x = modelrank, y = 3, fill = ntree.int)) +
+  scale_fill_scico(palette = "cork", direction = -1, begin = 1, end = 0.5) +
+  
+  new_scale_fill() +
+  geom_tile(aes(x = modelrank, y = 2, fill = mtry.int)) +
+  scale_fill_scico(palette = "vik", direction = -1, begin = 0, end = 0.5) +
+  
+  new_scale_fill() +
+  geom_tile(aes(x = modelrank, y = 1, fill = trainfrac)) +
+  scale_fill_scico(palette = "vik", direction = 1, begin = 0.5, end = 1) +
+  
+  scale_x_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  scale_y_continuous(breaks = c(1,2,3), labels = c("trainfrac","mtry","ntree"), sec.axis = sec_axis(~., labels = NULL)) +
+  ylab("") +
+  xlab("") +
+  theme_classic() +
+  theme(axis.text.x = element_text(colour = "black", size = 16),
+        axis.text.y = element_text(colour = "black", size = 16),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 16),
+        axis.title.y = element_text(colour = "black", size = 16),
+        plot.title = element_text(colour = "black", size = 16),
+        legend.position = "bottom",
+        legend.title.position = "top",
+        legend.text = element_text(colour="black", size = 12))
+```
+
+
+```{r}
+x_ranks <- depth.data %>%
+  select(-condAve, -modelid) %>%
+  colMeans() %>%
+  as.data.frame() %>%
+  rownames_to_column() %>%
+  rename(xid = rowname) %>%
+  rename(., meanmean = .) %>%
+  arrange(meanmean) %>%
+  mutate(xrank = seq.int(nrow(.)))
+
+
+```
+
+<!--
+
+```{r}
+depth.data %>%
+  left_join(model.meta.results, by = "modelid") %>%
+  arrange(desc(test_adj_r2)) %>%
+  mutate(modelrank = seq.int(nrow(.))) %>%
+  ggplot() +
+  
+  geom_tile(aes(x = modelrank, y = 13, fill = nnd_pc1)) +
+  geom_tile(aes(x = modelrank, y = 10, fill = nnd_pc2)) +
+  geom_tile(aes(x = modelrank, y = 21, fill = nnd_pc3)) +
+  geom_tile(aes(x = modelrank, y = 7, fill = nnd_pc4)) +
+  
+  geom_tile(aes(x = modelrank, y = 3, fill = vrn_pc1)) +
+  geom_tile(aes(x = modelrank, y = 6, fill = vrn_pc2)) +
+  geom_tile(aes(x = modelrank, y = 16, fill = vrn_pc3)) +
+  geom_tile(aes(x = modelrank, y = 11, fill = vrn_pc4)) +
+  
+  geom_tile(aes(x = modelrank, y = 1, fill = r3d_pc1)) +
+  geom_tile(aes(x = modelrank, y = 12, fill = r3d_pc2)) +
+  geom_tile(aes(x = modelrank, y = 5, fill = r3d_pc3)) +
+  geom_tile(aes(x = modelrank, y = 9, fill = r3d_pc4)) +
+  
+  geom_tile(aes(x = modelrank, y = 2, fill = skel_br_pc1)) +
+  geom_tile(aes(x = modelrank, y = 18, fill = skel_br_pc2)) +
+  geom_tile(aes(x = modelrank, y = 8, fill = skel_br_pc3)) +
+  geom_tile(aes(x = modelrank, y = 20, fill = skel_br_pc4)) +
+
+  geom_tile(aes(x = modelrank, y = 15, fill = skel_avbr_pc1)) +
+  geom_tile(aes(x = modelrank, y = 14, fill = skel_avbr_pc2)) +
+  geom_tile(aes(x = modelrank, y = 22, fill = skel_avbr_pc3)) +
+  geom_tile(aes(x = modelrank, y = 23, fill = skel_avbr_pc4)) +
+  
+  geom_tile(aes(x = modelrank, y = 17, fill = skel_mxbr_pc1)) +
+  geom_tile(aes(x = modelrank, y = 4, fill = skel_mxbr_pc2)) +
+  geom_tile(aes(x = modelrank, y = 19, fill = skel_mxbr_pc3)) +
+  geom_tile(aes(x = modelrank, y = 24, fill = skel_mxbr_pc4)) +
+  
+  scale_fill_scico(palette = "batlow", direction = -1, begin = 0, end = 1) +
+  scale_x_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  scale_y_reverse(breaks = c(1:24), labels = pc_ranks %>% select(pcid) %>% pull(),
+                     sec.axis = sec_axis(~., breaks = c(1:24), labels = NULL)) +
+  ylab("") +
+  xlab("") +
+  guides(fill = guide_colorbar(reverse = T, title = "mean depth", 
+                               #override.aes = list(size=4), 
+                               title.theme = element_text(colour = "black",
+                                                          #face = "bold",
+                                                          size = 12))) +
+  guides(fill = "none") +
+  new_scale_fill() +
+  geom_tile(aes(x = modelrank, y = 26, fill = ntree.int)) +
+  scale_fill_scico(palette = "cork", direction = -1, begin = 1, end = 0.5) +
+  guides(fill = "none") +
+  new_scale_fill() +
+  geom_tile(aes(x = modelrank, y = 27, fill = mtry.int)) +
+  scale_fill_scico(palette = "vik", direction = -1, begin = 0, end = 0.5) +
+  guides(fill = "none") +
+  new_scale_fill() +
+  geom_tile(aes(x = modelrank, y = 28, fill = trainfrac)) +
+  scale_fill_scico(palette = "vik", direction = 1, begin = 0.5, end = 1) +
+  
+  guides(fill = "none") +
+  
+  theme_classic() +
+  theme(axis.text.x = element_text(colour = "black", size = 14),
+        axis.text.y = element_text(colour = "black", size = 14),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 14),
+        axis.title.y = element_text(colour = "black", size = 14),
+        plot.title = element_text(colour = "black", size = 14),
+        legend.position = "bottom",
+        legend.title.position = "top",
+        legend.text = element_text(colour="black", size = 12))
+```
+
+
+```{r}
+
+depth.data %>%
+  left_join(model.meta.results, by = "modelid") %>%
+  arrange(desc(test_adj_r2)) %>%
+  mutate(modelrank = seq.int(nrow(.))) %>%
+  ggplot() +
+  
+  geom_tile(aes(x = modelrank, y = 13, fill = nnd_pc1)) +
+  geom_tile(aes(x = modelrank, y = 10, fill = nnd_pc2)) +
+  geom_tile(aes(x = modelrank, y = 21, fill = nnd_pc3)) +
+  geom_tile(aes(x = modelrank, y = 7, fill = nnd_pc4)) +
+  
+  geom_tile(aes(x = modelrank, y = 3, fill = vrn_pc1)) +
+  geom_tile(aes(x = modelrank, y = 6, fill = vrn_pc2)) +
+  geom_tile(aes(x = modelrank, y = 16, fill = vrn_pc3)) +
+  geom_tile(aes(x = modelrank, y = 11, fill = vrn_pc4)) +
+  
+  geom_tile(aes(x = modelrank, y = 1, fill = r3d_pc1)) +
+  geom_tile(aes(x = modelrank, y = 12, fill = r3d_pc2)) +
+  geom_tile(aes(x = modelrank, y = 5, fill = r3d_pc3)) +
+  geom_tile(aes(x = modelrank, y = 9, fill = r3d_pc4)) +
+  
+  geom_tile(aes(x = modelrank, y = 2, fill = skel_br_pc1)) +
+  geom_tile(aes(x = modelrank, y = 18, fill = skel_br_pc2)) +
+  geom_tile(aes(x = modelrank, y = 8, fill = skel_br_pc3)) +
+  geom_tile(aes(x = modelrank, y = 20, fill = skel_br_pc4)) +
+
+  geom_tile(aes(x = modelrank, y = 15, fill = skel_avbr_pc1)) +
+  geom_tile(aes(x = modelrank, y = 14, fill = skel_avbr_pc2)) +
+  geom_tile(aes(x = modelrank, y = 22, fill = skel_avbr_pc3)) +
+  geom_tile(aes(x = modelrank, y = 23, fill = skel_avbr_pc4)) +
+  
+  geom_tile(aes(x = modelrank, y = 17, fill = skel_mxbr_pc1)) +
+  geom_tile(aes(x = modelrank, y = 4, fill = skel_mxbr_pc2)) +
+  geom_tile(aes(x = modelrank, y = 19, fill = skel_mxbr_pc3)) +
+  geom_tile(aes(x = modelrank, y = 24, fill = skel_mxbr_pc4)) +
+  
+  scale_fill_scico(palette = "batlow", direction = -1, begin = 0, end = 1) +
+  scale_x_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  scale_y_reverse(breaks = c(1:24), labels = pc_ranks %>% select(pcid) %>% pull(),
+                     sec.axis = sec_axis(~., breaks = c(1:24), labels = NULL)) +
+  ylab("") +
+  xlab("") +
+  guides(fill = guide_colorbar(reverse = T, title = "mean depth", 
+                               #override.aes = list(size=4), 
+                               title.theme = element_text(colour = "black",
+                                                          #face = "bold",
+                                                          size = 12))) +
+  theme_classic() +
+  theme(axis.text.x = element_text(colour = "black", size = 14),
+        axis.text.y = element_text(colour = "black", size = 14),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 14),
+        axis.title.y = element_text(colour = "black", size = 14),
+        plot.title = element_text(colour = "black", size = 14),
+        #legend.position = "bottom",
+        legend.text = element_text(colour="black", size = 12))
+
+```
+
+```{r}
+depth.data %>%
+  left_join(model.meta.results, by = "modelid") %>%
+  arrange(desc(test_adj_r2)) %>%
+  mutate(modelrank = seq.int(nrow(.))) %>%
+  ggplot() +
+  
+  geom_point(aes(x = modelrank, y = test_adj_r2))
+```
+
+
