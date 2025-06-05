@@ -372,7 +372,8 @@ rfmodel.min.depth.df.pc <- rfmodel.min.depth.df.pc %>%
   # mutate(variable = if_else(variable == "Dim.5", "Size-PC-5", variable)) %>%
   # mutate(variable = if_else(variable == "Dim.6", "Size-PC-6", variable))
 
-conrfmindepth.pc <- plot_min_depth_distribution(rfmodel.min.depth.df.pc, k = 30) +
+conrfmindepth.pc <- plot_min_depth_distribution(rfmodel.min.depth.df.pc, k = 30, #mean_sample = "relevant_trees"
+                                                ) +
   xlab("") +
   theme(axis.text.x = element_text(colour = "black", size = 12),
         axis.text.y = element_text(colour = "black", size = 12),
@@ -390,7 +391,6 @@ print(conrfmindepth.pc)
 rm(conrfmindepth.pc)
 ```
 -->
-
 
 
 
