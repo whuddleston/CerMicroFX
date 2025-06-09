@@ -317,6 +317,28 @@ model.meta.results.x %>%
 ```
 
 ```{r}
+model.meta.results %>%
+  summarise(mean(traindur))
+model.meta.results %>%
+  summarise(mean(test_adj_r2), sum(traindur))
+
+model.meta.results.x %>%
+  summarise(mean(traindur))
+model.meta.results.x %>%
+  summarise(mean(test_adj_r2), sum(traindur))
+
+model.meta.results.x %>%
+  ggplot() +
+  geom_point(aes(x = traindur, y = test_adj_r2)) +
+  geom_point(data = model.meta.results, aes(x = traindur, y = test_adj_r2), color = "red")
+```
+
+```{r}
+
+```
+
+
+```{r}
 model.meta.results.x %>%
   arrange(desc(test_adj_r2)) %>%
   mutate(modelrank = seq.int(nrow(.))) %>%
