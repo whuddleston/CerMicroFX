@@ -88,7 +88,7 @@ df_particles_fine %>%
 ```{r}
 #model.csv generation
 # (0) .modelid
-# (1) .ntree (10-100)
+# (1) .ntree (10-300)
 # (2) .mtry  Default is p/3, therefore 24/3 is default with 24/3 for 24 PC variables, (4-12)
 # (3) .sampsize obsnum is default?
 # (4) .nodesize (5 is default (1-9))
@@ -278,20 +278,54 @@ depth.data <- read.csv("./MLexportsPC/PC-RF/depthdata.csv", header = TRUE)
 ```{r}
 model.meta.results %>%
   ggplot() +
-  geom_boxplot(aes(x = trainfrac, y = test_adj_r2, group = trainfrac))
+  #geom_boxplot(aes(x = ntree.int, y = test_adj_r2, group = ntree.int)) +
+  geom_point(aes(x = ntree.int, y = test_adj_r2, color = trainfrac))
 
+model.meta.results %>%
+  ggplot() +
+  geom_boxplot(aes(x = mtry.int, y = test_adj_r2, group = mtry.int)) +
+  geom_point(aes(x = mtry.int, y = test_adj_r2, color = trainfrac))
+
+model.meta.results %>%
+  ggplot() +
+  geom_boxplot(aes(x = nodesize.int, y = test_adj_r2, group = nodesize.int)) +
+  geom_point(aes(x = nodesize.int, y = test_adj_r2, color = trainfrac))
+
+model.meta.results %>%
+  ggplot() +
+  geom_boxplot(aes(x = trainfrac, y = test_adj_r2, group = trainfrac)) +
+  geom_point(aes(x = trainfrac, y = test_adj_r2, color = trainfrac))
+
+```
+
+```{r}
 model.meta.results %>%
   ggplot() +
   geom_point(aes(x = traindur, y = test_adj_r2, color = trainfrac))
 
 model.meta.results %>%
   ggplot() +
-  geom_point(aes(x = mtry.int, y = test_adj_r2, color = trainfrac))
+  #geom_boxplot(aes(x = ntree.int, y = traindur, group = ntree.int)) +
+  geom_point(aes(x = ntree.int, y = traindur, color = trainfrac))
 
 model.meta.results %>%
   ggplot() +
+  geom_boxplot(aes(x = mtry.int, y = traindur, group = mtry.int)) +
   geom_point(aes(x = mtry.int, y = traindur, color = trainfrac))
+
+model.meta.results %>%
+  ggplot() +
+  geom_boxplot(aes(x = nodesize.int, y = traindur, group = nodesize.int)) +
+  geom_point(aes(x = nodesize.int, y = traindur, color = trainfrac))
+
+model.meta.results %>%
+  ggplot() +
+  geom_boxplot(aes(x = trainfrac, y = traindur, group = trainfrac)) +
+  geom_point(aes(x = trainfrac, y = traindur, color = trainfrac))
+
+
 ```
+
 
 ```{r}
 model.meta.results %>%
@@ -497,15 +531,34 @@ depth.data %>%
   arrange(desc(test_adj_r2)) %>%
   mutate(modelrank = seq.int(nrow(.))) %>%
   
-  filter(trainfrac < 0.5) %>%
+  filter(trainfrac == 0.7) %>%
   
   ggplot() +
   
   geom_point(size = 5, alpha = 0.5, aes(x = modelrank, y = test_adj_r2, color = as.factor(trainfrac))) +
-  scale_color_scico_d(palette = "batlow", direction = -1, begin = 0, end = 1) +
+  #scale_color_scico_d(palette = "batlow", direction = -1, begin = 0, end = 1) +
   scale_x_continuous(limits = c(0,500), sec.axis = sec_axis(~., labels = NULL)) +
   scale_y_continuous(limits = c(0.7,1), sec.axis = sec_axis(~., labels = NULL))
 
 ```
 
+```{r}
+#defaults
+#ntree = 300
+#mtry = 8
+#nodesize = 5
+#trainfrac = 0.7
 
+#THERE IS NOT A MODEL WITH ALL DEFAULT VALUES, NEED TO RERUN AND ENSURE A DEFAULT MODEL GETS RUN
+
+depth.data %>%
+  left_join(model.meta.results, by = "modelid") %>%
+  filter(mtry.int == 8) %>%
+  filter(nodesize.int == 5)
+
+depth.data %>%
+  left_join(model.meta.results, by = "modelid") %>%
+  filter(trainfrac == 0.7) %>%
+  filter(mtry.int == 8) %>%
+  arrange(desc(test_adj_r2))
+```
