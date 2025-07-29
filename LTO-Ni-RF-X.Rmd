@@ -529,6 +529,11 @@ depth.data %>%
 --> 
 
 ```{r}
+test2 <- model.meta.results.x %>%
+  arrange(desc(test_adj_r2)) %>%
+  mutate(modelrank = seq.int(nrow(.))) %>%
+  filter(modelid == "X-RF-361")
+
 test1 <- model.meta.results %>%
   arrange(desc(test_adj_r2)) %>%
   mutate(modelrank = seq.int(nrow(.)))
@@ -538,7 +543,17 @@ model.meta.results.x %>%
   mutate(modelrank = seq.int(nrow(.))) %>%
   ggplot() +
   geom_point(data = test1, aes(x = modelrank, y = test_adj_r2), color = "red") +
-  geom_point(aes(x = modelrank, y = test_adj_r2))
+  geom_point(aes(x = modelrank, y = test_adj_r2)) +
+  geom_point(data = test2, size = 5, aes(x = modelrank, y = test_adj_r2), color = "blue") #model trained on average hyperparameters
 ```
 
+```{r}
+#Find modelid that used default hyperparameters
 
+depth.data.x %>%
+  left_join(model.meta.results.x, by = "modelid") %>%
+  filter(trainfrac == 0.7) %>%
+  filter(mtry.int == 2) %>%
+  filter(nodesize.int == 5) %>%
+  arrange(desc(test_adj_r2))
+```
