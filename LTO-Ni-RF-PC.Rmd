@@ -9,6 +9,9 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 
 library(ggnewscale)
+library(caret)
+library(randomForest)
+library(randomForestExplainer)
 ```
 
 ```{r}
@@ -102,18 +105,18 @@ df_particles_fine %>%
 # model.csv.meta <- data.frame("modelid" = 1:500) %>%
 #   mutate(modelid = sprintf("%03i",modelid)) %>% #eg 1 becomes 001
 #   mutate(modelid = paste("PC-RF-",modelid, sep = "")) %>%
-#   cbind(., ntree.int = sample(seq(from=10,to=300,by=1), size = 500, replace = T)) %>%
-#   cbind(., mtry.int = sample(seq(from=4,to=12,by=1), size = 500, replace = T)) %>%
+#   cbind(., ntree.int = c(216,sample(seq(from=10,to=300,by=1), size = 499, replace = T))) %>% #216 is the same ntree as the X-RF default hyperparamter case
+#   cbind(., mtry.int = c(8,sample(seq(from=4,to=12,by=1), size = 499, replace = T))) %>%
 #   #cbind(., sampsize.int = round(sample(seq(from = 0.1*obsnum, to = obsnum, by = 1), size = 700, replace = T))) %>% #NEED TO MOVE THIS AFTER SPLIT
 #     #if tuning sampsize need to analyze as fraction of split size
-#   cbind(., nodesize.int = sample(seq(from=1,to=9,by=1), size = 500, replace = T)) %>%
-#   cbind(., trainfrac = sample(seq(from=0.3,to=0.7,by=0.05), size = 500, replace = T))
+#   cbind(., nodesize.int = c(5,sample(seq(from=1,to=9,by=1), size = 499, replace = T))) %>%
+#   cbind(., trainfrac = c(0.7,sample(seq(from=0.3,to=0.7,by=0.05), size = 499, replace = T)))
 # #maxnodes is a direct function of nodesize, don't need to control this value
-# #   
-# # 
+# #
+# #
 # # model.csv.meta %>%
 # #   mutate(code = paste(ntree.int,mtry.int,sampsize.int,nodesize.int, sep = "-")) %>% select(code) %>% unique(.)
-# # 
+# #
 # write.table(model.csv.meta, file = "./MLexportsPC/PC-RF/model.csv", row.names = FALSE, sep = ",")
 
 model.csv.meta <- read.csv("./MLexportsPC/PC-RF/model.csv", header = TRUE)
@@ -514,13 +517,20 @@ depth.data %>%
 ```
 
 ```{r}
+test1 <- depth.data %>%
+  left_join(model.meta.results, by = "modelid") %>%
+  arrange(desc(test_adj_r2)) %>%
+  mutate(modelrank = seq.int(nrow(.))) %>%
+  filter(modelid == "PC-RF-001")
+
 depth.data %>%
   left_join(model.meta.results, by = "modelid") %>%
   arrange(desc(test_adj_r2)) %>%
   mutate(modelrank = seq.int(nrow(.))) %>%
   ggplot() +
   
-  geom_point(size = 5, alpha = 0.5, aes(x = modelrank, y = test_adj_r2, color = as.factor(trainfrac))) +
+  geom_point(size = 3, alpha = 0.5, aes(x = modelrank, y = test_adj_r2, color = as.factor(trainfrac))) +
+  geom_point(data = test1, size = 7, alpha = 1, aes(x = modelrank, y = test_adj_r2)) +
   scale_color_scico_d(palette = "batlow", direction = -1, begin = 0, end = 1) +
   scale_x_continuous(limits = c(0,500), sec.axis = sec_axis(~., labels = NULL)) +
   scale_y_continuous(limits = c(0.7,1), sec.axis = sec_axis(~., labels = NULL))
