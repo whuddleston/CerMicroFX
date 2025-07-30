@@ -9,6 +9,8 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 
 library(ggnewscale)
+
+save <- 1
 ```
 
 ```{r}
@@ -529,7 +531,7 @@ depth.data %>%
 --> 
 
 ```{r}
-test2 <- model.meta.results.x %>%
+testX <- model.meta.results.x %>%
   arrange(desc(test_adj_r2)) %>%
   mutate(modelrank = seq.int(nrow(.))) %>%
   filter(modelid == "X-RF-361")
@@ -538,13 +540,41 @@ test1 <- model.meta.results %>%
   arrange(desc(test_adj_r2)) %>%
   mutate(modelrank = seq.int(nrow(.)))
 
-model.meta.results.x %>%
+
+RF.default.comparison <- model.meta.results.x %>%
   arrange(desc(test_adj_r2)) %>%
   mutate(modelrank = seq.int(nrow(.))) %>%
   ggplot() +
+  
   geom_point(data = test1, aes(x = modelrank, y = test_adj_r2), color = "red") +
+  geom_point(data = testPC, size = 5, aes(x = modelrank, y = test_adj_r2), color = "red") +
+  
   geom_point(aes(x = modelrank, y = test_adj_r2)) +
-  geom_point(data = test2, size = 5, aes(x = modelrank, y = test_adj_r2), color = "blue") #model trained on average hyperparameters
+  geom_point(data = testX, size = 5, aes(x = modelrank, y = test_adj_r2), color = "black") + #model trained on average hyperparameters
+
+  annotate("text", parse = T, label = "bar(X)-RF", x = testX$modelrank, y = testX$test_adj_r2 - 0.015, color = "black") +
+  annotate("text", parse = T, label = "PC-RF", x = testPC$modelrank, y = testPC$test_adj_r2 + 0.015, color = "red") +
+  scale_x_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  scale_y_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  theme_classic() +
+  theme(axis.text.x = element_text(colour = "black", size = 16),
+        axis.text.y = element_text(colour = "black", size = 16),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 16),
+        axis.title.y = element_text(colour = "black", size = 16),
+        plot.title = element_text(colour = "black", size = 16),
+        legend.position = "bottom",
+        legend.title.position = "top",
+        legend.text = element_text(colour="black", size = 12))
+
+
+print(RF.default.comparison)
+{if(save == 1)ggsave(filename = "./hyperexports/RF-default-comparison.png", plot = RF.default.comparison, 
+         device = "png", width = 6,height = 4, units = "in")}
+
+testX$modelrank/500
+testPC$modelrank/500
 ```
 
 ```{r}
