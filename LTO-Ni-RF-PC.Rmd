@@ -12,6 +12,8 @@ library(ggnewscale)
 library(caret)
 library(randomForest)
 library(randomForestExplainer)
+
+save <- 1
 ```
 
 ```{r}
@@ -331,7 +333,7 @@ model.meta.results %>%
 
 
 ```{r}
-model.meta.results %>%
+PCRF.hyperlegend <- model.meta.results %>%
   arrange(desc(test_adj_r2)) %>%
   mutate(modelrank = seq.int(nrow(.))) %>%
   ggplot() +
@@ -361,6 +363,11 @@ model.meta.results %>%
         legend.position = "bottom",
         legend.title.position = "top",
         legend.text = element_text(colour="black", size = 12))
+
+print(PCRF.hyperlegend)
+{if(save == 1)ggsave(filename = "./hyperexports/PCRF-hyperlegend.png", plot = PCRF.hyperlegend, 
+         device = "png", width = 6,height = 4, units = "in")}
+rm(PCRF.hyperlegend)
 ```
 
 ```{r}
@@ -378,7 +385,7 @@ pc_ranks <- depth.data %>%
 ```
 
 ```{r}
-depth.data %>%
+PCRF.hyperfull <- depth.data %>%
   left_join(model.meta.results, by = "modelid") %>%
   arrange(desc(test_adj_r2)) %>%
   mutate(modelrank = seq.int(nrow(.))) %>%
@@ -416,8 +423,8 @@ depth.data %>%
   
   scale_fill_scico(palette = "batlow", direction = -1, begin = 0, end = 1) +
   scale_x_continuous(sec.axis = sec_axis(~., labels = NULL)) +
-  scale_y_reverse(breaks = c(1:24), labels = pc_ranks %>% select(pcid) %>% pull(),
-                     sec.axis = sec_axis(~., breaks = c(1:24), labels = NULL)) +
+  scale_y_reverse(breaks = c(1:28), labels = c(pc_ranks %>% select(pcid) %>% pull(),"","ntree","mtry","trainfrac"),
+                     sec.axis = sec_axis(~., breaks = c(1:28), labels = NULL)) +
   ylab("") +
   xlab("") +
   guides(fill = guide_colorbar(reverse = T, title = "mean depth", 
@@ -451,12 +458,16 @@ depth.data %>%
         legend.position = "bottom",
         legend.title.position = "top",
         legend.text = element_text(colour="black", size = 12))
+
+print(PCRF.hyperfull)
+{if(save == 1)ggsave(filename = "./hyperexports/PCRF-hyperfull.png", plot = PCRF.hyperfull, 
+         device = "png", width = 6,height = 6, units = "in")}
+rm(PCRF.hyperfull)
 ```
 
 
 ```{r}
-
-depth.data %>%
+PCRF.hyperdepth <- depth.data %>%
   left_join(model.meta.results, by = "modelid") %>%
   arrange(desc(test_adj_r2)) %>%
   mutate(modelrank = seq.int(nrow(.))) %>%
@@ -514,6 +525,10 @@ depth.data %>%
         #legend.position = "bottom",
         legend.text = element_text(colour="black", size = 12))
 
+print(PCRF.hyperdepth)
+{if(save == 1)ggsave(filename = "./hyperexports/PCRF-hyperdepth.png", plot = PCRF.hyperdepth, 
+         device = "png", width = 6,height = 4, units = "in")}
+rm(PCRF.hyperdepth)
 ```
 
 ```{r}
