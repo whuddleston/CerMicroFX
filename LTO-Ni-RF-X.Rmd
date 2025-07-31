@@ -381,7 +381,7 @@ XRF.hyperlegend <- model.meta.results.x %>%
   geom_tile(aes(x = modelrank, y = 1, fill = trainfrac)) +
   scale_fill_scico(palette = "vik", direction = 1, begin = 0.5, end = 1) +
   
-  scale_x_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  scale_x_continuous(labels = NULL, sec.axis = sec_axis(~., labels = NULL)) +
   scale_y_continuous(breaks = c(1,2,3), labels = c("trainfrac","mtry","ntree"), sec.axis = sec_axis(~., labels = NULL)) +
   ylab("") +
   xlab("") +
@@ -435,8 +435,8 @@ XRF.hyperfull <- depth.data.x %>%
   geom_tile(aes(x = modelrank, y = 6, fill = ave.ave.branches)) +
   
   
-  scale_fill_scico(palette = "batlow", direction = -1, begin = 0, end = 1) +
-  scale_x_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  scale_fill_scico(palette = "glasgow", direction = -1, begin = 0, end = 1) +
+  scale_x_continuous(labels = NULL, sec.axis = sec_axis(~., labels = NULL)) +
   scale_y_reverse(breaks = c(1:10), labels = c(x_ranks %>% select(xid) %>% pull(),"","ntree","mtry","trainfrac"),
                      sec.axis = sec_axis(~., breaks = c(1:10), labels = NULL)) +
   ylab("") +
@@ -495,8 +495,8 @@ XRF.hyperdepth <- depth.data.x %>%
   geom_tile(aes(x = modelrank, y = 6, fill = ave.ave.branches)) +
   
   
-  scale_fill_scico(palette = "batlow", direction = -1, begin = 0, end = 1) +
-  scale_x_continuous(sec.axis = sec_axis(~., labels = NULL)) +
+  scale_fill_scico(palette = "glasgow", direction = -1, begin = 0, end = 1) +
+  scale_x_continuous(labels = NULL, sec.axis = sec_axis(~., labels = NULL)) +
   scale_y_reverse(breaks = c(1:10), labels = c(x_ranks %>% select(xid) %>% pull(),"","ntree","mtry","trainfrac"),
                      sec.axis = sec_axis(~., breaks = c(1:10), labels = NULL)) +
   ylab("") +
@@ -572,6 +572,35 @@ rm(RF.default.comparison)
 testX$modelrank/500
 testPC$modelrank/500
 ```
+```{r}
+model.meta.results.x %>%
+  arrange(desc(test_adj_r2)) %>%
+  mutate(modelrank = seq.int(nrow(.))) %>%
+  ggplot() +
+  
+  geom_point(data = test1, aes(x = modelrank, y = test_adj_r2), color = "red") +
+  geom_point(data = testPC, size = 5, aes(x = modelrank, y = test_adj_r2), color = "red") +
+  
+  geom_point(aes(x = modelrank, y = test_adj_r2)) +
+  geom_point(data = testX, size = 5, aes(x = modelrank, y = test_adj_r2), color = "black") + #model trained on average hyperparameters
+
+  #annotate("text", parse = T, label = "bar(X)-RF", x = testX$modelrank, y = testX$test_adj_r2 - 0.015, color = "black") +
+  #annotate("text", parse = T, label = "PC-RF", x = testPC$modelrank, y = testPC$test_adj_r2 + 0.015, color = "red") +
+  scale_x_continuous(limits = c(0,300), sec.axis = sec_axis(~., labels = NULL)) +
+  scale_y_continuous(limits = c(0.95,1), sec.axis = sec_axis(~., labels = NULL)) +
+  theme_classic() +
+  theme(axis.text.x = element_text(colour = "black", size = 16),
+        axis.text.y = element_text(colour = "black", size = 16),
+        axis.ticks = element_line(colour = "black", size = 1),
+        axis.line = element_line(colour = 'black', size = 1),
+        axis.title.x = element_text(colour = "black", size = 16),
+        axis.title.y = element_text(colour = "black", size = 16),
+        plot.title = element_text(colour = "black", size = 16),
+        legend.position = "bottom",
+        legend.title.position = "top",
+        legend.text = element_text(colour="black", size = 12))
+```
+
 
 ```{r}
 #Find modelid that used default hyperparameters
