@@ -370,19 +370,24 @@ XRF.hyperlegend <- model.meta.results.x %>%
   arrange(desc(test_adj_r2)) %>%
   mutate(modelrank = seq.int(nrow(.))) %>%
   ggplot() +
-  geom_tile(aes(x = modelrank, y = 3, fill = ntree.int)) +
+  geom_tile(aes(x = modelrank, y = 2, fill = ntree.int)) +
   scale_fill_scico(palette = "cork", direction = -1, begin = 1, end = 0.5) +
   
   new_scale_fill() +
-  geom_tile(aes(x = modelrank, y = 2, fill = mtry.int)) +
+  geom_tile(aes(x = modelrank, y = 1, fill = mtry.int)) +
   scale_fill_scico(palette = "vik", direction = -1, begin = 0, end = 0.5) +
   
   new_scale_fill() +
-  geom_tile(aes(x = modelrank, y = 1, fill = trainfrac)) +
+  geom_tile(aes(x = modelrank, y = 3, fill = nodesize.int)) +
+  scale_fill_scico(palette = "broc", direction = 1, begin = 0.5, end = 1) +
+  
+  new_scale_fill() +
+  geom_tile(aes(x = modelrank, y = 0, fill = trainfrac)) +
   scale_fill_scico(palette = "vik", direction = 1, begin = 0.5, end = 1) +
   
+  
   scale_x_continuous(labels = NULL, sec.axis = sec_axis(~., labels = NULL)) +
-  scale_y_continuous(breaks = c(1,2,3), labels = c("trainfrac","mtry","ntree"), sec.axis = sec_axis(~., labels = NULL)) +
+  scale_y_continuous(breaks = c(0,3,1,2), labels = c("trainfrac","nodesize","mtry","ntree"), sec.axis = sec_axis(~., labels = NULL)) +
   ylab("") +
   xlab("") +
   theme_classic() +
@@ -395,6 +400,7 @@ XRF.hyperlegend <- model.meta.results.x %>%
         plot.title = element_text(colour = "black", size = 16),
         legend.position = "bottom",
         legend.title.position = "top",
+        legend.direction = "vertical",
         legend.text = element_text(colour="black", size = 12))
 
 print(XRF.hyperlegend)
@@ -416,7 +422,16 @@ x_ranks <- depth.data.x %>%
   mutate(xrank = seq.int(nrow(.)))
 
 
+x_ranks <- x_ranks %>%
+  mutate(xclean = NA) %>%
+  mutate(xclean = if_else(xid == "ave.ave.branches", "Average Branch Length", xclean)) %>%
+  mutate(xclean = if_else(xid == "ave.max.branches", "Maximum Branch Length", xclean)) %>%
+  mutate(xclean = if_else(xid == "ave.branches", "Average Number of Branches", xclean)) %>%
+  mutate(xclean = if_else(xid == "aveAreafine", "Average Particle Area", xclean)) %>%
+  mutate(xclean = if_else(xid == "avevoronoix", "Average Edge-to-Edge Spacing", xclean)) %>%
+  mutate(xclean = if_else(xid == "fineavennd", "Average Center-to-Center Spacing", xclean))
 ```
+
 
 
 
@@ -437,8 +452,8 @@ XRF.hyperfull <- depth.data.x %>%
   
   scale_fill_scico(palette = "glasgow", direction = -1, begin = 0, end = 1) +
   scale_x_continuous(labels = NULL, sec.axis = sec_axis(~., labels = NULL)) +
-  scale_y_reverse(breaks = c(1:10), labels = c(x_ranks %>% select(xid) %>% pull(),"","ntree","mtry","trainfrac"),
-                     sec.axis = sec_axis(~., breaks = c(1:10), labels = NULL)) +
+  scale_y_reverse(breaks = c(1:6,7,7.5,8,8.5), labels = c(x_ranks %>% select(xclean) %>% pull(),"nodesize","ntree","mtry","trainfrac"),
+                     sec.axis = sec_axis(~., breaks = c(1:6,7,7.5,8,8.5), labels = NULL)) +
   ylab("") +
   xlab("") +
   guides(fill = guide_colorbar(reverse = T, title = "mean depth", 
@@ -446,17 +461,22 @@ XRF.hyperfull <- depth.data.x %>%
                                title.theme = element_text(colour = "black",
                                                           #face = "bold",
                                                           size = 12))) +
+  
   guides(fill = "none") +
   new_scale_fill() +
-  geom_tile(aes(x = modelrank, y = 8, fill = ntree.int)) +
+  geom_tile(height = 0.5, aes(x = modelrank, y = 7, fill = nodesize.int)) +
+  scale_fill_scico(palette = "broc", direction = -1, begin = 1, end = 0.5) +
+  guides(fill = "none") +
+  new_scale_fill() +
+  geom_tile(height = 0.5, aes(x = modelrank, y = 7.5, fill = ntree.int)) +
   scale_fill_scico(palette = "cork", direction = -1, begin = 1, end = 0.5) +
   guides(fill = "none") +
   new_scale_fill() +
-  geom_tile(aes(x = modelrank, y = 9, fill = mtry.int)) +
+  geom_tile(height = 0.5, aes(x = modelrank, y = 8, fill = mtry.int)) +
   scale_fill_scico(palette = "vik", direction = -1, begin = 0, end = 0.5) +
   guides(fill = "none") +
   new_scale_fill() +
-  geom_tile(aes(x = modelrank, y = 10, fill = trainfrac)) +
+  geom_tile(height = 0.5, aes(x = modelrank, y = 8.5, fill = trainfrac)) +
   scale_fill_scico(palette = "vik", direction = 1, begin = 0.5, end = 1) +
   
   guides(fill = "none") +
@@ -475,9 +495,11 @@ XRF.hyperfull <- depth.data.x %>%
 
 print(XRF.hyperfull)
 {if(save == 1)ggsave(filename = "./hyperexports/XRF-hyperfull.png", plot = XRF.hyperfull, 
-         device = "png", width = 6,height = 6, units = "in")}
+         device = "png", width = 8,height = 6, units = "in")}
 rm(XRF.hyperfull)
 ```
+
+
 
 
 ```{r}
@@ -497,7 +519,7 @@ XRF.hyperdepth <- depth.data.x %>%
   
   scale_fill_scico(palette = "glasgow", direction = -1, begin = 0, end = 1) +
   scale_x_continuous(labels = NULL, sec.axis = sec_axis(~., labels = NULL)) +
-  scale_y_reverse(breaks = c(1:10), labels = c(x_ranks %>% select(xid) %>% pull(),"","ntree","mtry","trainfrac"),
+  scale_y_reverse(breaks = c(1:10), labels = c(x_ranks %>% select(xclean) %>% pull(),"","ntree","mtry","trainfrac"),
                      sec.axis = sec_axis(~., breaks = c(1:10), labels = NULL)) +
   ylab("") +
   xlab("") +
@@ -519,7 +541,7 @@ XRF.hyperdepth <- depth.data.x %>%
 
 print(XRF.hyperdepth)
 {if(save == 1)ggsave(filename = "./hyperexports/XRF-hyperdepth.png", plot = XRF.hyperdepth, 
-         device = "png", width = 6,height = 4, units = "in")}
+         device = "png", width = 8,height = 4, units = "in")}
 rm(XRF.hyperdepth)
 ```
 --> 
@@ -548,6 +570,8 @@ RF.default.comparison <- model.meta.results.x %>%
 
   annotate("text", parse = T, label = "bar(X)-RF", x = testX$modelrank, y = testX$test_adj_r2 - 0.015, color = "black") +
   annotate("text", parse = T, label = "PC-RF", x = testPC$modelrank, y = testPC$test_adj_r2 + 0.015, color = "red") +
+  ylab(expression(Testing ~ ~ Adj. ~ R^2)) +
+  xlab("Model Rank") +
   scale_x_continuous(sec.axis = sec_axis(~., labels = NULL)) +
   scale_y_continuous(sec.axis = sec_axis(~., labels = NULL)) +
   theme_classic() +

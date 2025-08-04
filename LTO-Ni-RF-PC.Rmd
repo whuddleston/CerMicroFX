@@ -337,19 +337,24 @@ PCRF.hyperlegend <- model.meta.results %>%
   arrange(desc(test_adj_r2)) %>%
   mutate(modelrank = seq.int(nrow(.))) %>%
   ggplot() +
-  geom_tile(aes(x = modelrank, y = 3, fill = ntree.int)) +
+  geom_tile(aes(x = modelrank, y = 2, fill = ntree.int)) +
   scale_fill_scico(palette = "cork", direction = -1, begin = 1, end = 0.5) +
   
   new_scale_fill() +
-  geom_tile(aes(x = modelrank, y = 2, fill = mtry.int)) +
+  geom_tile(aes(x = modelrank, y = 1, fill = mtry.int)) +
   scale_fill_scico(palette = "vik", direction = -1, begin = 0, end = 0.5) +
   
   new_scale_fill() +
-  geom_tile(aes(x = modelrank, y = 1, fill = trainfrac)) +
+  geom_tile(aes(x = modelrank, y = 3, fill = nodesize.int)) +
+  scale_fill_scico(palette = "broc", direction = 1, begin = 0.5, end = 1) +
+  
+  new_scale_fill() +
+  geom_tile(aes(x = modelrank, y = 0, fill = trainfrac)) +
   scale_fill_scico(palette = "vik", direction = 1, begin = 0.5, end = 1) +
   
+  
   scale_x_continuous(labels = NULL, sec.axis = sec_axis(~., labels = NULL)) +
-  scale_y_continuous(breaks = c(1,2,3), labels = c("trainfrac","mtry","ntree"), sec.axis = sec_axis(~., labels = NULL)) +
+  scale_y_continuous(breaks = c(0,3,1,2), labels = c("trainfrac","nodesize","mtry","ntree"), sec.axis = sec_axis(~., labels = NULL)) +
   ylab("") +
   xlab("") +
   theme_classic() +
@@ -362,6 +367,7 @@ PCRF.hyperlegend <- model.meta.results %>%
         plot.title = element_text(colour = "black", size = 16),
         legend.position = "bottom",
         legend.title.position = "top",
+        legend.direction = "vertical",
         legend.text = element_text(colour="black", size = 12))
 
 print(PCRF.hyperlegend)
@@ -423,8 +429,8 @@ PCRF.hyperfull <- depth.data %>%
   
   scale_fill_scico(palette = "glasgow", direction = -1, begin = 0, end = 1) +
   scale_x_continuous(labels = NULL, sec.axis = sec_axis(~., labels = NULL)) +
-  scale_y_reverse(breaks = c(1:28), labels = c(pc_ranks %>% select(pcid) %>% pull(),"","ntree","mtry","trainfrac"),
-                     sec.axis = sec_axis(~., breaks = c(1:28), labels = NULL)) +
+  scale_y_reverse(breaks = c(1:29), labels = c(pc_ranks %>% select(pcid) %>% pull(),"","nodesize","ntree","mtry","trainfrac"),
+                     sec.axis = sec_axis(~., breaks = c(1:29), labels = NULL)) +
   ylab("") +
   xlab("") +
   guides(fill = guide_colorbar(reverse = T, title = "mean depth", 
@@ -432,17 +438,22 @@ PCRF.hyperfull <- depth.data %>%
                                title.theme = element_text(colour = "black",
                                                           #face = "bold",
                                                           size = 12))) +
+  
   guides(fill = "none") +
   new_scale_fill() +
-  geom_tile(aes(x = modelrank, y = 26, fill = ntree.int)) +
+  geom_tile(aes(x = modelrank, y = 26, fill = nodesize.int)) +
+  scale_fill_scico(palette = "broc", direction = -1, begin = 1, end = 0.5) +
+  guides(fill = "none") +
+  new_scale_fill() +
+  geom_tile(aes(x = modelrank, y = 27, fill = ntree.int)) +
   scale_fill_scico(palette = "cork", direction = -1, begin = 1, end = 0.5) +
   guides(fill = "none") +
   new_scale_fill() +
-  geom_tile(aes(x = modelrank, y = 27, fill = mtry.int)) +
+  geom_tile(aes(x = modelrank, y = 28, fill = mtry.int)) +
   scale_fill_scico(palette = "vik", direction = -1, begin = 0, end = 0.5) +
   guides(fill = "none") +
   new_scale_fill() +
-  geom_tile(aes(x = modelrank, y = 28, fill = trainfrac)) +
+  geom_tile(aes(x = modelrank, y = 29, fill = trainfrac)) +
   scale_fill_scico(palette = "vik", direction = 1, begin = 0.5, end = 1) +
   
   guides(fill = "none") +
